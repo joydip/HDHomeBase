@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 Joydip Basu. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
-@interface HDHomeBaseTests : SenTestCase
+@interface HDHomeBaseTests : XCTestCase
 
 @end

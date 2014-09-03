@@ -7,25 +7,16 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "HDHRDeviceManager.h"
-#import "HDHRDevice.h"
 
 @class HBScheduler;
-
+@class HDHRDeviceManager;
 
 @interface HBRecording : NSObject
 
-@property (nonatomic, assign) NSUInteger paddingOptionsIndex;
 @property (nonatomic, strong) HBScheduler *scheduler;
 @property (nonatomic, strong) HDHRDeviceManager *deviceManager;
 
-@property (atomic, strong) HDHRDevice *device;
-@property (atomic, assign) UInt8 tunerIndex;
-@property (nonatomic, assign) UInt16 targetPort;
 
-@property (nonatomic, strong) NSArray *paddingOptions;
-
-@property (nonatomic, strong) dispatch_source_t udpSource;
 @property (nonatomic, copy) NSString *mode;
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *episode;
@@ -40,5 +31,9 @@
 @property (nonatomic, assign) UInt16 psipMinor;
 @property (nonatomic, copy) NSString *status;
 @property (nonatomic, copy) NSImage *statusIconImage;
+@property (nonatomic, assign) BOOL currentlyRecording;
+
+- (void)startRecording:(id)sender;
+- (void)stopRecording:(id)sender;
 
 @end

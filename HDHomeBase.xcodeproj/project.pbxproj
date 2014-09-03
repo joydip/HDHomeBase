@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		B73B51EE175C4B5E00201BE7 /* HBRecording.m in Sources */ = {isa = PBXBuildFile; fileRef = B73B51ED175C4B5E00201BE7 /* HBRecording.m */; };
-		B740C8B9172DED970058B522 /* HDHR3-US.png in Resources */ = {isa = PBXBuildFile; fileRef = B740C8B7172DED970058B522 /* HDHR3-US.png */; };
-		B740C8BA172DED970058B522 /* HDHR3-CC.png in Resources */ = {isa = PBXBuildFile; fileRef = B740C8B8172DED970058B522 /* HDHR3-CC.png */; };
+		B73D0E5D19B5015C009802CF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B73D0E5C19B5015C009802CF /* Images.xcassets */; };
+		B73D0E6019B629C3009802CF /* HDHRTunerReservation.m in Sources */ = {isa = PBXBuildFile; fileRef = B73D0E5F19B629C3009802CF /* HDHRTunerReservation.m */; };
 		B740C8BD172E14A00058B522 /* HDHRTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = B740C8BC172E14A00058B522 /* HDHRTypes.m */; };
 		B7802FC0177FC3EB00727410 /* history.tiff in Resources */ = {isa = PBXBuildFile; fileRef = B7802FB8177FC3EB00727410 /* history.tiff */; };
 		B7802FC1177FC3EB00727410 /* reload.tiff in Resources */ = {isa = PBXBuildFile; fileRef = B7802FB9177FC3EB00727410 /* reload.tiff */; };
@@ -18,7 +18,6 @@
 		B7802FC4177FC3EB00727410 /* statusRed.tiff in Resources */ = {isa = PBXBuildFile; fileRef = B7802FBC177FC3EB00727410 /* statusRed.tiff */; };
 		B7802FC5177FC3EB00727410 /* statusYellow.tiff in Resources */ = {isa = PBXBuildFile; fileRef = B7802FBD177FC3EB00727410 /* statusYellow.tiff */; };
 		B7802FC6177FC3EB00727410 /* stop.tiff in Resources */ = {isa = PBXBuildFile; fileRef = B7802FBE177FC3EB00727410 /* stop.tiff */; };
-		B7802FC7177FC3EB00727410 /* update.tiff in Resources */ = {isa = PBXBuildFile; fileRef = B7802FBF177FC3EB00727410 /* update.tiff */; };
 		B7802FCA177FC77B00727410 /* alert.tiff in Resources */ = {isa = PBXBuildFile; fileRef = B7802FC8177FC77A00727410 /* alert.tiff */; };
 		B7802FCB177FC77B00727410 /* delete.tiff in Resources */ = {isa = PBXBuildFile; fileRef = B7802FC9177FC77A00727410 /* delete.tiff */; };
 		B7802FCE177FCA0900727410 /* NSFileManager+DirectoryLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = B7802FCD177FCA0900727410 /* NSFileManager+DirectoryLocations.m */; };
@@ -31,7 +30,6 @@
 		B7C94879171E7591008250E2 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = B7C94877171E7591008250E2 /* Credits.rtf */; };
 		B7C9487C171E7591008250E2 /* HBAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B7C9487B171E7591008250E2 /* HBAppDelegate.m */; };
 		B7C9487F171E7591008250E2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = B7C9487D171E7591008250E2 /* MainMenu.xib */; };
-		B7C9488A171E7592008250E2 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7C94889171E7592008250E2 /* SenTestingKit.framework */; };
 		B7C9488B171E7592008250E2 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7C94868171E7591008250E2 /* Cocoa.framework */; };
 		B7C94893171E7592008250E2 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B7C94891171E7592008250E2 /* InfoPlist.strings */; };
 		B7C94896171E7592008250E2 /* HDHomeBaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B7C94895171E7592008250E2 /* HDHomeBaseTests.m */; };
@@ -65,8 +63,9 @@
 /* Begin PBXFileReference section */
 		B73B51EC175C4B5E00201BE7 /* HBRecording.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HBRecording.h; sourceTree = "<group>"; };
 		B73B51ED175C4B5E00201BE7 /* HBRecording.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HBRecording.m; sourceTree = "<group>"; };
-		B740C8B7172DED970058B522 /* HDHR3-US.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "HDHR3-US.png"; sourceTree = "<group>"; };
-		B740C8B8172DED970058B522 /* HDHR3-CC.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "HDHR3-CC.png"; sourceTree = "<group>"; };
+		B73D0E5C19B5015C009802CF /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		B73D0E5E19B629C3009802CF /* HDHRTunerReservation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDHRTunerReservation.h; sourceTree = "<group>"; };
+		B73D0E5F19B629C3009802CF /* HDHRTunerReservation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDHRTunerReservation.m; sourceTree = "<group>"; };
 		B740C8BB172E14A00058B522 /* HDHRTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDHRTypes.h; sourceTree = "<group>"; };
 		B740C8BC172E14A00058B522 /* HDHRTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDHRTypes.m; sourceTree = "<group>"; };
 		B7802FB8177FC3EB00727410 /* history.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = history.tiff; sourceTree = "<group>"; };
@@ -76,7 +75,6 @@
 		B7802FBC177FC3EB00727410 /* statusRed.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = statusRed.tiff; sourceTree = "<group>"; };
 		B7802FBD177FC3EB00727410 /* statusYellow.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = statusYellow.tiff; sourceTree = "<group>"; };
 		B7802FBE177FC3EB00727410 /* stop.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = stop.tiff; sourceTree = "<group>"; };
-		B7802FBF177FC3EB00727410 /* update.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = update.tiff; sourceTree = "<group>"; };
 		B7802FC8177FC77A00727410 /* alert.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = alert.tiff; sourceTree = "<group>"; };
 		B7802FC9177FC77A00727410 /* delete.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = delete.tiff; sourceTree = "<group>"; };
 		B7802FCC177FCA0900727410 /* NSFileManager+DirectoryLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+DirectoryLocations.h"; sourceTree = "<group>"; };
@@ -100,8 +98,7 @@
 		B7C9487A171E7591008250E2 /* HBAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBAppDelegate.h; sourceTree = "<group>"; };
 		B7C9487B171E7591008250E2 /* HBAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBAppDelegate.m; sourceTree = "<group>"; };
 		B7C9487E171E7591008250E2 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		B7C94888171E7592008250E2 /* HDHomeBaseTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HDHomeBaseTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B7C94889171E7592008250E2 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		B7C94888171E7592008250E2 /* HDHomeBaseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HDHomeBaseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7C94890171E7592008250E2 /* HDHomeBaseTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "HDHomeBaseTests-Info.plist"; sourceTree = "<group>"; };
 		B7C94892171E7592008250E2 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		B7C94894171E7592008250E2 /* HDHomeBaseTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HDHomeBaseTests.h; sourceTree = "<group>"; };
@@ -128,7 +125,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B7C9488A171E7592008250E2 /* SenTestingKit.framework in Frameworks */,
 				B7C9488B171E7592008250E2 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -151,7 +147,7 @@
 			isa = PBXGroup;
 			children = (
 				B7C94865171E7591008250E2 /* HDHomeBase.app */,
-				B7C94888171E7592008250E2 /* HDHomeBaseTests.octest */,
+				B7C94888171E7592008250E2 /* HDHomeBaseTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -160,7 +156,6 @@
 			isa = PBXGroup;
 			children = (
 				B7C94868171E7591008250E2 /* Cocoa.framework */,
-				B7C94889171E7592008250E2 /* SenTestingKit.framework */,
 				B7C9486A171E7591008250E2 /* Other Frameworks */,
 			);
 			name = Frameworks;
@@ -190,6 +185,7 @@
 				B7802FCC177FCA0900727410 /* NSFileManager+DirectoryLocations.h */,
 				B7802FCD177FCA0900727410 /* NSFileManager+DirectoryLocations.m */,
 				B7C9487D171E7591008250E2 /* MainMenu.xib */,
+				B73D0E5C19B5015C009802CF /* Images.xcassets */,
 				B7C9486F171E7591008250E2 /* Supporting Files */,
 			);
 			path = HDHomeBase;
@@ -207,9 +203,6 @@
 				B7802FBC177FC3EB00727410 /* statusRed.tiff */,
 				B7802FBD177FC3EB00727410 /* statusYellow.tiff */,
 				B7802FBE177FC3EB00727410 /* stop.tiff */,
-				B7802FBF177FC3EB00727410 /* update.tiff */,
-				B740C8B7172DED970058B522 /* HDHR3-US.png */,
-				B740C8B8172DED970058B522 /* HDHR3-CC.png */,
 				B7C94870171E7591008250E2 /* HDHomeBase-Info.plist */,
 				B7C94871171E7591008250E2 /* InfoPlist.strings */,
 				B7C94874171E7591008250E2 /* main.m */,
@@ -242,16 +235,18 @@
 			isa = PBXGroup;
 			children = (
 				B7CAD1E5177BCCDC00324C23 /* HDHRKit.h */,
+				B7C948C0171FD439008250E2 /* HDHRDeviceManager.h */,
+				B7C948C1171FD439008250E2 /* HDHRDeviceManager.m */,
+				B73D0E5E19B629C3009802CF /* HDHRTunerReservation.h */,
+				B73D0E5F19B629C3009802CF /* HDHRTunerReservation.m */,
 				B7EA0CE81723361000B5DCA6 /* HDHRDevice.h */,
 				B7EA0CE91723361000B5DCA6 /* HDHRDevice.m */,
 				B7A4BA0E1722570E00AB346E /* HDHRPacket.h */,
 				B7A4BA0F1722570E00AB346E /* HDHRPacket.m */,
 				B78DA548172A398900917635 /* HDHRTLVFragment.h */,
 				B78DA549172A398900917635 /* HDHRTLVFragment.m */,
-				B7C948C0171FD439008250E2 /* HDHRDeviceManager.h */,
-				B7C948C1171FD439008250E2 /* HDHRDeviceManager.m */,
-				B740C8BC172E14A00058B522 /* HDHRTypes.m */,
 				B740C8BB172E14A00058B522 /* HDHRTypes.h */,
+				B740C8BC172E14A00058B522 /* HDHRTypes.m */,
 			);
 			name = HDHRKit;
 			path = HDHomeBase;
@@ -294,8 +289,8 @@
 			);
 			name = HDHomeBaseTests;
 			productName = HDHomeBaseTests;
-			productReference = B7C94888171E7592008250E2 /* HDHomeBaseTests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productReference = B7C94888171E7592008250E2 /* HDHomeBaseTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -304,7 +299,8 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = HB;
-				LastUpgradeCheck = 0460;
+				LastTestingUpgradeCheck = 0510;
+				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "Joydip Basu";
 			};
 			buildConfigurationList = B7C94860171E7590008250E2 /* Build configuration list for PBXProject "HDHomeBase" */;
@@ -331,10 +327,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				B7C94873171E7591008250E2 /* InfoPlist.strings in Resources */,
+				B73D0E5D19B5015C009802CF /* Images.xcassets in Resources */,
 				B7C94879171E7591008250E2 /* Credits.rtf in Resources */,
 				B7C9487F171E7591008250E2 /* MainMenu.xib in Resources */,
-				B740C8B9172DED970058B522 /* HDHR3-US.png in Resources */,
-				B740C8BA172DED970058B522 /* HDHR3-CC.png in Resources */,
 				B7802FC0177FC3EB00727410 /* history.tiff in Resources */,
 				B7802FC1177FC3EB00727410 /* reload.tiff in Resources */,
 				B7802FC2177FC3EB00727410 /* statusBlue.tiff in Resources */,
@@ -342,7 +337,6 @@
 				B7802FC4177FC3EB00727410 /* statusRed.tiff in Resources */,
 				B7802FC5177FC3EB00727410 /* statusYellow.tiff in Resources */,
 				B7802FC6177FC3EB00727410 /* stop.tiff in Resources */,
-				B7802FC7177FC3EB00727410 /* update.tiff in Resources */,
 				B7802FCA177FC77B00727410 /* alert.tiff in Resources */,
 				B7802FCB177FC77B00727410 /* delete.tiff in Resources */,
 			);
@@ -382,6 +376,7 @@
 				B7C94875171E7591008250E2 /* main.m in Sources */,
 				B7C9487C171E7591008250E2 /* HBAppDelegate.m in Sources */,
 				B7C948C2171FD439008250E2 /* HDHRDeviceManager.m in Sources */,
+				B73D0E6019B629C3009802CF /* HDHRTunerReservation.m in Sources */,
 				B7A4BA101722570E00AB346E /* HDHRPacket.m in Sources */,
 				B7EA0CEA1723361000B5DCA6 /* HDHRDevice.m in Sources */,
 				B78DA54A172A398A00917635 /* HDHRTLVFragment.m in Sources */,
@@ -451,7 +446,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -484,7 +478,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -509,10 +502,12 @@
 		B7C9489A171E7592008250E2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "HDHomeBase/HDHomeBase-Prefix.pch";
 				INFOPLIST_FILE = "HDHomeBase/HDHomeBase-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -521,10 +516,12 @@
 		B7C9489B171E7592008250E2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "HDHomeBase/HDHomeBase-Prefix.pch";
 				INFOPLIST_FILE = "HDHomeBase/HDHomeBase-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -535,13 +532,15 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/HDHomeBase.app/Contents/MacOS/HDHomeBase";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = "\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(inherited)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "HDHomeBase/HDHomeBase-Prefix.pch";
 				INFOPLIST_FILE = "HDHomeBaseTests/HDHomeBaseTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
 		};
@@ -550,13 +549,15 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/HDHomeBase.app/Contents/MacOS/HDHomeBase";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = "\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(inherited)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "HDHomeBase/HDHomeBase-Prefix.pch";
 				INFOPLIST_FILE = "HDHomeBaseTests/HDHomeBaseTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;
 		};

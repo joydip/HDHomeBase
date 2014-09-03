@@ -100,10 +100,9 @@
     return NSSwapBigShortToHost(*(UInt16 *)self.data.bytes);
 }
 
-// XXX don't make a copy
 - (NSData *)payloadData
 {
-    // useadvertised length?
+    // use advertised length?
     return [self.data subdataWithRange:NSMakeRange(4, self.data.length-8)];
 }
 

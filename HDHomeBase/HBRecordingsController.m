@@ -20,21 +20,21 @@
 - (void)awakeFromNib
 {
     HBScheduler *scheduler = ((HBAppDelegate *)[NSApp delegate]).scheduler;
-    self.scheduledRecordings = scheduler.scheduledRecordings;
+    self.recordings = scheduler.scheduledRecordings;
 }
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
 {
-    return self.scheduledRecordings.count;
+    return self.recordings.count;
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-    return [self.scheduledRecordings objectAtIndex:row];
+    return (self.recordings)[row];
 }
 
 - (void)tableView:(NSTableView *)tableView sortDescriptorsDidChange:(NSArray *)oldDescriptors
 {
-    [self.scheduledRecordings sortUsingDescriptors:[tableView sortDescriptors]];
+    [self.recordings sortUsingDescriptors:[tableView sortDescriptors]];
     [tableView reloadData];
 }
 
@@ -48,13 +48,38 @@
     NSLog(@"delete!");
 }
 
-- (IBAction)adjustPadding:(id)sender
+- (IBAction)stopRecording:(id)sender
 {
-    NSLog(@"adjust padding!");
+    NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
+    
+    NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
+    for (HBRecording *recording in selectedRecordings) {
+        if (recording.currentlyRecording)
+            [recording stopRecording:sender];
+    }
 }
 
 - (BOOL)validateToolbarItem:(id)sender
 {
+    if (sender == self.stopRecordingToolbarItem) {
+        if (self.tableView.numberOfSelectedRows == 0)
+            return NO;
+
+        
+        __block BOOL currentlyRecording = NO;
+        
+        NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
+        [self.recordings enumerateObjectsAtIndexes:selectedRowsIndexSet
+                                           options:0
+                                        usingBlock:^(id object, NSUInteger index, BOOL *stop) {
+                                            HBRecording *recording = (HBRecording *)object;
+                                            if (recording.currentlyRecording)
+                                                currentlyRecording = YES;
+                                        }];
+        return currentlyRecording;
+        
+    }
+    
     return NO;
 }
 

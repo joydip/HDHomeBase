@@ -16,27 +16,37 @@
 #include <arpa/inet.h>
 #include <ifaddrs.h>
 
-#import "HDHRPacket.h"
-#import "HDHRTLVFragment.h"
-#import "HDHRDevice.h"
 #import "HBScheduler.h"
+#import "HDHRTunerReservation.h"
+#import "HDHRDeviceManager.h"
+
+@interface HBRecording ()
+
+@property (strong) HDHRTunerReservation *tunerReservation;
+
+@property (assign) UInt16 targetPort;
+@property (nonatomic, strong) dispatch_source_t udpSource;
+
+@end
+
 
 @implementation HBRecording
 
 - (id)init
 {
     if ((self = [super init])) {
-        _paddingOptions = @[ @"None", @"30 minutes", @"1 hour", @"2 hours", @"3 hours", @"6 hours" ];
         _statusIconImage = [NSImage imageNamed:@"history"];
     }
     
     return self;
 }
 
-- (void)logStatus:(NSString *)string
+- (void)updateStatusOnMainThread:(NSString *)string
 {
-    NSLog(@"%@", string);
-    self.status = string;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.status = string;
+    });
+        
 }
 
 - (NSDateFormatter *)dateFormatter
@@ -48,111 +58,30 @@
 
 - (void)startRecording:(id)sender
 {
-    NSLog(@"starting device discovery...");
     self.statusIconImage = [NSImage imageNamed:@"statusYellow"];
-    self.device = nil;
-    [self.deviceManager startDiscoveryAndError:NULL];
-    [NSTimer scheduledTimerWithTimeInterval:3.0f
-                                     target:self
-                                   selector:@selector(stopDeviceDiscovery)
-                                   userInfo:nil
-                                    repeats:NO];
-}
-
-- (void)stopDeviceDiscovery
-{
-    NSLog(@"stopping device discovery");
     
-    [self.deviceManager stopDiscovery];
-    NSLog(@"%lu device(s) found", (unsigned long)self.deviceManager.devices.count);
+    [self updateStatusOnMainThread:@"searching for available tuner…"];
 
-    if (self.deviceManager.devices.count) {
-        NSLog(@"searching for an available tuner...");
-        [self findAvailableTunerOnDevices:self.deviceManager.devices
-                              deviceIndex:0
-                               tunerIndex:0];
-    } else {
-        NSLog(@"no devices available");
-        self.statusIconImage = [NSImage imageNamed:@"alert"];
-    }
-}
 
-- (void)findAvailableTunerOnDevices:(NSArray *)devices
-                        deviceIndex:(UInt8)deviceIndex
-                         tunerIndex:(UInt8)tunerIndex
-{
-    HDHRDevice *device = [devices objectAtIndex:deviceIndex];
     
-    hdhr_response_block_t responseBlock = ^(HDHRPacket *responsePacket) {
-        NSString *name = nil;
-        NSString *value = nil;
-        
-        for (HDHRTLVFragment *tlvFragment in responsePacket.tlvFragments) {
-            switch (tlvFragment.tag) {
-                case HDHRGetSetNameTag:
-                    name = tlvFragment.stringValue;
-                    value = nil;
-                    break;
+    [self.deviceManager requestTunerReservation:^(HDHRTunerReservation *tunerReservation, dispatch_semaphore_t sema) {
+        self.tunerReservation = tunerReservation;
+    
+        [self updateStatusOnMainThread:[NSString stringWithFormat:@"tuning to channel %@…", self.rfChannel]];
+        [tunerReservation tuneToChannel:self.rfChannel tuningCompletedBlock:^{
+            [self updateStatusOnMainThread:@"starting stream…"];
+            [self startSavingUDPStream];
+            [tunerReservation startStreamingToIPAddress:tunerReservation.targetIPAddress port:self.targetPort];
+            dispatch_semaphore_signal(sema);
 
-                case HDHRGetSetValueTag:
-                    value = tlvFragment.stringValue;
-                    break;
-                    
-                default:
-                    break;
-            }
-
-            if ((name && value) && ([name hasSuffix:@"target"])) {
-                if ([value isEqualToString:@"none"]) {
-                    NSLog(@"tuner %hhu is available", tunerIndex);
-                    self.device = device;
-                    self.tunerIndex = tunerIndex;
-                    [self tuneChannel];
-                }
             
-                else {
-                    NSLog(@"tuner %hhu not available", tunerIndex);
-                    
-                    if (tunerIndex+1 < device.tunerCount) {
-                        NSLog(@"trying tuner %hhu...", (UInt8)(tunerIndex+1));
-                        [self findAvailableTunerOnDevices:devices
-                                              deviceIndex:deviceIndex
-                                               tunerIndex:tunerIndex+1];
-                    }
-                    
-                    else {
-                        NSLog(@"no more tuners available on device");
-                        
-                        if (deviceIndex+1 < devices.count) {
-                            NSLog(@"trying device %hhu", (UInt8)(deviceIndex+1));
-                            [self findAvailableTunerOnDevices:devices
-                                                  deviceIndex:deviceIndex+1
-                                                   tunerIndex:0];
-                        } else {
-                            NSLog(@"no more devices available");
-                        }
-                    }
-                }
-            }
-        }
-    };
-
-    [device getValueForName:[NSString stringWithFormat:@"/tuner%hhu/target", tunerIndex]
-              responseBlock:responseBlock];
-}
-
-- (void)tuneChannel
-{
-    NSLog(@"tuning to channel %@", self.rfChannel);
-
-    hdhr_response_block_t responseBlock = ^(HDHRPacket *responsePacket) {
-        // XXX check if response failure
-        [self startSavingUDPStream];
-    };
-
-    [self.device setValueForName:[NSString stringWithFormat:@"/tuner%hhu/vchannel", self.tunerIndex]
-                           value:self.rfChannel
-                   responseBlock:responseBlock];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self updateStatusOnMainThread:@"recording"];
+                self.statusIconImage = [NSImage imageNamed:@"statusRed"];
+                self.currentlyRecording = YES;
+            });
+        }];
+    }];
 }
 
 - (BOOL)startSavingUDPStream
@@ -161,27 +90,18 @@
     NSString *startDateString = [self.dateFormatter stringFromDate:self.startDate];
     NSMutableString *baseName = [self.title mutableCopy];
     
-    if (self.episode.length)
-        [baseName appendFormat:@" - %@", self.episode];
+    if (self.episode.length) [baseName appendFormat:@" - %@", self.episode];
     
     NSString *fileName = [NSString stringWithFormat:@"%@ (%@ %@).ts", baseName, self.channelName, startDateString];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSMoviesDirectory,
                                                          NSUserDomainMask,
                                                          YES);
-    NSString *fullPath = [NSString pathWithComponents:@[[paths objectAtIndex:0], fileName]];
+    NSString *fullPath = [NSString pathWithComponents:@[paths[0], fileName]];
     NSLog(@"saving to %@", fullPath);
+
+    [[NSFileManager defaultManager] createFileAtPath:fullPath contents:nil attributes:nil];
+    NSFileHandle *recordingFileHandle = [NSFileHandle fileHandleForWritingAtPath:fullPath];
     
-    dispatch_io_t outputChannel = dispatch_io_create_with_path(DISPATCH_IO_STREAM,
-                                                          [fullPath cStringUsingEncoding:NSASCIIStringEncoding],
-                                                           O_CREAT|O_WRONLY,
-                                                           S_IWUSR|S_IRUSR,
-                                                           dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-                                                           ^(int error) {
-                                                               if (error)
-                                                                   NSLog(@"There was a problem opening the recording file. %d (%s)\n",
-                                                                         error,
-                                                                         strerror(error));
-                                                           });
     NSLog(@"opening UDP socket");
     int socketfd = socket(PF_INET, SOCK_DGRAM, 0);
     
@@ -200,7 +120,7 @@
     struct sockaddr_in sockAddrIn;
     sockAddrIn.sin_family = AF_INET;
     sockAddrIn.sin_port = htons(0);
-    sockAddrIn.sin_addr.s_addr = inet_addr([self.device.targetIPAddress cStringUsingEncoding:NSASCIIStringEncoding]);
+    sockAddrIn.sin_addr.s_addr = inet_addr([self.tunerReservation.targetIPAddress cStringUsingEncoding:NSASCIIStringEncoding]);
     memset(sockAddrIn.sin_zero, '\0', sizeof(sockAddrIn.sin_zero));
     
     if (bind(socketfd, (struct sockaddr *)&sockAddrIn, sizeof(sockAddrIn)) != 0) {
@@ -236,43 +156,36 @@
                                                  0,
                                                  (struct sockaddr *)&theirAddress,
                                                  &addressLength);
-            // NSLog(@"received %lu bytes", receivedByteCount);
-            dispatch_data_t data = dispatch_data_create(bytes, receivedByteCount, dispatch_get_global_queue(0, 0), ^{ free(bytes); });
-            dispatch_io_write(outputChannel, 0, data, dispatch_get_global_queue(0, 0), ^(bool done, dispatch_data_t data, int error) {  });
+            [recordingFileHandle writeData:[NSData dataWithBytesNoCopy:bytes length:receivedByteCount]];
         }
     });
     
     dispatch_source_set_cancel_handler(socketReadSource, ^{
         NSLog(@"close UDP socket");
-        
         close(socketfd);
-        dispatch_io_close(outputChannel, 0);
     });
     
     dispatch_resume(socketReadSource);
     
-    [self startStreaming];
     return YES;
-}
-
-- (void)startStreaming
-{
-    NSLog(@"starting stream");
-    hdhr_response_block_t responseBlock = ^(HDHRPacket *responsePacket) {
-    };
-    
-    [self.device setValueForName:[NSString stringWithFormat:@"/tuner%hhu/target", self.tunerIndex]
-                           value:[NSString stringWithFormat:@"%@:%hu", self.device.targetIPAddress, self.targetPort]
-                   responseBlock:responseBlock];
-    self.statusIconImage = [NSImage imageNamed:@"statusRed"];
-
 }
 
 - (void)stopRecording:(id)sender
 {
     self.statusIconImage = [NSImage imageNamed:@"statusGreen"];
-    dispatch_source_cancel(self.udpSource);
-    //self.udpSource = nil;
+    [self updateStatusOnMainThread:@"finished"];
+
+    if (self.udpSource)
+        dispatch_source_cancel(self.udpSource);
+    self.udpSource = nil;
+    self.currentlyRecording = NO;
 }
+
+/*
+ else {
+ NSLog(@"no devices available");
+ self.statusIconImage = [NSImage imageNamed:@"alert"];
+ }
+*/
 
 @end

@@ -136,8 +136,7 @@
                                          0);
         
         if (numberOfBytesSent == -1) {
-            if (error)
-                *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+            if (error) *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
             NSLog(@"fooi8");
             dispatch_source_cancel(socketReadSource);
             

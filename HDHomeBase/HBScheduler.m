@@ -73,8 +73,8 @@
                 
                 else if ([childElement.name isEqualToString:@"duration"]) {
                     NSArray *durationComponents = [childElement.stringValue componentsSeparatedByString:@":"];
-                    NSInteger hourDuration = [[durationComponents objectAtIndex:0] integerValue];
-                    NSInteger minuteDuration = [[durationComponents objectAtIndex:1] integerValue];
+                    NSInteger hourDuration = [durationComponents[0] integerValue];
+                    NSInteger minuteDuration = [durationComponents[1] integerValue];
                     recording.duration = hourDuration * 60 + minuteDuration;
                 }
                 

@@ -8,12 +8,15 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class HDHRDeviceManager;
 @class HBScheduler;
 @class HBRecordingsController;
 
 @interface HBAppDelegate : NSObject <NSApplicationDelegate>
 
-@property (nonatomic, assign) IBOutlet HBScheduler *scheduler;
-@property (nonatomic, assign) IBOutlet HBRecordingsController *recordingsController;
+@property (nonatomic, strong) IBOutlet HDHRDeviceManager *deviceManager;
+@property (nonatomic, strong) IBOutlet HBScheduler *scheduler;
+@property (nonatomic, strong) IBOutlet HBRecordingsController *recordingsController;
+
 
 @end
