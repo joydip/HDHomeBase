@@ -43,9 +43,32 @@
     [self.tableView reloadData];
 }
 
-- (IBAction)deleteSchedule:(id)sender
+- (IBAction)playRecording:(id)sender
 {
-    NSLog(@"delete!");
+    NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
+    NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
+    
+    for (HBRecording *recording in selectedRecordings)
+        [[NSWorkspace sharedWorkspace] openFile:recording.recordingPath];
+}
+
+- (IBAction)deleteRecording:(id)sender
+{
+    NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
+    
+    NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
+
+    NSFileManager *defaultFileManager = [NSFileManager defaultManager];
+    
+    for (HBRecording *recording in selectedRecordings) {
+        if (recording.currentlyRecording)
+            [recording stopRecording:sender];
+        [defaultFileManager removeItemAtPath:recording.tvpiFilePath error:NULL];
+        [defaultFileManager removeItemAtPath:recording.recordingPath error:NULL];
+    }
+
+    [self.recordings removeObjectsAtIndexes:selectedRowsIndexSet];
+    [self refresh:sender];
 }
 
 - (IBAction)stopRecording:(id)sender
@@ -61,11 +84,10 @@
 
 - (BOOL)validateToolbarItem:(id)sender
 {
+    if (self.tableView.numberOfSelectedRows == 0)
+        return NO;
+    
     if (sender == self.stopRecordingToolbarItem) {
-        if (self.tableView.numberOfSelectedRows == 0)
-            return NO;
-
-        
         __block BOOL currentlyRecording = NO;
         
         NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
@@ -73,14 +95,16 @@
                                            options:0
                                         usingBlock:^(id object, NSUInteger index, BOOL *stop) {
                                             HBRecording *recording = (HBRecording *)object;
-                                            if (recording.currentlyRecording)
+                                            if (recording.currentlyRecording) {
                                                 currentlyRecording = YES;
+                                                *stop = YES;
+                                            }
+                                            
                                         }];
         return currentlyRecording;
-        
     }
     
-    return NO;
+    return YES;
 }
 
 @end

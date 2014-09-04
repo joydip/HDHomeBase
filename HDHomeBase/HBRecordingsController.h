@@ -12,13 +12,14 @@
 
 @property (nonatomic, strong) NSMutableArray *recordings;
 @property (nonatomic, strong) IBOutlet NSTableView *tableView;
-@property (nonatomic, strong) IBOutlet NSToolbarItem *refreshToolbarItem;
+@property (nonatomic, strong) IBOutlet NSToolbarItem *playRecordingToolbarItem;
 @property (nonatomic, strong) IBOutlet NSToolbarItem *stopRecordingToolbarItem;
-@property (nonatomic, strong) IBOutlet NSToolbarItem *deleteScheduleToolbarItem;
+@property (nonatomic, strong) IBOutlet NSToolbarItem *deleteRecordingToolbarItem;
 
 
 - (IBAction)refresh:(id)sender;
+- (IBAction)playRecording:(id)sender;
 - (IBAction)stopRecording:(id)sender;
-- (IBAction)deleteSchedule:(id)sender;
+- (IBAction)deleteRecording:(id)sender;
 
 @end

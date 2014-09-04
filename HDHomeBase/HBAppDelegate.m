@@ -17,6 +17,8 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    [self.mainWindow beginSheet:self.deviceDiscoverySheet completionHandler:NULL];
+    [self.deviceDiscoveryIndicator startAnimation:self];
     [self startDeviceDiscovery];
 }
 
@@ -34,15 +36,19 @@
 {
     [self.deviceManager stopDiscovery];
     [self importExistingTVPISchedules];
+    [self.deviceDiscoveryIndicator stopAnimation:self];
+    [self.mainWindow endSheet:self.deviceDiscoverySheet];
+
 }
 
 - (void)importExistingTVPISchedules
 {
-    NSString *applicationSupportDirectory = [[NSFileManager defaultManager] applicationSupportDirectory];
-    NSArray *applicationSupportDirectoryContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:applicationSupportDirectory
+    NSFileManager *defaultFileManager = [NSFileManager defaultManager];
+    NSString *appSupportDirectory = [defaultFileManager applicationSupportDirectory];
+    NSArray *applicationSupportDirectoryContents = [defaultFileManager contentsOfDirectoryAtPath:appSupportDirectory
                                                                                                        error:NULL];
     for (NSString *file in applicationSupportDirectoryContents)
-        [self.scheduler importTVPIFile:[applicationSupportDirectory stringByAppendingPathComponent:file]];
+        [self.scheduler importTVPIFile:[appSupportDirectory stringByAppendingPathComponent:file]];
     
     [self.recordingsController refresh:self];
 }

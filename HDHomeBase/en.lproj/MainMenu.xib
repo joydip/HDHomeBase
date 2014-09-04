@@ -651,7 +651,7 @@
             </items>
         </menu>
         <window title="HDHomeBase" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="635">
-            <windowStyleMask key="styleMask" titled="YES" miniaturizable="YES" resizable="YES"/>
+            <windowStyleMask key="styleMask" titled="YES" miniaturizable="YES" resizable="YES" unifiedTitleAndToolbar="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="196" y="240" width="874" height="435"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="878"/>
@@ -938,7 +938,7 @@
                             <rect key="frame" x="0.0" y="428" width="874" height="16"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
-                        <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="37" horizontal="NO" id="639">
+                        <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="639">
                             <rect key="frame" x="224" y="17" width="15" height="102"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
@@ -951,9 +951,14 @@
             </view>
             <toolbar key="toolbar" implicitIdentifier="69A8B893-CD38-44ED-99FD-B4E8233B3103" autosavesConfiguration="NO" allowsUserCustomization="NO" displayMode="iconAndLabel" sizeMode="regular" id="636">
                 <allowedToolbarItems>
+                    <toolbarItem implicitItemIdentifier="B4C49D3A-59D2-4A0C-A8C0-DB866E58B090" label="Play" paletteLabel="Play" tag="-1" image="NSSlideshowTemplate" id="pSH-Xc-9jn">
+                        <connections>
+                            <action selector="playRecording:" target="685" id="MRc-BW-z2X"/>
+                        </connections>
+                    </toolbarItem>
                     <toolbarItem implicitItemIdentifier="CC34CBD8-DD2B-4A7A-B007-4385623F78F9" label="Delete" paletteLabel="Delete" tag="-1" image="delete" id="709">
                         <connections>
-                            <action selector="deleteSchedule:" target="685" id="712"/>
+                            <action selector="deleteRecording:" target="685" id="A1E-md-aMq"/>
                         </connections>
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="45142D1F-F15B-4F0D-B460-5EFA8B57BBDC" label="Stop" paletteLabel="Stop" tag="-1" image="stop" id="726">
@@ -965,15 +970,20 @@
                     <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="675"/>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
+                    <toolbarItem reference="pSH-Xc-9jn"/>
+                    <toolbarItem reference="676"/>
                     <toolbarItem reference="726"/>
-                    <toolbarItem reference="709"/>
                     <toolbarItem reference="675"/>
+                    <toolbarItem reference="709"/>
                 </defaultToolbarItems>
             </toolbar>
         </window>
         <customObject id="494" customClass="HBAppDelegate">
             <connections>
+                <outlet property="deviceDiscoveryIndicator" destination="9ya-8n-yjY" id="VGx-1R-nhJ"/>
+                <outlet property="deviceDiscoverySheet" destination="bh5-tW-O8G" id="QVl-gE-2Fy"/>
                 <outlet property="deviceManager" destination="625" id="Rcy-Fs-aFv"/>
+                <outlet property="mainWindow" destination="635" id="nR0-vq-52g"/>
                 <outlet property="recordingsController" destination="685" id="691"/>
                 <outlet property="scheduler" destination="633" id="634"/>
             </connections>
@@ -987,13 +997,39 @@
         </customObject>
         <customObject id="685" customClass="HBRecordingsController">
             <connections>
-                <outlet property="deleteScheduleToolbarItem" destination="709" id="ezY-wt-HfJ"/>
+                <outlet property="deleteRecordingToolbarItem" destination="709" id="iui-qY-KuP"/>
                 <outlet property="stopRecordingToolbarItem" destination="726" id="s4b-J4-BdK"/>
                 <outlet property="tableView" destination="642" id="687"/>
             </connections>
         </customObject>
+        <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="bh5-tW-O8G">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="131" y="159" width="480" height="80"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="878"/>
+            <view key="contentView" id="8z6-WR-uB8">
+                <rect key="frame" x="0.0" y="0.0" width="480" height="80"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Mw1-1G-lpc">
+                        <rect key="frame" x="18" y="46" width="236" height="14"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Searching for HDHomeRun devices…" id="dej-KC-idh">
+                            <font key="font" metaFont="smallSystemBold"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <progressIndicator maxValue="100" indeterminate="YES" style="bar" id="9ya-8n-yjY">
+                        <rect key="frame" x="20" y="19" width="440" height="20"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </progressIndicator>
+                </subviews>
+            </view>
+        </window>
     </objects>
     <resources>
+        <image name="NSSlideshowTemplate" width="17" height="14"/>
         <image name="delete" width="32" height="32"/>
         <image name="history" width="16" height="16"/>
         <image name="stop" width="32" height="32"/>

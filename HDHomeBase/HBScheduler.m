@@ -20,6 +20,13 @@
     return self;
 }
 
+- (NSDateFormatter *)dateFormatter
+{
+    NSDateFormatter *dateFormatter = [NSDateFormatter new];
+    [dateFormatter setDateFormat:@"yyyyMMddHHmm"];
+    return dateFormatter;
+}
+
 - (void)importTVPIFile:(NSString *)filename
 {
     NSXMLDocument *document = [[NSXMLDocument alloc] initWithContentsOfURL:[NSURL fileURLWithPath:filename]
@@ -31,8 +38,8 @@
     for (NSXMLElement *childElement in rootElement.children) {
         if ([childElement.name isEqualToString:@"program"]) {
             HBRecording *recording = [HBRecording new];
+            recording.tvpiFilePath = filename;
             
-            recording.scheduler = self;
             recording.deviceManager = self.deviceManager;
             
             NSXMLElement *programElement = childElement;
@@ -108,12 +115,26 @@
                 // NSLog(@"%@", dateString);
                 recording.endDate = [dateFormatter dateFromString:dateString];
             }
+
             
+            NSString *formattedDateString = [self.dateFormatter stringFromDate:recording.startDate];
+            NSMutableString *baseName = [recording.title mutableCopy];
+            
+            if (recording.episode.length) [baseName appendFormat:@" - %@", recording.episode];
+            
+            NSString *fileName = [NSString stringWithFormat:@"%@ (%@ %@).ts", baseName, recording.channelName, formattedDateString];
+            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSMoviesDirectory,
+                                                                 NSUserDomainMask,
+                                                                 YES);
+            NSString *fullPath = [NSString pathWithComponents:@[paths[0], fileName]];
+            recording.recordingPath = fullPath;
+            
+            
+            
+            [self.scheduledRecordings addObject:recording];
+
             // only if the end date hasn't passed are we interested
             if ([recording.endDate compare:[NSDate date]] == NSOrderedDescending) {
-                //NSLog(@"scheduling recording");
-                [self.scheduledRecordings addObject:recording];
-                
                 NSTimer *startTimer = [[NSTimer alloc] initWithFireDate:recording.startDate
                                                                interval:0
                                                                  target:recording
@@ -131,7 +152,8 @@
                                                                repeats:NO];
                 
                 [[NSRunLoop mainRunLoop] addTimer:stopTimer forMode:NSRunLoopCommonModes];
-            }
+            } else
+                recording.statusIconImage = [NSImage imageNamed:@"statusGreen"];
         }
     }    
 }

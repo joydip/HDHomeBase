@@ -14,9 +14,12 @@
 
 @interface HBAppDelegate : NSObject <NSApplicationDelegate>
 
-@property (nonatomic, strong) IBOutlet HDHRDeviceManager *deviceManager;
-@property (nonatomic, strong) IBOutlet HBScheduler *scheduler;
-@property (nonatomic, strong) IBOutlet HBRecordingsController *recordingsController;
+@property (strong) IBOutlet NSWindow *mainWindow;
+@property (strong) IBOutlet NSWindow *deviceDiscoverySheet;
+@property (strong) IBOutlet NSProgressIndicator *deviceDiscoveryIndicator;
 
+@property (strong) IBOutlet HDHRDeviceManager *deviceManager;
+@property (strong) IBOutlet HBScheduler *scheduler;
+@property (strong) IBOutlet HBRecordingsController *recordingsController;
 
 @end

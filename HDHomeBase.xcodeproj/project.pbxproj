@@ -34,6 +34,8 @@
 		B7C94893171E7592008250E2 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B7C94891171E7592008250E2 /* InfoPlist.strings */; };
 		B7C94896171E7592008250E2 /* HDHomeBaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B7C94895171E7592008250E2 /* HDHomeBaseTests.m */; };
 		B7C948C2171FD439008250E2 /* HDHRDeviceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B7C948C1171FD439008250E2 /* HDHRDeviceManager.m */; };
+		B7DDCA1219B82EE400553FD4 /* vlc.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA1119B82EE400553FD4 /* vlc.icns */; };
+		B7DDCA1419B8B43800553FD4 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7DDCA1319B8B43800553FD4 /* IOKit.framework */; };
 		B7EA0CEA1723361000B5DCA6 /* HDHRDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = B7EA0CE91723361000B5DCA6 /* HDHRDevice.m */; };
 		B7F7A19A176EA507007C5D4C /* HBScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = B7F7A199176EA507007C5D4C /* HBScheduler.m */; };
 /* End PBXBuildFile section */
@@ -106,6 +108,8 @@
 		B7C948C0171FD439008250E2 /* HDHRDeviceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDHRDeviceManager.h; sourceTree = "<group>"; };
 		B7C948C1171FD439008250E2 /* HDHRDeviceManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDHRDeviceManager.m; sourceTree = "<group>"; };
 		B7CAD1E5177BCCDC00324C23 /* HDHRKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HDHRKit.h; sourceTree = "<group>"; };
+		B7DDCA1119B82EE400553FD4 /* vlc.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = vlc.icns; sourceTree = "<group>"; };
+		B7DDCA1319B8B43800553FD4 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		B7EA0CE81723361000B5DCA6 /* HDHRDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDHRDevice.h; sourceTree = "<group>"; };
 		B7EA0CE91723361000B5DCA6 /* HDHRDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDHRDevice.m; sourceTree = "<group>"; };
 		B7F7A198176EA507007C5D4C /* HBScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HBScheduler.h; sourceTree = "<group>"; };
@@ -117,6 +121,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B7DDCA1419B8B43800553FD4 /* IOKit.framework in Frameworks */,
 				B7C94869171E7591008250E2 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -155,6 +160,7 @@
 		B7C94867171E7591008250E2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B7DDCA1319B8B43800553FD4 /* IOKit.framework */,
 				B7C94868171E7591008250E2 /* Cocoa.framework */,
 				B7C9486A171E7591008250E2 /* Other Frameworks */,
 			);
@@ -194,6 +200,7 @@
 		B7C9486F171E7591008250E2 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				B7DDCA1119B82EE400553FD4 /* vlc.icns */,
 				B7802FC8177FC77A00727410 /* alert.tiff */,
 				B7802FC9177FC77A00727410 /* delete.tiff */,
 				B7802FB8177FC3EB00727410 /* history.tiff */,
@@ -338,6 +345,7 @@
 				B7802FC5177FC3EB00727410 /* statusYellow.tiff in Resources */,
 				B7802FC6177FC3EB00727410 /* stop.tiff in Resources */,
 				B7802FCA177FC77B00727410 /* alert.tiff in Resources */,
+				B7DDCA1219B82EE400553FD4 /* vlc.icns in Resources */,
 				B7802FCB177FC77B00727410 /* delete.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

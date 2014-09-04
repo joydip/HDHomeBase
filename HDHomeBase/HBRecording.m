@@ -16,9 +16,10 @@
 #include <arpa/inet.h>
 #include <ifaddrs.h>
 
-#import "HBScheduler.h"
 #import "HDHRTunerReservation.h"
 #import "HDHRDeviceManager.h"
+#import <IOKit/pwr_mgt/IOPMLib.h>
+
 
 @interface HBRecording ()
 
@@ -46,14 +47,6 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         self.status = string;
     });
-        
-}
-
-- (NSDateFormatter *)dateFormatter
-{
-    NSDateFormatter *dateFormatter = [NSDateFormatter new];
-    [dateFormatter setDateFormat:@"yyyyMMddHHmm"];
-    return dateFormatter;
 }
 
 - (void)startRecording:(id)sender
@@ -62,8 +55,6 @@
     
     [self updateStatusOnMainThread:@"searching for available tuner…"];
 
-
-    
     [self.deviceManager requestTunerReservation:^(HDHRTunerReservation *tunerReservation, dispatch_semaphore_t sema) {
         self.tunerReservation = tunerReservation;
     
@@ -73,7 +64,6 @@
             [self startSavingUDPStream];
             [tunerReservation startStreamingToIPAddress:tunerReservation.targetIPAddress port:self.targetPort];
             dispatch_semaphore_signal(sema);
-
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self updateStatusOnMainThread:@"recording"];
@@ -86,21 +76,10 @@
 
 - (BOOL)startSavingUDPStream
 {
-    NSLog(@"saving UDP stream");
-    NSString *startDateString = [self.dateFormatter stringFromDate:self.startDate];
-    NSMutableString *baseName = [self.title mutableCopy];
-    
-    if (self.episode.length) [baseName appendFormat:@" - %@", self.episode];
-    
-    NSString *fileName = [NSString stringWithFormat:@"%@ (%@ %@).ts", baseName, self.channelName, startDateString];
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSMoviesDirectory,
-                                                         NSUserDomainMask,
-                                                         YES);
-    NSString *fullPath = [NSString pathWithComponents:@[paths[0], fileName]];
-    NSLog(@"saving to %@", fullPath);
+    NSLog(@"saving UDP stream to %@", self.recordingPath);
 
-    [[NSFileManager defaultManager] createFileAtPath:fullPath contents:nil attributes:nil];
-    NSFileHandle *recordingFileHandle = [NSFileHandle fileHandleForWritingAtPath:fullPath];
+    [[NSFileManager defaultManager] createFileAtPath:self.recordingPath contents:nil attributes:nil];
+    NSFileHandle *recordingFileHandle = [NSFileHandle fileHandleForWritingAtPath:self.recordingPath];
     
     NSLog(@"opening UDP socket");
     int socketfd = socket(PF_INET, SOCK_DGRAM, 0);
@@ -165,8 +144,19 @@
         close(socketfd);
     });
     
+    IOPMAssertionID assertionID;
+    IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertPreventUserIdleSystemSleep,
+                                                   kIOPMAssertionLevelOn,
+                                                   (__bridge CFStringRef)self.recordingPath,
+                                                   &assertionID);
+    
+    if (success != kIOReturnSuccess)
+        NSLog(@"unable to create power assertion");
+
     dispatch_resume(socketReadSource);
     
+    success = IOPMAssertionRelease(assertionID);
+
     return YES;
 }
 

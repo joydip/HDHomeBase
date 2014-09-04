@@ -8,30 +8,31 @@
 
 #import <Foundation/Foundation.h>
 
-@class HBScheduler;
 @class HDHRDeviceManager;
 
 @interface HBRecording : NSObject
 
-@property (nonatomic, strong) HBScheduler *scheduler;
-@property (nonatomic, strong) HDHRDeviceManager *deviceManager;
+@property (strong) HDHRDeviceManager *deviceManager;
 
 
-@property (nonatomic, copy) NSString *mode;
-@property (nonatomic, copy) NSString *title;
-@property (nonatomic, copy) NSString *episode;
-@property (nonatomic, copy) NSString *summary;
-@property (nonatomic, copy) NSDate *startDate;
-@property (nonatomic, copy) NSDate *endDate;
-@property (nonatomic, assign) UInt16 duration;
-@property (nonatomic, copy) NSString *channelName;
-@property (nonatomic, copy) NSString *rfChannel;
-@property (nonatomic, copy) NSString *streamNumber;
-@property (nonatomic, assign) UInt16 psipMajor;
-@property (nonatomic, assign) UInt16 psipMinor;
-@property (nonatomic, copy) NSString *status;
-@property (nonatomic, copy) NSImage *statusIconImage;
-@property (nonatomic, assign) BOOL currentlyRecording;
+@property (copy) NSString *mode;
+@property (copy) NSString *title;
+@property (copy) NSString *episode;
+@property (copy) NSString *summary;
+@property (copy) NSDate *startDate;
+@property (copy) NSDate *endDate;
+@property (assign) UInt16 duration;
+@property (copy) NSString *channelName;
+@property (copy) NSString *rfChannel;
+@property (copy) NSString *streamNumber;
+@property (assign) UInt16 psipMajor;
+@property (assign) UInt16 psipMinor;
+@property (copy) NSString *status;
+@property (copy) NSImage *statusIconImage;
+@property (assign) BOOL currentlyRecording;
+
+@property (copy) NSString *tvpiFilePath;
+@property (copy) NSString *recordingPath;
 
 - (void)startRecording:(id)sender;
 - (void)stopRecording:(id)sender;
