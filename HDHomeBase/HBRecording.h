@@ -7,13 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "HDHRTunerReservation.h"
 
-@class HDHRDeviceManager;
 
 @interface HBRecording : NSObject
-
-@property (strong) HDHRDeviceManager *deviceManager;
-
 
 @property (copy) NSString *mode;
 @property (copy) NSString *title;
@@ -29,12 +26,21 @@
 @property (assign) UInt16 psipMinor;
 @property (copy) NSString *status;
 @property (copy) NSImage *statusIconImage;
+@property (copy) NSString *tvpiFilePath;
+@property (copy) NSString *recordingFilePath;
+
+// non-persistent state used by the scheduler
+@property (strong) HDHRTunerReservation *tunerReservation;
+@property (assign) UInt16 targetPort;
+@property (strong) dispatch_source_t udpSource;
 @property (assign) BOOL currentlyRecording;
 
-@property (copy) NSString *tvpiFilePath;
-@property (copy) NSString *recordingPath;
++ (instancetype)recordingFromTVPIFile:(NSString *)tvpiFilePath;
+- (instancetype)initWithTVPIFile:(NSString *)tvpiFilePath;
 
-- (void)startRecording:(id)sender;
-- (void)stopRecording:(id)sender;
+- (void)markAsScheduled;
+- (void)markAsExisting;
+- (void)markAsStarting;
+- (void)markAsSuccess;
 
 @end

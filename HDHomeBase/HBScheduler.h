@@ -7,14 +7,18 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "HDHRDevice.h"
-#import "HDHRDeviceManager.h"
+
+@class HBRecording;
+@class HDHRDeviceManager;
 
 @interface HBScheduler : NSObject
 
-@property (nonatomic, strong) IBOutlet HDHRDeviceManager *deviceManager;
-@property (nonatomic, strong) NSMutableArray *scheduledRecordings;
+@property (strong) IBOutlet HDHRDeviceManager *deviceManager;
+@property (strong) NSMutableArray *scheduledRecordings;
 
-- (void)importTVPIFile:(NSString *)filename;
+- (void)importTVPIFile:(NSString *)tvpiFilePath;
+
+- (void)startRecording:(HBRecording *)recording;
+- (void)stopRecording:(HBRecording *)recording;
 
 @end

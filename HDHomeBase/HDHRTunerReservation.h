@@ -13,8 +13,8 @@
 
 @interface HDHRTunerReservation : NSObject
 
-@property (nonatomic, strong, readonly) HDHRDevice *device;
-@property (nonatomic, assign, readonly) UInt8 tunerIndex;
+@property (strong, readonly) HDHRDevice *device;
+@property (assign, readonly) UInt8 tunerIndex;
 
 + (instancetype)tunerReservationWithDevice:(HDHRDevice *)device
                                 tunerIndex:(UInt8)tunerIndex;
@@ -24,7 +24,7 @@
 
 - (NSString *)targetIPAddress;
 
-- (void)tuneToChannel:(NSString *)channel tuningCompletedBlock:(void (^)(void))block;
+- (void)tuneToChannel:(NSString *)channel tuningCompletedBlock:(void (^)(BOOL))block;
 - (void)startStreamingToIPAddress:(NSString *)ipAddress port:(UInt16)port;
 
 @end

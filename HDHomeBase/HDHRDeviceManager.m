@@ -23,8 +23,10 @@
 @interface HDHRDeviceManager ()
 
 @property (nonatomic, strong) NSMutableArray *openSocketSources;
-@property (strong) NSMutableArray *discoveredDevices;
+@property (strong) NSMutableDictionary *devicesDictionary;
 @property (nonatomic, strong) dispatch_semaphore_t tunerReservationSemaphore;
+@property (strong) void (^statusBlock)(NSString *);
+@property (strong) void (^reservationBlock)(HDHRTunerReservation *, dispatch_semaphore_t);
 
 @end
 
@@ -32,27 +34,24 @@
 
 
 - (instancetype)init
-{
-    NSLog(@"init!");
-    
+{    
     if (self = [super init])
         _tunerReservationSemaphore = dispatch_semaphore_create(1);
     
     return self;
 }
 
-// XXX this method needs to be synchronized
-- (BOOL)startDiscoveryAndError:(NSError **)error
+- (void)startDiscovery
 {
     NSLog(@"starting discovery...");
     self.openSocketSources = [NSMutableArray new];
-    self.discoveredDevices = [NSMutableArray new];
+    self.devicesDictionary = [NSMutableDictionary new];
     
     struct ifaddrs *ifAddrs;
     
     if (getifaddrs(&ifAddrs) != 0) {
-        if (*error) *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
-        return NO;
+        //if (*error) *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+        return;
     }
     
     for (struct ifaddrs *ifAddr = ifAddrs; ifAddr; ifAddr = ifAddr->ifa_next) {
@@ -70,43 +69,38 @@
             struct sockaddr_in *sockAddrIn = (struct sockaddr_in *)sockAddr;
             struct sockaddr_in *broadcastSockAddrIn = (struct sockaddr_in *)ifAddr->ifa_broadaddr;
             
-            if (![self broadcastDiscoveryPacketFromAddress:*sockAddrIn toAddress:*broadcastSockAddrIn error:error])
-                return NO;
+            [self broadcastDiscoveryPacketFromAddress:*sockAddrIn toAddress:*broadcastSockAddrIn];
         }
     }
     
     freeifaddrs(ifAddrs);
-    
-    return YES;
 }
 
-- (BOOL)broadcastDiscoveryPacketFromAddress:(struct sockaddr_in)sockAddrIn
+- (void)broadcastDiscoveryPacketFromAddress:(struct sockaddr_in)sockAddrIn
                                   toAddress:(struct sockaddr_in)broadcastSockAddrIn
-                                      error:(NSError **)error
-{    
+{
     int socketfd = socket(PF_INET, SOCK_DGRAM, 0);
     
 	if (socketfd == -1) {
-		if (error) *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
-        return NO;
+		//if (error) *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+        return;
 	}
     
 	if (fcntl(socketfd, F_SETFL, O_NONBLOCK) == -1) {
-		if (error) *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+		//if (error) *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
 		close(socketfd);
-		return NO;
 	}
     
 	const int socketfdOptions = 1;
 	if (setsockopt(socketfd, SOL_SOCKET, SO_BROADCAST, &socketfdOptions, sizeof(socketfdOptions)) != 0) {
-        if (error) *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
-        return NO;
+        //if (error) *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+        return;
     }
     
     sockAddrIn.sin_port = htons(0);
     if (bind(socketfd, (struct sockaddr *)&sockAddrIn, sizeof(sockAddrIn)) != 0) {
-        if (error) *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
-        return NO;
+        //if (error) *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+        return;
     }
     
     broadcastSockAddrIn.sin_port = htons(65001);
@@ -166,18 +160,13 @@
                                            sizeof(broadcastSockAddrIn));
         
         if (numberOfBytesSent == -1) {
-            if (error)
-                *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
-            
+            // if (error) *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
             dispatch_source_cancel(socketReadSource);
-            
-            return NO;
+            return;
         }
         
         totalNumberOfBytesSent += numberOfBytesSent;
     }
-    
-    return YES;
 }
 
 - (void)stopDiscovery
@@ -186,12 +175,22 @@
     for (dispatch_source_t openSocketSource in self.openSocketSources)
         dispatch_source_cancel(openSocketSource);
 
-    _devices = [self.discoveredDevices copy];
-
     self.openSocketSources = nil;
-    self.discoveredDevices = nil;
     
-    NSLog(@"%lu device(s) found", (unsigned long)self.devices.count);
+    
+    NSArray *devices = [self.devicesDictionary allValues];
+    NSLog(@"%lu device(s) found", (unsigned long)devices.count);
+    
+    if (devices.count == 0) {
+        self.statusBlock(@"no devices found");
+        self.reservationBlock(nil, self.tunerReservationSemaphore);
+        self.statusBlock = nil; self.reservationBlock = nil;
+        return;
+    }
+    
+    [self findAvailableTunerOnDevices:devices
+                          deviceIndex:0
+                           tunerIndex:0];
 }
 
 - (void)examineDiscoverReplyBytes:(const UInt8 *)bytes
@@ -239,14 +238,13 @@
                                       targetIPAddress:localIPAddress
                                            tunerCount:tunerCount];
         
-        [self.discoveredDevices addObject:device];
+        (self.devicesDictionary)[deviceIDString] = device;
     }
 }
 
 - (void)findAvailableTunerOnDevices:(NSArray *)devices
                         deviceIndex:(UInt8)deviceIndex
                          tunerIndex:(UInt8)tunerIndex
-                   reservationBlock:(void (^)(HDHRTunerReservation *, dispatch_semaphore_t))reservationBlock
 {
     HDHRDevice *device = devices[deviceIndex];
     
@@ -274,7 +272,7 @@
                     NSLog(@"tuner %hhu is available", tunerIndex);
                     HDHRTunerReservation *tunerReservation = [HDHRTunerReservation tunerReservationWithDevice:device
                                                                                                    tunerIndex:tunerIndex];
-                    reservationBlock(tunerReservation, self.tunerReservationSemaphore);
+                    self.reservationBlock(tunerReservation, self.tunerReservationSemaphore);
                     return;
                 }
                 
@@ -283,8 +281,7 @@
                     NSLog(@"trying tuner %hhu...", (UInt8)(tunerIndex+1));
                     [self findAvailableTunerOnDevices:devices
                                           deviceIndex:deviceIndex
-                                           tunerIndex:tunerIndex+1
-                                     reservationBlock:reservationBlock];
+                                           tunerIndex:tunerIndex+1];
                     return;
                 }
                 
@@ -293,13 +290,12 @@
                     NSLog(@"trying device %hhu", (UInt8)(deviceIndex+1));
                     [self findAvailableTunerOnDevices:devices
                                           deviceIndex:deviceIndex+1
-                                           tunerIndex:0
-                                     reservationBlock:reservationBlock];
+                                           tunerIndex:0];
                     return;
                 }
                 
                 NSLog(@"no more devices available");
-                reservationBlock(nil, self.tunerReservationSemaphore);
+                self.reservationBlock(nil, self.tunerReservationSemaphore);
             }
         }
     };
@@ -308,15 +304,27 @@
               responseBlock:responseBlock];
 }
 
-- (void)requestTunerReservation:(void (^)(HDHRTunerReservation *, dispatch_semaphore_t))block
+
+- (void)requestTunerReservationBlock:(void (^)(HDHRTunerReservation *, dispatch_semaphore_t))reservationBlock
+                         statusBlock:(void (^)(NSString *))statusBlock
+
 {
-    NSLog(@"requesting tuner reservation");
-    dispatch_semaphore_wait(self.tunerReservationSemaphore, DISPATCH_TIME_FOREVER);
-    NSLog(@"searching for available tuners");
-    [self findAvailableTunerOnDevices:self.devices
-                          deviceIndex:0
-                           tunerIndex:0
-                     reservationBlock:block];
+    dispatch_queue_t highPriorityQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+
+    dispatch_async(highPriorityQueue, ^{
+        dispatch_semaphore_wait(self.tunerReservationSemaphore, DISPATCH_TIME_FOREVER);
+        
+        self.reservationBlock = reservationBlock;
+        self.statusBlock = statusBlock;
+        [self startDiscovery];
+
+        statusBlock(@"searching for devices…");
+        
+        dispatch_time_t milestone = dispatch_time(DISPATCH_TIME_NOW, 3LL * NSEC_PER_SEC);
+        dispatch_after(milestone, highPriorityQueue, ^{
+            [self stopDiscovery];
+        });
+    });
 }
 
 @end

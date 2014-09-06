@@ -8,174 +8,152 @@
 
 #import "HBRecording.h"
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <net/if.h>
-#include <net/if_dl.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <ifaddrs.h>
-
-#import "HDHRTunerReservation.h"
-#import "HDHRDeviceManager.h"
-#import <IOKit/pwr_mgt/IOPMLib.h>
-
-
-@interface HBRecording ()
-
-@property (strong) HDHRTunerReservation *tunerReservation;
-
-@property (assign) UInt16 targetPort;
-@property (nonatomic, strong) dispatch_source_t udpSource;
-
-@end
-
-
 @implementation HBRecording
 
-- (id)init
++ (NSDateFormatter *)recordingFileDateFormatter
 {
-    if ((self = [super init])) {
-        _statusIconImage = [NSImage imageNamed:@"history"];
+    static dispatch_once_t predicate;
+    static NSDateFormatter *dateFormatter = nil;
+
+    dispatch_once(&predicate, ^{
+        dateFormatter = [NSDateFormatter new];
+        [dateFormatter setDateFormat:@"yyyyMMddHHmm"];
+    });
+                  
+    return dateFormatter;
+}
+
++ (NSDateFormatter *)tvpiStartEndDateFormatter
+{
+    static dispatch_once_t predicate;
+    static NSDateFormatter *dateFormatter = nil;
+    
+    dispatch_once(&predicate, ^{
+        dateFormatter = [NSDateFormatter new];
+        [dateFormatter setDateFormat:@"yyyyMMdd HH:mm"];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
+    });
+    
+    return dateFormatter;
+}
+
++ (instancetype)recordingFromTVPIFile:(NSString *)tvpiFilePath
+{
+    return [[self alloc] initWithTVPIFile:tvpiFilePath];
+}
+
+- (instancetype)initWithTVPIFile:(NSString *)tvpiFilePath
+{
+    if (self = [super init]) {
+        NSXMLDocument *document = [[NSXMLDocument alloc] initWithContentsOfURL:[NSURL fileURLWithPath:tvpiFilePath]
+                                                                       options:0
+                                                                         error:NULL];
+        NSXMLElement *rootElement = [document rootElement];
+        
+        for (NSXMLElement *childElement in rootElement.children) {
+            if ([childElement.name isEqualToString:@"program"]) {
+                _tvpiFilePath = [tvpiFilePath copy];
+                
+                NSXMLElement *programElement = childElement;
+                
+                NSString *startDateString = nil;
+                NSString *startTimeString = nil;
+                NSString *endDateString = nil;
+                NSString *endTimeString = nil;
+                
+                for (NSXMLElement *childElement in programElement.children) {
+                    if ([childElement.name isEqualToString:@"station"])
+                        _channelName = childElement.stringValue;
+                    
+                    else if ([childElement.name isEqualToString:@"tv-mode"])
+                        _mode = childElement.stringValue;
+                    
+                    else if ([childElement.name isEqualToString:@"program-title"])
+                        _title = childElement.stringValue;
+                    
+                    else if ([childElement.name isEqualToString:@"episode-title"])
+                        _episode = childElement.stringValue;
+                    
+                    else if ([childElement.name isEqualToString:@"program-description"])
+                        _summary = childElement.stringValue;
+                    
+                    else if ([childElement.name isEqualToString:@"start-date"])
+                        startDateString = childElement.stringValue;
+                    
+                    else if ([childElement.name isEqualToString:@"start-time"])
+                        startTimeString = childElement.stringValue;
+                    
+                    else if ([childElement.name isEqualToString:@"end-date"])
+                        endDateString = childElement.stringValue;
+                    
+                    else if ([childElement.name isEqualToString:@"end-time"])
+                        endTimeString = childElement.stringValue;
+                    
+                    else if ([childElement.name isEqualToString:@"duration"]) {
+                        NSArray *durationComponents = [childElement.stringValue componentsSeparatedByString:@":"];
+                        NSInteger hourDuration = [durationComponents[0] integerValue];
+                        NSInteger minuteDuration = [durationComponents[1] integerValue];
+                        _duration = hourDuration * 60 + minuteDuration;
+                    }
+                    
+                    else if ([childElement.name isEqualToString:@"rf-channel"])
+                        _rfChannel = childElement.stringValue;
+                    
+                    else if ([childElement.name isEqualToString:@"stream-number"])
+                        _streamNumber = childElement.stringValue;
+                    
+                    else if ([childElement.name isEqualToString:@"psip-major"])
+                        _psipMajor = [childElement.stringValue integerValue];
+                    
+                    else if ([childElement.name isEqualToString:@"psip-minor"])
+                        _psipMinor = [childElement.stringValue integerValue];
+                }
+                
+                if (startDateString && startTimeString) {
+                    NSString *dateString = [NSString stringWithFormat:@"%@ %@", startDateString, startTimeString];
+                    _startDate = [[[self class] tvpiStartEndDateFormatter] dateFromString:dateString];
+                }
+                
+                if (endDateString && endTimeString) {
+                    NSString *dateString = [NSString stringWithFormat:@"%@ %@", endDateString, endTimeString];
+                    _endDate = [[[self class] tvpiStartEndDateFormatter] dateFromString:dateString];
+                }
+                
+                NSString *recordingFileDateString = [[[self class] recordingFileDateFormatter] stringFromDate:_startDate];
+                NSMutableString *baseName = [_title mutableCopy];
+                
+                if (_episode.length) [baseName appendFormat:@" - %@", _episode];
+                
+                NSString *fileName = [NSString stringWithFormat:@"%@ (%@ %@).ts", baseName, _channelName, recordingFileDateString];
+                NSArray *paths = NSSearchPathForDirectoriesInDomains(NSMoviesDirectory,
+                                                                     NSUserDomainMask,
+                                                                     YES);
+                _recordingFilePath = [NSString pathWithComponents:@[paths[0], fileName]];;
+            }
+        }
     }
     
     return self;
 }
 
-- (void)updateStatusOnMainThread:(NSString *)string
+- (void)markAsScheduled
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.status = string;
-    });
+    self.statusIconImage = [NSImage imageNamed:@"scheduled"];
 }
 
-- (void)startRecording:(id)sender
+- (void)markAsExisting
 {
-    self.statusIconImage = [NSImage imageNamed:@"statusYellow"];
-    
-    [self updateStatusOnMainThread:@"searching for available tuner…"];
-
-    [self.deviceManager requestTunerReservation:^(HDHRTunerReservation *tunerReservation, dispatch_semaphore_t sema) {
-        self.tunerReservation = tunerReservation;
-    
-        [self updateStatusOnMainThread:[NSString stringWithFormat:@"tuning to channel %@…", self.rfChannel]];
-        [tunerReservation tuneToChannel:self.rfChannel tuningCompletedBlock:^{
-            [self updateStatusOnMainThread:@"starting stream…"];
-            [self startSavingUDPStream];
-            [tunerReservation startStreamingToIPAddress:tunerReservation.targetIPAddress port:self.targetPort];
-            dispatch_semaphore_signal(sema);
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self updateStatusOnMainThread:@"recording"];
-                self.statusIconImage = [NSImage imageNamed:@"statusRed"];
-                self.currentlyRecording = YES;
-            });
-        }];
-    }];
+    self.statusIconImage = [NSImage imageNamed:@"movie"];
 }
 
-- (BOOL)startSavingUDPStream
+- (void)markAsStarting
 {
-    NSLog(@"saving UDP stream to %@", self.recordingPath);
-
-    [[NSFileManager defaultManager] createFileAtPath:self.recordingPath contents:nil attributes:nil];
-    NSFileHandle *recordingFileHandle = [NSFileHandle fileHandleForWritingAtPath:self.recordingPath];
-    
-    NSLog(@"opening UDP socket");
-    int socketfd = socket(PF_INET, SOCK_DGRAM, 0);
-    
-    if (socketfd == -1) {
-        NSLog(@"a");
-        return NO;
-    }
- 
-    NSLog(@"setting UDP socket to non-blocking");
-    if (fcntl(socketfd, F_SETFL, O_NONBLOCK) == -1) {
-        close(socketfd);
-        NSLog(@"b");
-        return NO;
-    }
-    
-    struct sockaddr_in sockAddrIn;
-    sockAddrIn.sin_family = AF_INET;
-    sockAddrIn.sin_port = htons(0);
-    sockAddrIn.sin_addr.s_addr = inet_addr([self.tunerReservation.targetIPAddress cStringUsingEncoding:NSASCIIStringEncoding]);
-    memset(sockAddrIn.sin_zero, '\0', sizeof(sockAddrIn.sin_zero));
-    
-    if (bind(socketfd, (struct sockaddr *)&sockAddrIn, sizeof(sockAddrIn)) != 0) {
-        NSLog(@"c");
-        return NO;
-    }
-    
-    socklen_t addressLength = sizeof(sockAddrIn);
-    if (getsockname(socketfd, (struct sockaddr *)&sockAddrIn, &addressLength) != 0) {
-        NSLog(@"d");
-        return NO;
-    }
-    
-    self.targetPort = ntohs(sockAddrIn.sin_port);
-    NSLog(@"bound UDP socket to %hu", self.targetPort);
-    
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    dispatch_source_t socketReadSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, socketfd, 0, queue);
-    
-    self.udpSource = socketReadSource;
-    
-    dispatch_source_set_event_handler(socketReadSource, ^{
-        size_t estimatedReadLength = dispatch_source_get_data(socketReadSource);
-        UInt8 *bytes = (UInt8 *)malloc(estimatedReadLength);
-        
-        if (bytes) {
-            struct sockaddr_in theirAddress;
-            socklen_t addressLength = sizeof(theirAddress);
-            
-            ssize_t receivedByteCount = recvfrom(socketfd,
-                                                 bytes,
-                                                 estimatedReadLength,
-                                                 0,
-                                                 (struct sockaddr *)&theirAddress,
-                                                 &addressLength);
-            [recordingFileHandle writeData:[NSData dataWithBytesNoCopy:bytes length:receivedByteCount]];
-        }
-    });
-    
-    dispatch_source_set_cancel_handler(socketReadSource, ^{
-        NSLog(@"close UDP socket");
-        close(socketfd);
-    });
-    
-    IOPMAssertionID assertionID;
-    IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertPreventUserIdleSystemSleep,
-                                                   kIOPMAssertionLevelOn,
-                                                   (__bridge CFStringRef)self.recordingPath,
-                                                   &assertionID);
-    
-    if (success != kIOReturnSuccess)
-        NSLog(@"unable to create power assertion");
-
-    dispatch_resume(socketReadSource);
-    
-    success = IOPMAssertionRelease(assertionID);
-
-    return YES;
+    self.statusIconImage = [NSImage imageNamed:@"orange"];
 }
 
-- (void)stopRecording:(id)sender
+- (void)markAsSuccess
 {
-    self.statusIconImage = [NSImage imageNamed:@"statusGreen"];
-    [self updateStatusOnMainThread:@"finished"];
-
-    if (self.udpSource)
-        dispatch_source_cancel(self.udpSource);
-    self.udpSource = nil;
-    self.currentlyRecording = NO;
+    self.statusIconImage = [NSImage imageNamed:@"recording"];
 }
-
-/*
- else {
- NSLog(@"no devices available");
- self.statusIconImage = [NSImage imageNamed:@"alert"];
- }
-*/
 
 @end

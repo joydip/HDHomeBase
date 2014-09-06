@@ -8,18 +8,12 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class HDHRDeviceManager;
 @class HBScheduler;
-@class HBRecordingsController;
+@class HBRecordingsTableViewController;
 
 @interface HBAppDelegate : NSObject <NSApplicationDelegate>
 
-@property (strong) IBOutlet NSWindow *mainWindow;
-@property (strong) IBOutlet NSWindow *deviceDiscoverySheet;
-@property (strong) IBOutlet NSProgressIndicator *deviceDiscoveryIndicator;
-
-@property (strong) IBOutlet HDHRDeviceManager *deviceManager;
 @property (strong) IBOutlet HBScheduler *scheduler;
-@property (strong) IBOutlet HBRecordingsController *recordingsController;
+@property (strong) IBOutlet HBRecordingsTableViewController *recordingsTableViewController;
 
 @end

@@ -12,11 +12,7 @@
 
 @interface HDHRDeviceManager : NSObject
 
-@property (nonatomic, readonly, strong) NSArray *devices;
-
-- (BOOL)startDiscoveryAndError:(NSError **)error;
-- (void)stopDiscovery;
-
-- (void)requestTunerReservation:(void (^)(HDHRTunerReservation *, dispatch_semaphore_t))block;
+- (void)requestTunerReservationBlock:(void (^)(HDHRTunerReservation *, dispatch_semaphore_t))reservationBlock
+                         statusBlock:(void (^)(NSString *))statusBlock;
 
 @end

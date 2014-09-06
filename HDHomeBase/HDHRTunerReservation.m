@@ -34,13 +34,13 @@
     return self.device.targetIPAddress;
 }
 
-- (void)tuneToChannel:(NSString *)channel tuningCompletedBlock:(void (^)(void))block
+- (void)tuneToChannel:(NSString *)channel tuningCompletedBlock:(void (^)(BOOL))block
 {
     NSLog(@"tuning to channel %@", channel);
     
     hdhr_response_block_t responseBlock = ^(HDHRPacket *responsePacket) {
         // XXX check if response failure
-        block();
+        block(YES);
     };
     
     [self.device setValueForName:[NSString stringWithFormat:@"/tuner%hhu/vchannel", self.tunerIndex]

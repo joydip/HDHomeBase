@@ -1,27 +1,25 @@
 //
-//  HBRecordingsController.m
+//  HBRecordingsTableViewController.m
 //  HDHomeBase
 //
 //  Created by Joydip Basu on 6/1/13.
 //  Copyright (c) 2013 Joydip Basu. All rights reserved.
 //
 
-#import "HBRecordingsController.h"
+#import "HBRecordingsTableViewController.h"
 #import "HBRecording.h"
 #import "HBAppDelegate.h"
 #import "HBScheduler.h"
 
-@interface HBRecordingsController ()
-
-@end
-
-@implementation HBRecordingsController
+@implementation HBRecordingsTableViewController
 
 - (void)awakeFromNib
 {
-    HBScheduler *scheduler = ((HBAppDelegate *)[NSApp delegate]).scheduler;
-    self.recordings = scheduler.scheduledRecordings;
+    self.recordings = self.scheduler.scheduledRecordings;
+    [self.tableView setTarget:self];
+    [self.tableView setDoubleAction:@selector(doubleClickAction:)];
 }
+
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
 {
     return self.recordings.count;
@@ -43,16 +41,16 @@
     [self.tableView reloadData];
 }
 
-- (IBAction)playRecording:(id)sender
+- (IBAction)playRecordingAction:(id)sender
 {
     NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
     NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
     
     for (HBRecording *recording in selectedRecordings)
-        [[NSWorkspace sharedWorkspace] openFile:recording.recordingPath];
+        [[NSWorkspace sharedWorkspace] openFile:recording.recordingFilePath];
 }
 
-- (IBAction)deleteRecording:(id)sender
+- (IBAction)deleteRecordingAction:(id)sender
 {
     NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
     
@@ -62,23 +60,23 @@
     
     for (HBRecording *recording in selectedRecordings) {
         if (recording.currentlyRecording)
-            [recording stopRecording:sender];
+            [self.scheduler stopRecording:recording];
         [defaultFileManager removeItemAtPath:recording.tvpiFilePath error:NULL];
-        [defaultFileManager removeItemAtPath:recording.recordingPath error:NULL];
+        [defaultFileManager removeItemAtPath:recording.recordingFilePath error:NULL];
     }
 
     [self.recordings removeObjectsAtIndexes:selectedRowsIndexSet];
     [self refresh:sender];
 }
 
-- (IBAction)stopRecording:(id)sender
+- (IBAction)stopRecordingAction:(id)sender
 {
     NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
     
     NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
     for (HBRecording *recording in selectedRecordings) {
         if (recording.currentlyRecording)
-            [recording stopRecording:sender];
+            [self.scheduler stopRecording:recording];
     }
 }
 
@@ -99,12 +97,16 @@
                                                 currentlyRecording = YES;
                                                 *stop = YES;
                                             }
-                                            
                                         }];
         return currentlyRecording;
     }
     
     return YES;
+}
+
+- (void)doubleClickAction:(id)sender
+{
+    [self playRecordingAction:self];
 }
 
 @end

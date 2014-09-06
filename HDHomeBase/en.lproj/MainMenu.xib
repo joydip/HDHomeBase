@@ -660,20 +660,20 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <scrollView borderType="none" autohidesScrollers="YES" horizontalLineScroll="38" horizontalPageScroll="10" verticalLineScroll="38" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="638">
-                        <rect key="frame" x="0.0" y="-8" width="874" height="444"/>
+                        <rect key="frame" x="0.0" y="0.0" width="874" height="436"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <clipView key="contentView" id="UJq-Qd-voR">
-                            <rect key="frame" x="0.0" y="17" width="874" height="427"/>
+                            <rect key="frame" x="0.0" y="17" width="874" height="419"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" autosaveColumns="NO" typeSelect="NO" rowHeight="36" rowSizeStyle="automatic" headerView="640" viewBased="YES" id="642">
-                                    <rect key="frame" x="0.0" y="0.0" width="874" height="427"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="874" height="419"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                     <tableColumns>
-                                        <tableColumn identifier="ScheduledTitle" width="257.4453125" minWidth="40" maxWidth="1000" id="647">
+                                        <tableColumn identifier="ScheduledTitle" editable="NO" width="257.4453125" minWidth="40" maxWidth="1000" id="647">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Title">
                                                 <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -718,7 +718,7 @@
                                                         <imageView id="703">
                                                             <rect key="frame" x="3" y="17" width="16" height="16"/>
                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="history" id="704"/>
+                                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="scheduled" id="704"/>
                                                             <connections>
                                                                 <binding destination="648" name="value" keyPath="objectValue.statusIconImage" id="724"/>
                                                             </connections>
@@ -730,7 +730,7 @@
                                                 </tableCellView>
                                             </prototypeCellViews>
                                         </tableColumn>
-                                        <tableColumn identifier="ScheduledStartTime" width="128.76953125" minWidth="40" maxWidth="1000" id="646">
+                                        <tableColumn identifier="ScheduledStartTime" editable="NO" width="128.76953125" minWidth="40" maxWidth="1000" id="646">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Start Time">
                                                 <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -768,7 +768,7 @@
                                                 </tableCellView>
                                             </prototypeCellViews>
                                         </tableColumn>
-                                        <tableColumn identifier="ScheduledEndTime" width="128.76953125" minWidth="40" maxWidth="1000" id="b4F-fT-TuI">
+                                        <tableColumn identifier="ScheduledEndTime" editable="NO" width="128.76953125" minWidth="40" maxWidth="1000" id="b4F-fT-TuI">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="End Time">
                                                 <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -803,7 +803,7 @@
                                                 </tableCellView>
                                             </prototypeCellViews>
                                         </tableColumn>
-                                        <tableColumn identifier="ScheduledDuration" width="66.33203125" minWidth="10" maxWidth="3.4028234663852886e+38" id="645">
+                                        <tableColumn identifier="ScheduledDuration" editable="NO" width="66.33203125" minWidth="10" maxWidth="3.4028234663852886e+38" id="645">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Duration">
                                                 <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -840,7 +840,7 @@
                                                 </tableCellView>
                                             </prototypeCellViews>
                                         </tableColumn>
-                                        <tableColumn identifier="ScheduledChannel" width="99.63671875" minWidth="10" maxWidth="3.4028234663852886e+38" id="644">
+                                        <tableColumn identifier="ScheduledChannel" editable="NO" width="99.63671875" minWidth="10" maxWidth="3.4028234663852886e+38" id="644">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Channel">
                                                 <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -889,7 +889,7 @@
                                                 </tableCellView>
                                             </prototypeCellViews>
                                         </tableColumn>
-                                        <tableColumn width="175" minWidth="10" maxWidth="3.4028234663852886e+38" id="715">
+                                        <tableColumn editable="NO" width="175" minWidth="10" maxWidth="3.4028234663852886e+38" id="715">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Status">
                                                 <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -951,19 +951,19 @@
             </view>
             <toolbar key="toolbar" implicitIdentifier="69A8B893-CD38-44ED-99FD-B4E8233B3103" autosavesConfiguration="NO" allowsUserCustomization="NO" displayMode="iconAndLabel" sizeMode="regular" id="636">
                 <allowedToolbarItems>
-                    <toolbarItem implicitItemIdentifier="B4C49D3A-59D2-4A0C-A8C0-DB866E58B090" label="Play" paletteLabel="Play" tag="-1" image="NSSlideshowTemplate" id="pSH-Xc-9jn">
+                    <toolbarItem implicitItemIdentifier="B4C49D3A-59D2-4A0C-A8C0-DB866E58B090" label="Play" paletteLabel="Play" tag="-1" image="play2" id="pSH-Xc-9jn">
                         <connections>
-                            <action selector="playRecording:" target="685" id="MRc-BW-z2X"/>
+                            <action selector="playRecordingAction:" target="685" id="0Iq-TG-2MQ"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="CC34CBD8-DD2B-4A7A-B007-4385623F78F9" label="Delete" paletteLabel="Delete" tag="-1" image="delete" id="709">
+                    <toolbarItem implicitItemIdentifier="CC34CBD8-DD2B-4A7A-B007-4385623F78F9" label="Delete" paletteLabel="Delete" tag="-1" image="delete2b" id="709">
                         <connections>
-                            <action selector="deleteRecording:" target="685" id="A1E-md-aMq"/>
+                            <action selector="deleteRecordingAction:" target="685" id="vL1-4l-Ehd"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="45142D1F-F15B-4F0D-B460-5EFA8B57BBDC" label="Stop" paletteLabel="Stop" tag="-1" image="stop" id="726">
+                    <toolbarItem implicitItemIdentifier="45142D1F-F15B-4F0D-B460-5EFA8B57BBDC" label="Stop" paletteLabel="Stop" tag="-1" image="stop2" id="726">
                         <connections>
-                            <action selector="stopRecording:" target="685" id="DYR-2U-ZvH"/>
+                            <action selector="stopRecordingAction:" target="685" id="El7-uG-fbR"/>
                         </connections>
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="676"/>
@@ -971,20 +971,14 @@
                 </allowedToolbarItems>
                 <defaultToolbarItems>
                     <toolbarItem reference="pSH-Xc-9jn"/>
-                    <toolbarItem reference="676"/>
                     <toolbarItem reference="726"/>
-                    <toolbarItem reference="675"/>
                     <toolbarItem reference="709"/>
                 </defaultToolbarItems>
             </toolbar>
         </window>
         <customObject id="494" customClass="HBAppDelegate">
             <connections>
-                <outlet property="deviceDiscoveryIndicator" destination="9ya-8n-yjY" id="VGx-1R-nhJ"/>
-                <outlet property="deviceDiscoverySheet" destination="bh5-tW-O8G" id="QVl-gE-2Fy"/>
-                <outlet property="deviceManager" destination="625" id="Rcy-Fs-aFv"/>
-                <outlet property="mainWindow" destination="635" id="nR0-vq-52g"/>
-                <outlet property="recordingsController" destination="685" id="691"/>
+                <outlet property="recordingsTableViewController" destination="685" id="LKK-jy-Hw5"/>
                 <outlet property="scheduler" destination="633" id="634"/>
             </connections>
         </customObject>
@@ -995,43 +989,20 @@
                 <outlet property="deviceManager" destination="625" id="692"/>
             </connections>
         </customObject>
-        <customObject id="685" customClass="HBRecordingsController">
+        <customObject id="685" customClass="HBRecordingsTableViewController">
             <connections>
                 <outlet property="deleteRecordingToolbarItem" destination="709" id="iui-qY-KuP"/>
+                <outlet property="playRecordingToolbarItem" destination="pSH-Xc-9jn" id="yjx-5F-4vb"/>
+                <outlet property="scheduler" destination="633" id="Qtb-JS-lyj"/>
                 <outlet property="stopRecordingToolbarItem" destination="726" id="s4b-J4-BdK"/>
                 <outlet property="tableView" destination="642" id="687"/>
             </connections>
         </customObject>
-        <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="bh5-tW-O8G">
-            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="131" y="159" width="480" height="80"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="878"/>
-            <view key="contentView" id="8z6-WR-uB8">
-                <rect key="frame" x="0.0" y="0.0" width="480" height="80"/>
-                <autoresizingMask key="autoresizingMask"/>
-                <subviews>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Mw1-1G-lpc">
-                        <rect key="frame" x="18" y="46" width="236" height="14"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Searching for HDHomeRun devices…" id="dej-KC-idh">
-                            <font key="font" metaFont="smallSystemBold"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <progressIndicator maxValue="100" indeterminate="YES" style="bar" id="9ya-8n-yjY">
-                        <rect key="frame" x="20" y="19" width="440" height="20"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    </progressIndicator>
-                </subviews>
-            </view>
-        </window>
     </objects>
     <resources>
-        <image name="NSSlideshowTemplate" width="17" height="14"/>
-        <image name="delete" width="32" height="32"/>
-        <image name="history" width="16" height="16"/>
-        <image name="stop" width="32" height="32"/>
+        <image name="delete2b" width="32" height="32"/>
+        <image name="play2" width="32" height="32"/>
+        <image name="scheduled" width="32" height="32"/>
+        <image name="stop2" width="32" height="32"/>
     </resources>
 </document>
