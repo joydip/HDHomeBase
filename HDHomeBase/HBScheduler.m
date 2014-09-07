@@ -194,7 +194,9 @@
 		return ret;
 	}
 
+    BOOL streamReady = NO;
     BOOL programIdentified = NO;
+    NSString *programString = nil;
 	while (recording.currentlyRecording) {
 		uint64_t loop_start_time = getcurrenttime();
         
@@ -203,34 +205,45 @@
 			msleep_approx(64);
 			continue;
 		}
-        
-        
+
         if (!programIdentified) {
+            char *program;
+            hdhomerun_device_get_tuner_program(tuner_device, &program);
+            
+            programString = [NSString stringWithCString:program encoding:NSASCIIStringEncoding];
+            
+            if (![programString isEqualToString:@"none"]) {
+                programIdentified = YES;
+            }
+        }
+
+        if (programIdentified && !streamReady) {
             char *streamInfo;
             hdhomerun_device_get_tuner_streaminfo(tuner_device, &streamInfo);
-            
+
             NSString *streamInfoString = [NSString stringWithCString:streamInfo encoding:NSASCIIStringEncoding];
+
             NSArray *streams = [streamInfoString componentsSeparatedByString:@"\n"];
-            
             for (NSString *streamInfo in streams) {
-                if ([streamInfo hasSuffix:@"(no data)"]) continue;
-                if ([streamInfo hasSuffix:@"(encrypted)"]) continue;
-                if ([streamInfo hasSuffix:@"(control)"]) continue;
-                if ([streamInfo hasPrefix:@"tsid"]) continue;
-                if ([streamInfo isEqualToString:@"none"]) continue;
+                NSLog(@"%@", streamInfoString);
 
-                NSLog(@"%@", streamInfo);
-
-                NSArray *programInfo = [streamInfo componentsSeparatedByString:@":"];
-                NSString *programNumberString = programInfo[0];
-                hdhomerun_device_set_tuner_program(tuner_device, [programNumberString cStringUsingEncoding:NSASCIIStringEncoding]);
-                programIdentified = YES;
-                break;
+                if ([streamInfo hasPrefix:programString])
+                    if (![streamInfo hasSuffix:@")"]) {
+                        NSLog(@"streamReady!");
+                        streamReady = YES;
+                    }
+                
+                if (streamReady)
+                    break;
             }
+            
             continue;
         }
         
-		if (programIdentified && fp) {
+
+        
+        
+		if (programIdentified && streamReady && fp) {
 			if (fwrite(ptr, 1, buffer_size, fp) != buffer_size) {
 				fprintf(stderr, "error writing output\n");
 				return -1;
