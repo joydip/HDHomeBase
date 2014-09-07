@@ -51,7 +51,8 @@
 
 - (void)doubleClickAction:(id)sender
 {
-    [self playRecordingAction:self];
+    if (self.tableView.numberOfSelectedRows)
+        [self playRecordingAction:self];
 }
 
 - (IBAction)deleteRecordingAction:(id)sender

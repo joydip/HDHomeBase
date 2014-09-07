@@ -94,13 +94,32 @@
                                                         repeats:NO];
         [[NSRunLoop mainRunLoop] addTimer:recording.stopTimer
                                   forMode:NSRunLoopCommonModes];
-        
-        recording.statusIconImage = [NSImage imageNamed:@"scheduled"];
     }
     // if it already exists, just mark it as completed
     else recording.statusIconImage = [NSImage imageNamed:@"clapperboard"];
     
     [self.scheduledRecordings addObject:recording];
+    [self searchForScheduleConflicts];
+}
+
+- (void)searchForScheduleConflicts
+{
+    for (HBRecording *recording in self.scheduledRecordings) {
+        recording.overlappingRecordings = nil;
+        NSMutableArray *overlappingRecordings = nil;
+        
+        for (HBRecording *otherRecording in self.scheduledRecordings) {
+            if (recording == otherRecording) continue;
+            
+            if ([recording overlapsWithRecording:otherRecording]) {
+                if (!overlappingRecordings) overlappingRecordings = [NSMutableArray new];
+                [overlappingRecordings addObject:otherRecording];
+            }
+        }
+        
+        recording.overlappingRecordings = overlappingRecordings;
+        recording.statusIconImage = [NSImage imageNamed:(recording.overlappingRecordings.count) ? @"schedule_alert" : @"scheduled"];
+    }
 }
 
 - (void)startRecording:(HBRecording *)recording
@@ -299,6 +318,7 @@
                                  error:NULL];
 
     [self.scheduledRecordings removeObject:recording];
+    [self searchForScheduleConflicts];
 }
 
 - (void)startRecordingTimerFired:(NSTimer *)timer

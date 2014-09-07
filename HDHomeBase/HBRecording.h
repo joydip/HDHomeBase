@@ -28,6 +28,7 @@
 @property (readonly) NSString *uniqueName;
 @property (readonly) NSString *recordingFilename;
 
+
 // non-persistent state used by the scheduler
 @property (copy) NSString *status;
 @property NSImage *statusIconImage;
@@ -36,6 +37,10 @@
 @property (copy) NSString *recordingFilePath;
 @property NSTimer *startTimer;
 @property NSTimer *stopTimer;
+@property NSDate *paddedStartDate;
+@property NSDate *paddedEndDate;
+@property NSMutableArray *overlappingRecordings;
+
 
 @property struct hdhomerun_device_t *tunerDevice;
 
@@ -46,5 +51,7 @@
 - (instancetype)initWithPropertyListFile:(NSString *)propertyListFilePath;
 
 - (BOOL)serializeAsPropertyListFileToPath:(NSString *)path error:(NSError **)error;
+
+- (BOOL)overlapsWithRecording:(HBRecording *)otherRecording;
 
 @end

@@ -205,4 +205,17 @@
     return [propertyListData writeToFile:path atomically:YES];
 }
 
+- (BOOL)overlapsWithRecording:(HBRecording *)otherRecording
+{
+    NSDate *myStartDate = self.startDate;
+    NSDate *myEndDate = self.endDate;
+    NSDate *otherStartDate = otherRecording.startDate;
+    NSDate *otherEndDate = otherRecording.endDate;
+    
+    BOOL myStartAfterOtherEnd = ([myStartDate compare:otherEndDate] == NSOrderedDescending);
+    BOOL myEndBeforeOtherStart = ([myEndDate compare:otherStartDate] == NSOrderedAscending);
+    
+    return !(myStartAfterOtherEnd || myEndBeforeOtherStart);
+}
+
 @end
