@@ -120,11 +120,6 @@
     for (int device_index = 0; device_index < devices_found_count; device_index++) {
         struct hdhomerun_discover_device_t *discovered_device = &device_list[device_index];
         
-        NSLog(@"ip_addr: %u, device_id: %X, tuner_count: %hhu",
-              discovered_device->ip_addr,
-              discovered_device->device_id,
-              discovered_device->tuner_count);
-        
         uint8_t tuner_count = discovered_device->tuner_count;
 
         struct hdhomerun_device_t *tuner_device = hdhomerun_device_create(HDHOMERUN_DEVICE_ID_WILDCARD,
@@ -145,10 +140,8 @@
                 // XXX set lock
                 hdhomerun_device_set_tuner_vchannel(tuner_device,
                                                     [recording.rfChannel cStringUsingEncoding:NSASCIIStringEncoding]);
-                recording.tunerDevice = tuner_device;
                 
-                recording.fileDescriptor = open([recording.recordingFilePath fileSystemRepresentation],
-                                                O_CREAT|O_WRONLY);
+                recording.tunerDevice = tuner_device;
                 
                 [NSThread detachNewThreadSelector:@selector(receiveStreamForRecording:)
                                          toTarget:self
@@ -167,23 +160,98 @@
     }
 }
 
-- (void)receiveStreamForRecording:(HBRecording *)recording
+- (int)receiveStreamForRecording:(HBRecording *)recording
 {
-    size_t max_buffer_size = 1024 * 1024;
+    IOPMAssertionID assertionID;
+    IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertPreventUserIdleSystemSleep,
+                                                   kIOPMAssertionLevelOn,
+                                                   (__bridge CFStringRef)recording.recordingFilePath,
+                                                   &assertionID);
+    
+    if (success != kIOReturnSuccess)
+        NSLog(@"unable to create power assertion");
+
     size_t buffer_size;
     struct hdhomerun_device_t *tuner_device = recording.tunerDevice;
-    int fd = recording.fileDescriptor;
-    hdhomerun_device_stream_start(tuner_device);
-
-    while (recording.currentlyRecording) {
-        uint8_t *buffer = hdhomerun_device_stream_recv(tuner_device, max_buffer_size, &buffer_size);
-        write(fd, buffer, buffer_size);
-        usleep(15000);
+    
+	FILE *fp;
+    fp = fopen([recording.recordingFilePath fileSystemRepresentation], "wb");
+    if (!fp) {
+        fprintf(stderr, "unable to create file\n");
+        return -1;
     }
     
-    hdhomerun_device_stream_stop(tuner_device);
+	int ret = hdhomerun_device_stream_start(tuner_device);
+    
+    
+    
+
+	if (ret <= 0) {
+		fprintf(stderr, "unable to start stream\n");
+		if (fp && fp != stdout) {
+			fclose(fp);
+		}
+		return ret;
+	}
+
+    BOOL programIdentified = NO;
+	while (recording.currentlyRecording) {
+		uint64_t loop_start_time = getcurrenttime();
+        
+		uint8_t *ptr = hdhomerun_device_stream_recv(tuner_device, VIDEO_DATA_BUFFER_SIZE_1S, &buffer_size);
+		if (!ptr) {
+			msleep_approx(64);
+			continue;
+		}
+        
+        
+        if (!programIdentified) {
+            char *streamInfo;
+            hdhomerun_device_get_tuner_streaminfo(tuner_device, &streamInfo);
+            
+            NSString *streamInfoString = [NSString stringWithCString:streamInfo encoding:NSASCIIStringEncoding];
+            NSArray *streams = [streamInfoString componentsSeparatedByString:@"\n"];
+            
+            for (NSString *streamInfo in streams) {
+                if ([streamInfo hasSuffix:@"(no data)"]) continue;
+                if ([streamInfo hasSuffix:@"(encrypted)"]) continue;
+                if ([streamInfo hasSuffix:@"(control)"]) continue;
+                if ([streamInfo hasPrefix:@"tsid"]) continue;
+                if ([streamInfo isEqualToString:@"none"]) continue;
+
+                NSLog(@"%@", streamInfo);
+
+                NSArray *programInfo = [streamInfo componentsSeparatedByString:@":"];
+                NSString *programNumberString = programInfo[0];
+                hdhomerun_device_set_tuner_program(tuner_device, [programNumberString cStringUsingEncoding:NSASCIIStringEncoding]);
+                programIdentified = YES;
+                break;
+            }
+            continue;
+        }
+        
+		if (programIdentified && fp) {
+			if (fwrite(ptr, 1, buffer_size, fp) != buffer_size) {
+				fprintf(stderr, "error writing output\n");
+				return -1;
+			}
+		}
+        
+		int32_t delay = 64 - (int32_t)(getcurrenttime() - loop_start_time);
+		if (delay <= 0) {
+			continue;
+		}
+        
+		msleep_approx(delay);
+	}
+    
+	if (fp) fclose(fp);
+    
+	hdhomerun_device_stream_stop(tuner_device);
+    success = IOPMAssertionRelease(assertionID);
+    
     hdhomerun_device_destroy(tuner_device);
-    close(fd);
+    return 0;
 }
 
 - (void)stopRecording:(HBRecording *)recording

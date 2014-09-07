@@ -36,7 +36,6 @@
 @property (copy) NSString *recordingFilePath;
 @property NSTimer *startTimer;
 @property NSTimer *stopTimer;
-@property int fileDescriptor;
 
 @property struct hdhomerun_device_t *tunerDevice;
 
