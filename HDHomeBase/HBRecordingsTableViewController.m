@@ -99,6 +99,9 @@
 {
     if (self.tableView.numberOfSelectedRows == 0)
         return NO;
+
+    if (sender == self.playRecordingToolbarItem)
+        return [self.recordings[self.tableView.selectedRow] recordingFileExists];
     
     if (sender == self.stopRecordingToolbarItem) {
         __block BOOL currentlyRecording = NO;

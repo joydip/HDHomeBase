@@ -74,11 +74,10 @@
 - (void)scheduleRecording:(HBRecording *)recording
 {
     recording.recordingFilePath = [[self recordingsFolder] stringByAppendingPathComponent:recording.recordingFilename];
+    recording.recordingFileExists = [[NSFileManager defaultManager] fileExistsAtPath:recording.recordingFilePath];
 
-    BOOL recordingFileExists = [[NSFileManager defaultManager] fileExistsAtPath:recording.recordingFilePath];
-
-    // only if the end date hasn't passed, and the file doesn't already exist, are we interested
-    if (!recordingFileExists) {
+    // only schedule the timers if the file doesn't exist
+    if (!recording.recordingFileExists) {
         NSTimeInterval beginningPadding = [[NSUserDefaults standardUserDefaults] doubleForKey:@"BeginningPadding"];
         NSDate *paddedStartDate = [recording.startDate dateByAddingTimeInterval:-beginningPadding];
         recording.paddedStartDate = paddedStartDate;
@@ -206,6 +205,8 @@
         fprintf(stderr, "unable to create file\n");
         return -1;
     }
+    
+    recording.recordingFileExists = YES;
     
 	int ret = hdhomerun_device_stream_start(tuner_device);
     

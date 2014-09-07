@@ -35,6 +35,7 @@
 @property BOOL currentlyRecording;
 @property (copy) NSString *propertyListFilePath;
 @property (copy) NSString *recordingFilePath;
+@property BOOL recordingFileExists;
 @property NSTimer *startTimer;
 @property NSTimer *stopTimer;
 @property NSDate *paddedStartDate;
