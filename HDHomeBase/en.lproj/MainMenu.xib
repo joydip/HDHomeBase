@@ -950,19 +950,19 @@
                     </scrollView>
                 </subviews>
             </view>
-            <toolbar key="toolbar" implicitIdentifier="69A8B893-CD38-44ED-99FD-B4E8233B3103" displayMode="iconAndLabel" sizeMode="small" id="636">
+            <toolbar key="toolbar" implicitIdentifier="69A8B893-CD38-44ED-99FD-B4E8233B3103" displayMode="iconOnly" sizeMode="small" id="636">
                 <allowedToolbarItems>
-                    <toolbarItem implicitItemIdentifier="B4C49D3A-59D2-4A0C-A8C0-DB866E58B090" label="Play" paletteLabel="Play" tag="-1" image="play_green_button" id="pSH-Xc-9jn">
+                    <toolbarItem implicitItemIdentifier="B4C49D3A-59D2-4A0C-A8C0-DB866E58B090" label="Play" paletteLabel="Play" toolTip="Play" tag="-1" image="play_green_button" id="pSH-Xc-9jn">
                         <connections>
                             <action selector="playRecordingAction:" target="685" id="0Iq-TG-2MQ"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="CC34CBD8-DD2B-4A7A-B007-4385623F78F9" label="Delete" paletteLabel="Delete" tag="-1" image="delete_red_button" id="709">
+                    <toolbarItem implicitItemIdentifier="CC34CBD8-DD2B-4A7A-B007-4385623F78F9" label="Delete" paletteLabel="Delete" toolTip="Delete" tag="-1" image="delete_red_button" id="709">
                         <connections>
                             <action selector="deleteRecordingAction:" target="685" id="vL1-4l-Ehd"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="45142D1F-F15B-4F0D-B460-5EFA8B57BBDC" label="Stop" paletteLabel="Stop" tag="-1" image="stop_red_button" id="726">
+                    <toolbarItem implicitItemIdentifier="45142D1F-F15B-4F0D-B460-5EFA8B57BBDC" label="Stop" paletteLabel="Stop" toolTip="Stop" tag="-1" image="stop_red_button" id="726">
                         <connections>
                             <action selector="stopRecordingAction:" target="685" id="El7-uG-fbR"/>
                         </connections>
@@ -972,6 +972,7 @@
                 </allowedToolbarItems>
                 <defaultToolbarItems>
                     <toolbarItem reference="pSH-Xc-9jn"/>
+                    <toolbarItem reference="676"/>
                     <toolbarItem reference="726"/>
                     <toolbarItem reference="709"/>
                 </defaultToolbarItems>

@@ -49,6 +49,8 @@
 {
     HBRecording *recording = [HBRecording recordingFromTVPIFile:tvpiFilePath];
     
+    if ([recording hasEndDatePassed]) return;
+    
     NSString *newPropertyListFilename = [recording.uniqueName stringByAppendingString:@".plist"];
     NSString *newPropertyListPath = [self.recordingsFolder stringByAppendingPathComponent:newPropertyListFilename];
     
@@ -63,6 +65,8 @@
 - (void)importPropertyListFile:(NSString *)propertyListFilePath
 {
     HBRecording *recording = [HBRecording recordingFromPropertyListFile:propertyListFilePath];
+
+    if ([recording hasEndDatePassed]) return;
     recording.propertyListFilePath = propertyListFilePath;
     [self scheduleRecording:recording];
 }
@@ -70,13 +74,15 @@
 - (void)scheduleRecording:(HBRecording *)recording
 {
     recording.recordingFilePath = [[self recordingsFolder] stringByAppendingPathComponent:recording.recordingFilename];
-    BOOL endDateHasPassed = ([recording.endDate compare:[NSDate date]] == NSOrderedAscending);
+
     BOOL recordingFileExists = [[NSFileManager defaultManager] fileExistsAtPath:recording.recordingFilePath];
-    
+
     // only if the end date hasn't passed, and the file doesn't already exist, are we interested
-    if (!endDateHasPassed && !recordingFileExists) {
+    if (!recordingFileExists) {
         NSTimeInterval beginningPadding = [[NSUserDefaults standardUserDefaults] doubleForKey:@"BeginningPadding"];
-        recording.startTimer = [[NSTimer alloc] initWithFireDate:[recording.startDate dateByAddingTimeInterval:-beginningPadding]
+        NSDate *paddedStartDate = [recording.startDate dateByAddingTimeInterval:-beginningPadding];
+        recording.paddedStartDate = paddedStartDate;
+        recording.startTimer = [[NSTimer alloc] initWithFireDate:paddedStartDate
                                                         interval:0
                                                           target:self
                                                         selector:@selector(startRecordingTimerFired:)
@@ -86,7 +92,9 @@
                                   forMode:NSRunLoopCommonModes];
         
         NSTimeInterval endingPadding = [[NSUserDefaults standardUserDefaults] doubleForKey:@"EndingPadding"];
-        recording.stopTimer = [[NSTimer alloc] initWithFireDate:[recording.endDate dateByAddingTimeInterval:endingPadding]
+        NSDate *paddedEndDate = [recording.endDate dateByAddingTimeInterval:endingPadding];
+        recording.paddedEndDate = paddedEndDate;
+        recording.stopTimer = [[NSTimer alloc] initWithFireDate:paddedEndDate
                                                        interval:0
                                                          target:self
                                                        selector:@selector(stopRecordingTimerFired:)
@@ -95,8 +103,6 @@
         [[NSRunLoop mainRunLoop] addTimer:recording.stopTimer
                                   forMode:NSRunLoopCommonModes];
     }
-    // if it already exists, just mark it as completed
-    else recording.statusIconImage = [NSImage imageNamed:@"clapperboard"];
     
     [self.scheduledRecordings addObject:recording];
     [self searchForScheduleConflicts];
@@ -105,20 +111,21 @@
 - (void)searchForScheduleConflicts
 {
     for (HBRecording *recording in self.scheduledRecordings) {
-        recording.overlappingRecordings = nil;
-        NSMutableArray *overlappingRecordings = nil;
+        recording.conflictingRecordings = nil;
+        NSMutableArray *conflictingRecordings = nil;
         
         for (HBRecording *otherRecording in self.scheduledRecordings) {
             if (recording == otherRecording) continue;
             
             if ([recording overlapsWithRecording:otherRecording]) {
-                if (!overlappingRecordings) overlappingRecordings = [NSMutableArray new];
-                [overlappingRecordings addObject:otherRecording];
+                if (!conflictingRecordings) conflictingRecordings = [NSMutableArray new];
+                [conflictingRecordings addObject:otherRecording];
             }
         }
         
-        recording.overlappingRecordings = overlappingRecordings;
-        recording.statusIconImage = [NSImage imageNamed:(recording.overlappingRecordings.count) ? @"schedule_alert" : @"scheduled"];
+        recording.conflictingRecordings = conflictingRecordings;
+        // XXX this should be made to be the same value as the table view
+        recording.statusIconImage = [NSImage imageNamed:(recording.conflictingRecordings.count > 1) ? @"schedule_alert" : @"scheduled"];
     }
 }
 
@@ -229,7 +236,7 @@
             char *program;
             hdhomerun_device_get_tuner_program(tuner_device, &program);
             
-            programString = [NSString stringWithCString:program encoding:NSASCIIStringEncoding];
+            programString = @(program);
             
             if (![programString isEqualToString:@"none"]) {
                 programIdentified = YES;
@@ -240,7 +247,7 @@
             char *streamInfo;
             hdhomerun_device_get_tuner_streaminfo(tuner_device, &streamInfo);
 
-            NSString *streamInfoString = [NSString stringWithCString:streamInfo encoding:NSASCIIStringEncoding];
+            NSString *streamInfoString = @(streamInfo);
 
             NSArray *streams = [streamInfoString componentsSeparatedByString:@"\n"];
             for (NSString *streamInfo in streams) {
