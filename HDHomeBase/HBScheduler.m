@@ -32,36 +32,77 @@
 
 - (instancetype)init
 {
-    if ((self = [super init]))
+    if ((self = [super init])) {
         _scheduledRecordings = [NSMutableArray new];
+        _activeRecordingCount = 0;
+    }
     
     return self;
+}
+
+- (NSString *)recordingsFolder
+{
+    return [[NSUserDefaults standardUserDefaults] stringForKey:@"RecordingsFolder"];
+}
+
+- (void)importExistingRecordings
+{
+    NSFileManager *defaultFileManager = [NSFileManager defaultManager];
+    NSArray *recordingsFolderContents = [defaultFileManager contentsOfDirectoryAtPath:self.recordingsFolder error:NULL];
+    
+    for (NSString *file in recordingsFolderContents)
+        if ([file hasSuffix:@".plist"]) [self importPropertyListFile:[self.recordingsFolder stringByAppendingPathComponent:file]];
 }
 
 - (void)importTVPIFile:(NSString *)tvpiFilePath
 {
     HBRecording *recording = [HBRecording recordingFromTVPIFile:tvpiFilePath];
+    
+    NSString *newPropertyListFilename = [recording.uniqueName stringByAppendingString:@".plist"];
+    NSString *newPropertyListPath = [self.recordingsFolder stringByAppendingPathComponent:newPropertyListFilename];
+    
+    [recording serializeAsPropertyListFileToPath:newPropertyListPath error:NULL];
+    recording.propertyListFilePath = newPropertyListPath;
+    [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:tvpiFilePath]
+                                  resultingItemURL:NULL
+                                             error:NULL];
+    [self scheduleRecording:recording];
+}
 
+- (void)importPropertyListFile:(NSString *)propertyListFilePath
+{
+    HBRecording *recording = [HBRecording recordingFromPropertyListFile:propertyListFilePath];
+    recording.propertyListFilePath = propertyListFilePath;
+    [self scheduleRecording:recording];
+}
+
+- (void)scheduleRecording:(HBRecording *)recording
+{
+    recording.recordingFilePath = [[self recordingsFolder] stringByAppendingPathComponent:recording.recordingFilename];
     BOOL endDateHasPassed = ([recording.endDate compare:[NSDate date]] == NSOrderedAscending);
     BOOL recordingFileExists = [[NSFileManager defaultManager] fileExistsAtPath:recording.recordingFilePath];
-
+    
     // only if the end date hasn't passed, and the file doesn't already exist, are we interested
     if (!endDateHasPassed && !recordingFileExists) {
-        NSTimer *startTimer = [[NSTimer alloc] initWithFireDate:recording.startDate
+        NSTimeInterval beginningPadding = [[NSUserDefaults standardUserDefaults] doubleForKey:@"BeginningPadding"];
+        recording.startTimer = [[NSTimer alloc] initWithFireDate:[recording.startDate dateByAddingTimeInterval:-beginningPadding]
+                                                        interval:0
+                                                          target:self
+                                                        selector:@selector(startRecordingTimerFired:)
+                                                        userInfo:recording
+                                                         repeats:NO];
+        [[NSRunLoop mainRunLoop] addTimer:recording.startTimer
+                                  forMode:NSRunLoopCommonModes];
+        
+        NSTimeInterval endingPadding = [[NSUserDefaults standardUserDefaults] doubleForKey:@"EndingPadding"];
+        recording.stopTimer = [[NSTimer alloc] initWithFireDate:[recording.endDate dateByAddingTimeInterval:endingPadding]
                                                        interval:0
                                                          target:self
-                                                       selector:@selector(startRecordingTimerFired:)
+                                                       selector:@selector(stopRecordingTimerFired:)
                                                        userInfo:recording
                                                         repeats:NO];
-        [[NSRunLoop mainRunLoop] addTimer:startTimer forMode:NSRunLoopCommonModes];
-        
-        NSTimer *stopTimer = [[NSTimer alloc] initWithFireDate:recording.endDate
-                                                      interval:0
-                                                        target:self
-                                                      selector:@selector(stopRecordingTimerFired:)
-                                                      userInfo:recording
-                                                       repeats:NO];
-        [[NSRunLoop mainRunLoop] addTimer:stopTimer forMode:NSRunLoopCommonModes];
+        [[NSRunLoop mainRunLoop] addTimer:recording.stopTimer
+                                  forMode:NSRunLoopCommonModes];
         
         [recording markAsScheduled];
     }
@@ -88,6 +129,9 @@
     void (^reservationBlock)(HDHRTunerReservation *, dispatch_semaphore_t) = ^(HDHRTunerReservation *tunerReservation, dispatch_semaphore_t sema) {
         if (tunerReservation == nil) {
             [self updateStatusForRecording:recording string:nil imageName:@"scheduled_fail"];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self cancelTimersForRecording:recording];
+            });
             dispatch_semaphore_signal(sema);
             return;
         }
@@ -101,6 +145,9 @@
         [tunerReservation tuneToChannel:recording.rfChannel tuningCompletedBlock:^(BOOL success) {
             if (!success) {
                 [self updateStatusForRecording:recording string:nil imageName:@"scheduled_fail"];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self cancelTimersForRecording:recording];
+                });
                 dispatch_semaphore_signal(sema);
                 return;
             }
@@ -127,17 +174,53 @@
     [self.deviceManager requestTunerReservationBlock:reservationBlock statusBlock:statusBlock];
 }
 
+- (void)cancelTimersForRecording:(HBRecording *)recording
+{
+    if (recording.startTimer) {
+        [recording.startTimer invalidate];
+        recording.startTimer = nil;
+    }
+    
+    if (recording.stopTimer) {
+        [recording.stopTimer invalidate];
+        recording.stopTimer = nil;
+    }
+}
+
 - (void)stopRecording:(HBRecording *)recording
 {
     [self updateStatusForRecording:recording string:@"" imageName:nil];
     
-    if (recording.udpSource)
-        dispatch_source_cancel(recording.udpSource);
+    if (recording.udpSource) dispatch_source_cancel(recording.udpSource);
+
+    [self cancelTimersForRecording:recording];
+
     recording.udpSource = nil;
     recording.currentlyRecording = NO;
+
     self.activeRecordingCount -= 1;
     [self updateDockTile];
     [recording markAsSuccess];
+}
+
+- (void)playRecording:(HBRecording *)recording
+{
+    [[NSWorkspace sharedWorkspace] openFile:recording.recordingFilePath];
+}
+
+- (void)deleteRecording:(HBRecording *)recording
+{
+    if (recording.currentlyRecording) [self stopRecording:recording];
+
+    NSFileManager *defaultFileManager = [NSFileManager defaultManager];
+    [defaultFileManager trashItemAtURL:[NSURL fileURLWithPath:recording.recordingFilePath]
+                      resultingItemURL:NULL
+                                 error:NULL];
+    [defaultFileManager trashItemAtURL:[NSURL fileURLWithPath:recording.propertyListFilePath]
+                      resultingItemURL:NULL
+                                 error:NULL];
+
+    [self.scheduledRecordings removeObject:recording];
 }
 
 - (void)startRecordingTimerFired:(NSTimer *)timer
@@ -235,7 +318,8 @@
             dispatch_io_write(outputChannel,
                               0,
                               data,
-                              dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(bool done, dispatch_data_t data, int error) { });
+                              dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(bool done, dispatch_data_t data, int error) {
+                              });
         }
     });
     
@@ -243,6 +327,7 @@
         NSLog(@"close UDP socket");
         close(socketfd);
         dispatch_io_close(outputChannel, 0);
+        NSLog(@"closed everything!");
     });
     
     IOPMAssertionID assertionID;

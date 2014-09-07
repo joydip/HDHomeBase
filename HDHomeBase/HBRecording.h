@@ -7,36 +7,48 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "HDHRTunerReservation.h"
 
+@class HDHRTunerReservation;
 
 @interface HBRecording : NSObject
 
-@property (copy) NSString *mode;
-@property (copy) NSString *title;
-@property (copy) NSString *episode;
-@property (copy) NSString *summary;
-@property (copy) NSDate *startDate;
-@property (copy) NSDate *endDate;
-@property (assign) UInt16 duration;
-@property (copy) NSString *channelName;
-@property (copy) NSString *rfChannel;
-@property (copy) NSString *streamNumber;
-@property (assign) UInt16 psipMajor;
-@property (assign) UInt16 psipMinor;
-@property (copy) NSString *status;
-@property (copy) NSImage *statusIconImage;
-@property (copy) NSString *tvpiFilePath;
-@property (copy) NSString *recordingFilePath;
+// persistent properties
+@property (readonly) NSString *mode;
+@property (readonly) NSString *title;
+@property (readonly) NSString *episode;
+@property (readonly) NSString *summary;
+@property (readonly) NSDate *startDate;
+@property (readonly) NSDate *endDate;
+@property (readonly) UInt16 duration;
+@property (readonly) NSString *channelName;
+@property (readonly) NSString *rfChannel;
+@property (readonly) NSString *streamNumber;
+@property (readonly) UInt16 psipMajor;
+@property (readonly) UInt16 psipMinor;
+
+// dynamically computed properties
+@property (readonly) NSString *uniqueName;
+@property (readonly) NSString *recordingFilename;
 
 // non-persistent state used by the scheduler
-@property (strong) HDHRTunerReservation *tunerReservation;
-@property (assign) UInt16 targetPort;
-@property (strong) dispatch_source_t udpSource;
-@property (assign) BOOL currentlyRecording;
+@property (copy) NSString *status;
+@property NSImage *statusIconImage;
+@property HDHRTunerReservation *tunerReservation;
+@property BOOL currentlyRecording;
+@property (copy) NSString *propertyListFilePath;
+@property (copy) NSString *recordingFilePath;
+@property NSTimer *startTimer;
+@property NSTimer *stopTimer;
+@property dispatch_source_t udpSource;
+@property UInt16 targetPort;
 
 + (instancetype)recordingFromTVPIFile:(NSString *)tvpiFilePath;
++ (instancetype)recordingFromPropertyListFile:(NSString *)propertyListFilePath;
+
 - (instancetype)initWithTVPIFile:(NSString *)tvpiFilePath;
+- (instancetype)initWithPropertyListFile:(NSString *)propertyListFilePath;
+
+- (BOOL)serializeAsPropertyListFileToPath:(NSString *)path error:(NSError **)error;
 
 - (void)markAsScheduled;
 - (void)markAsExisting;

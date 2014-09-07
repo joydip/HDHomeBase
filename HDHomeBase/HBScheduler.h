@@ -13,12 +13,18 @@
 
 @interface HBScheduler : NSObject
 
-@property (strong) IBOutlet HDHRDeviceManager *deviceManager;
-@property (strong) NSMutableArray *scheduledRecordings;
+@property IBOutlet HDHRDeviceManager *deviceManager;
+@property (readonly) NSMutableArray *scheduledRecordings;
+@property (readonly) NSString *recordingsFolder;
 
 - (void)importTVPIFile:(NSString *)tvpiFilePath;
+- (void)importPropertyListFile:(NSString *)propertyListFilePath;
+- (void)importExistingRecordings;
 
+- (void)scheduleRecording:(HBRecording *)recording;
 - (void)startRecording:(HBRecording *)recording;
 - (void)stopRecording:(HBRecording *)recording;
+- (void)playRecording:(HBRecording *)recording;
+- (void)deleteRecording:(HBRecording *)recording;
 
 @end

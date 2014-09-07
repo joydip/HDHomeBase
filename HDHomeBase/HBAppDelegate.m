@@ -10,73 +10,55 @@
 #import "HBRecording.h"
 #import "HBRecordingsTableViewController.h"
 #import "HBScheduler.h"
-#import "NSFileManager+DirectoryLocations.h"
 
 @implementation HBAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    [self importExistingTVPISchedules];
-}
+    NSArray *moviesDirectories = NSSearchPathForDirectoriesInDomains(NSMoviesDirectory, NSUserDomainMask, YES);
+    NSString *defaultRecordingsFolder = moviesDirectories[0];
 
-- (NSString *)applicationSupportDirectory
-{
-    return [[NSFileManager defaultManager] applicationSupportDirectory];
-}
-
-- (void)importExistingTVPISchedules
-{
-    NSFileManager *defaultFileManager = [NSFileManager defaultManager];
-    NSString *appSupportDirectory = [defaultFileManager applicationSupportDirectory];
-    NSArray *applicationSupportDirectoryContents = [defaultFileManager contentsOfDirectoryAtPath:appSupportDirectory
-                                                                                                       error:NULL];
-    for (NSString *file in applicationSupportDirectoryContents)
-        [self.scheduler importTVPIFile:[appSupportDirectory stringByAppendingPathComponent:file]];
+    NSDictionary *appDefaults = @{
+                                  @"RecordingsFolder": defaultRecordingsFolder,
+                                  @"BeginningPadding": @30,
+                                  @"EndingPadding":    @30,
+                                  @"TotalTunerCount":  @3,
+                                };
     
+    [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
+
+    [self.scheduler importExistingRecordings];
     [self.recordingsTableViewController refresh:self];
 }
 
 - (void)importTVPIFile:(NSString *)filename
 {
-    NSString *tvpiFileTemplateString = [[self applicationSupportDirectory] stringByAppendingPathComponent:@"tvpi-XXXXXX"];
-    const char *tvpiFileTemplateCString = [tvpiFileTemplateString fileSystemRepresentation];
-    char *tvpiFileCString = (char *)malloc(strlen(tvpiFileTemplateCString)+1);
-    strcpy(tvpiFileCString, tvpiFileTemplateCString);
-    NSString *destinationTVPIFile = @(mktemp(tvpiFileCString));
-    
-    [[NSFileManager defaultManager] moveItemAtPath:filename toPath:destinationTVPIFile error:NULL];
-
-    [self.scheduler importTVPIFile:destinationTVPIFile];
+    [self.scheduler importTVPIFile:filename];
     [self.recordingsTableViewController refresh:self];
 }
 
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
 {
-    NSLog(@"processing %@ using openFile:", filename);
     [self importTVPIFile:filename];
-    return YES;
+    return YES; // XXX blindly returning YES
 }
 
 - (void)application:(NSApplication *)sender openFiles:(NSArray *)filenames
 {
-    NSLog(@"processing %@ using openFiles:", filenames);
-
-    for (NSString *filename in filenames)
-        [self importTVPIFile:filename];
+    for (NSString *filename in filenames) [self importTVPIFile:filename];
 }
 
 - (BOOL)application:(id)sender openFileWithoutUI:(NSString *)filename
 {
-    NSLog(@"processing %@ using openFileWithoutUI:", filename);
+
     [self importTVPIFile:filename];
-    return YES;
+    return YES; // XXX blindly returning YES
 }
 
 - (BOOL)application:(NSApplication *)theApplication openTempFile:(NSString *)filename
 {
-    NSLog(@"processing %@ using openTempFile:", filename);
     [self importTVPIFile:filename];
-    return YES;
+    return YES; // XXX blindly returning YES
 }
 
 @end

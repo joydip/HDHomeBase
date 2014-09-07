@@ -13,7 +13,7 @@
 
 @interface HBAppDelegate : NSObject <NSApplicationDelegate>
 
-@property (strong) IBOutlet HBScheduler *scheduler;
-@property (strong) IBOutlet HBRecordingsTableViewController *recordingsTableViewController;
+@property IBOutlet HBScheduler *scheduler;
+@property IBOutlet HBRecordingsTableViewController *recordingsTableViewController;
 
 @end

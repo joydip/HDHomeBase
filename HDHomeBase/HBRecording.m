@@ -42,6 +42,11 @@
     return [[self alloc] initWithTVPIFile:tvpiFilePath];
 }
 
++ (instancetype)recordingFromPropertyListFile:(NSString *)propertyListFilePath
+{
+    return [[self alloc] initWithPropertyListFile:propertyListFilePath];
+}
+
 - (instancetype)initWithTVPIFile:(NSString *)tvpiFilePath
 {
     if (self = [super init]) {
@@ -52,8 +57,6 @@
         
         for (NSXMLElement *childElement in rootElement.children) {
             if ([childElement.name isEqualToString:@"program"]) {
-                _tvpiFilePath = [tvpiFilePath copy];
-                
                 NSXMLElement *programElement = childElement;
                 
                 NSString *startDateString = nil;
@@ -118,22 +121,88 @@
                     NSString *dateString = [NSString stringWithFormat:@"%@ %@", endDateString, endTimeString];
                     _endDate = [[[self class] tvpiStartEndDateFormatter] dateFromString:dateString];
                 }
-                
-                NSString *recordingFileDateString = [[[self class] recordingFileDateFormatter] stringFromDate:_startDate];
-                NSMutableString *baseName = [_title mutableCopy];
-                
-                if (_episode.length) [baseName appendFormat:@" - %@", _episode];
-                
-                NSString *fileName = [NSString stringWithFormat:@"%@ (%@ %@).ts", baseName, _channelName, recordingFileDateString];
-                NSArray *paths = NSSearchPathForDirectoriesInDomains(NSMoviesDirectory,
-                                                                     NSUserDomainMask,
-                                                                     YES);
-                _recordingFilePath = [NSString pathWithComponents:@[paths[0], fileName]];;
             }
         }
     }
     
     return self;
+}
+
+- (instancetype)initWithPropertyListFile:(NSString *)propertyListFilePath
+{
+    if (self = [super init]) {
+        NSData *propertyListData = [NSData dataWithContentsOfFile:propertyListFilePath];
+        
+        if (propertyListData) {
+            NSDictionary *dictionary = [NSPropertyListSerialization propertyListWithData:propertyListData
+                                                                                 options:NSPropertyListImmutable
+                                                                                  format:NULL
+                                                                                   error:NULL];
+            _mode = dictionary[@"mode"];
+            _title = dictionary[@"title"];
+            _episode = dictionary[@"episode"];
+            _summary = dictionary[@"summary"];
+            _startDate = dictionary[@"startDate"];
+            _endDate = dictionary[@"endDate"];
+            _duration = [dictionary[@"duration"] unsignedShortValue];
+            _channelName = dictionary[@"channelName"];
+            _rfChannel = dictionary[@"rfChannel"];
+            _streamNumber = dictionary[@"streamNumber"];
+            _psipMajor = [dictionary[@"psipMajor"] unsignedShortValue];
+            _psipMinor = [dictionary[@"psipMinor"] unsignedShortValue];
+        }
+    }
+    
+    return self;
+}
+
+- (NSString *)uniqueName
+{
+    NSString *recordingFileDateString = [[[self class] recordingFileDateFormatter] stringFromDate:self.startDate];
+
+    NSString *baseName = (self.episode.length) ? [NSString stringWithFormat:@"%@ - %@", self.title, self.episode] : self.title;
+    return [NSString stringWithFormat:@"%@ (%@ %@)", baseName, self.channelName, recordingFileDateString];
+}
+
+- (NSString *)recordingFilename
+{
+    return [self.uniqueName stringByAppendingString:@".ts"];
+}
+
+- (NSDictionary *)dictionaryRepresentation
+{
+    NSMutableDictionary *dict = [NSMutableDictionary new];
+    NSArray *keys = @[
+                      @"mode",
+                      @"title",
+                      @"episode",
+                      @"summary",
+                      @"startDate",
+                      @"endDate",
+                      @"duration",
+                      @"channelName",
+                      @"rfChannel",
+                      @"streamNumber",
+                      @"psipMajor",
+                      @"psipMinor",
+                    ];
+    
+    for (NSString *key in keys) {
+        id value = [self valueForKey:key];
+        if (value) [dict setObject:value forKey:key];
+    }
+    
+    return dict;
+}
+
+- (BOOL)serializeAsPropertyListFileToPath:(NSString *)path error:(NSError **)error
+{
+    NSData *propertyListData = [NSPropertyListSerialization dataWithPropertyList:[self dictionaryRepresentation]
+                                                                           format:NSPropertyListXMLFormat_v1_0
+                                                                          options:0
+                                                                            error:error];
+    if (!propertyListData) return NO;
+    return [propertyListData writeToFile:path atomically:YES];
 }
 
 - (void)markAsScheduled

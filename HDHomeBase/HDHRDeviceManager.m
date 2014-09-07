@@ -316,6 +316,7 @@
         
         self.reservationBlock = reservationBlock;
         self.statusBlock = statusBlock;
+#if DEVICE_DISCOVERY_ENABLED
         [self startDiscovery];
 
         statusBlock(@"searching for devices…");
@@ -324,6 +325,15 @@
         dispatch_after(milestone, highPriorityQueue, ^{
             [self stopDiscovery];
         });
+#else
+        HDHRDevice *device = [HDHRDevice deviceWithID:@"FORCED"
+                                      deviceIPAddress:@"10.0.9.99"
+                                      targetIPAddress:@"10.0.9.98"
+                                           tunerCount:3];
+        [self findAvailableTunerOnDevices:@[ device ]
+                              deviceIndex:0
+                               tunerIndex:0];
+#endif
     });
 }
 

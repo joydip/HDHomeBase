@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
+        <deployment defaultVersion="1080" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
     </dependencies>
     <objects>
@@ -650,7 +651,7 @@
                 </menuItem>
             </items>
         </menu>
-        <window title="HDHomeBase" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="635">
+        <window title="HDHomeBase" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" frameAutosaveName="MainWindow" animationBehavior="default" id="635">
             <windowStyleMask key="styleMask" titled="YES" miniaturizable="YES" resizable="YES" unifiedTitleAndToolbar="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="196" y="240" width="874" height="435"/>
@@ -666,7 +667,7 @@
                             <rect key="frame" x="0.0" y="17" width="874" height="419"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
-                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" autosaveColumns="NO" typeSelect="NO" rowHeight="36" rowSizeStyle="automatic" headerView="640" viewBased="YES" id="642">
+                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" typeSelect="NO" autosaveName="RecordingsTableView" rowHeight="36" rowSizeStyle="automatic" headerView="640" viewBased="YES" id="642">
                                     <rect key="frame" x="0.0" y="0.0" width="874" height="419"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
@@ -949,7 +950,7 @@
                     </scrollView>
                 </subviews>
             </view>
-            <toolbar key="toolbar" implicitIdentifier="69A8B893-CD38-44ED-99FD-B4E8233B3103" autosavesConfiguration="NO" allowsUserCustomization="NO" displayMode="iconAndLabel" sizeMode="regular" id="636">
+            <toolbar key="toolbar" implicitIdentifier="69A8B893-CD38-44ED-99FD-B4E8233B3103" displayMode="iconAndLabel" sizeMode="small" id="636">
                 <allowedToolbarItems>
                     <toolbarItem implicitItemIdentifier="B4C49D3A-59D2-4A0C-A8C0-DB866E58B090" label="Play" paletteLabel="Play" tag="-1" image="play2" id="pSH-Xc-9jn">
                         <connections>

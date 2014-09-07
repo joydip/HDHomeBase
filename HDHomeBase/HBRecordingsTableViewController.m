@@ -38,6 +38,7 @@
 
 - (IBAction)refresh:(id)sender
 {
+    [self.recordings sortUsingDescriptors:self.tableView.sortDescriptors];
     [self.tableView reloadData];
 }
 
@@ -45,39 +46,27 @@
 {
     NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
     NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
-    
-    for (HBRecording *recording in selectedRecordings)
-        [[NSWorkspace sharedWorkspace] openFile:recording.recordingFilePath];
+    [self.scheduler playRecording:selectedRecordings[0]];
+}
+
+- (void)doubleClickAction:(id)sender
+{
+    [self playRecordingAction:self];
 }
 
 - (IBAction)deleteRecordingAction:(id)sender
 {
     NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
-    
     NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
-
-    NSFileManager *defaultFileManager = [NSFileManager defaultManager];
-    
-    for (HBRecording *recording in selectedRecordings) {
-        if (recording.currentlyRecording)
-            [self.scheduler stopRecording:recording];
-        [defaultFileManager removeItemAtPath:recording.tvpiFilePath error:NULL];
-        [defaultFileManager removeItemAtPath:recording.recordingFilePath error:NULL];
-    }
-
-    [self.recordings removeObjectsAtIndexes:selectedRowsIndexSet];
-    [self refresh:sender];
+    for (HBRecording *recording in selectedRecordings) [self.scheduler deleteRecording:recording];
+    [self.tableView reloadData];
 }
 
 - (IBAction)stopRecordingAction:(id)sender
 {
     NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
-    
     NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
-    for (HBRecording *recording in selectedRecordings) {
-        if (recording.currentlyRecording)
-            [self.scheduler stopRecording:recording];
-    }
+    for (HBRecording *recording in selectedRecordings) [self.scheduler stopRecording:recording];
 }
 
 - (BOOL)validateToolbarItem:(id)sender
@@ -102,11 +91,6 @@
     }
     
     return YES;
-}
-
-- (void)doubleClickAction:(id)sender
-{
-    [self playRecordingAction:self];
 }
 
 @end

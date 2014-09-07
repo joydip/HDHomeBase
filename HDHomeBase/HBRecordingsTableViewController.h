@@ -10,17 +10,16 @@
 
 @class HBScheduler;
 
-
 @interface HBRecordingsTableViewController : NSObject <NSTableViewDataSource, NSTableViewDelegate>
 
-@property (strong) NSMutableArray *recordings;
+@property NSMutableArray *recordings;
 
-@property (strong) IBOutlet HBScheduler *scheduler;
+@property IBOutlet HBScheduler *scheduler;
 
-@property (strong) IBOutlet NSTableView *tableView;
-@property (strong) IBOutlet NSToolbarItem *playRecordingToolbarItem;
-@property (strong) IBOutlet NSToolbarItem *stopRecordingToolbarItem;
-@property (strong) IBOutlet NSToolbarItem *deleteRecordingToolbarItem;
+@property IBOutlet NSTableView *tableView;
+@property IBOutlet NSToolbarItem *playRecordingToolbarItem;
+@property IBOutlet NSToolbarItem *stopRecordingToolbarItem;
+@property IBOutlet NSToolbarItem *deleteRecordingToolbarItem;
 
 - (IBAction)refresh:(id)sender;
 - (IBAction)playRecordingAction:(id)sender;

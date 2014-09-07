@@ -11,7 +11,6 @@
 		B73D0E5D19B5015C009802CF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B73D0E5C19B5015C009802CF /* Images.xcassets */; };
 		B73D0E6019B629C3009802CF /* HDHRTunerReservation.m in Sources */ = {isa = PBXBuildFile; fileRef = B73D0E5F19B629C3009802CF /* HDHRTunerReservation.m */; };
 		B740C8BD172E14A00058B522 /* HDHRTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = B740C8BC172E14A00058B522 /* HDHRTypes.m */; };
-		B7802FCE177FCA0900727410 /* NSFileManager+DirectoryLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = B7802FCD177FCA0900727410 /* NSFileManager+DirectoryLocations.m */; };
 		B78DA54A172A398A00917635 /* HDHRTLVFragment.m in Sources */ = {isa = PBXBuildFile; fileRef = B78DA549172A398900917635 /* HDHRTLVFragment.m */; };
 		B7A4BA101722570E00AB346E /* HDHRPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = B7A4BA0F1722570E00AB346E /* HDHRPacket.m */; };
 		B7A5827919B9988700E1CA76 /* stop2.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7A5827819B9988700E1CA76 /* stop2.icns */; };
@@ -34,7 +33,7 @@
 		B7DDCA2019B927CC00553FD4 /* scheduled.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA1F19B927CC00553FD4 /* scheduled.icns */; };
 		B7DDCA2219B927E800553FD4 /* stop_sign.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2119B927E800553FD4 /* stop_sign.icns */; };
 		B7DDCA2419B927FA00553FD4 /* new_schedule.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2319B927FA00553FD4 /* new_schedule.icns */; };
-		B7DDCA2619B9280100553FD4 /* scheduled_fail.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2519B9280100553FD4 /* scheduled_fail.icns */; };
+		B7DDCA2619B9280100553FD4 /* scheduled_alert.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2519B9280100553FD4 /* scheduled_alert.icns */; };
 		B7DDCA2819B9280900553FD4 /* restart_schedule.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2719B9280900553FD4 /* restart_schedule.icns */; };
 		B7DDCA2D19B9282900553FD4 /* green.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2919B9282900553FD4 /* green.icns */; };
 		B7DDCA2E19B9282900553FD4 /* orange.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2A19B9282900553FD4 /* orange.icns */; };
@@ -85,8 +84,6 @@
 		B73D0E5F19B629C3009802CF /* HDHRTunerReservation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDHRTunerReservation.m; sourceTree = "<group>"; };
 		B740C8BB172E14A00058B522 /* HDHRTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDHRTypes.h; sourceTree = "<group>"; };
 		B740C8BC172E14A00058B522 /* HDHRTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDHRTypes.m; sourceTree = "<group>"; };
-		B7802FCC177FCA0900727410 /* NSFileManager+DirectoryLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+DirectoryLocations.h"; sourceTree = "<group>"; };
-		B7802FCD177FCA0900727410 /* NSFileManager+DirectoryLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+DirectoryLocations.m"; sourceTree = "<group>"; };
 		B78DA548172A398900917635 /* HDHRTLVFragment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDHRTLVFragment.h; sourceTree = "<group>"; };
 		B78DA549172A398900917635 /* HDHRTLVFragment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDHRTLVFragment.m; sourceTree = "<group>"; };
 		B7A4BA0E1722570E00AB346E /* HDHRPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDHRPacket.h; sourceTree = "<group>"; };
@@ -123,7 +120,7 @@
 		B7DDCA1F19B927CC00553FD4 /* scheduled.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = scheduled.icns; sourceTree = "<group>"; };
 		B7DDCA2119B927E800553FD4 /* stop_sign.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = stop_sign.icns; sourceTree = "<group>"; };
 		B7DDCA2319B927FA00553FD4 /* new_schedule.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = new_schedule.icns; sourceTree = "<group>"; };
-		B7DDCA2519B9280100553FD4 /* scheduled_fail.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = scheduled_fail.icns; sourceTree = "<group>"; };
+		B7DDCA2519B9280100553FD4 /* scheduled_alert.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = scheduled_alert.icns; sourceTree = "<group>"; };
 		B7DDCA2719B9280900553FD4 /* restart_schedule.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = restart_schedule.icns; sourceTree = "<group>"; };
 		B7DDCA2919B9282900553FD4 /* green.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = green.icns; sourceTree = "<group>"; };
 		B7DDCA2A19B9282900553FD4 /* orange.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = orange.icns; sourceTree = "<group>"; };
@@ -218,8 +215,6 @@
 				B73B51ED175C4B5E00201BE7 /* HBRecording.m */,
 				B7A63D9F175B14E700B44C51 /* HBRecordingsTableViewController.h */,
 				B7A63DA0175B14E700B44C51 /* HBRecordingsTableViewController.m */,
-				B7802FCC177FCA0900727410 /* NSFileManager+DirectoryLocations.h */,
-				B7802FCD177FCA0900727410 /* NSFileManager+DirectoryLocations.m */,
 				B7C9487D171E7591008250E2 /* MainMenu.xib */,
 				B73D0E5C19B5015C009802CF /* Images.xcassets */,
 				B7C9486F171E7591008250E2 /* Supporting Files */,
@@ -250,7 +245,7 @@
 				B7DDCA2C19B9282900553FD4 /* red.icns */,
 				B7DDCA2719B9280900553FD4 /* restart_schedule.icns */,
 				B7DDCA1F19B927CC00553FD4 /* scheduled.icns */,
-				B7DDCA2519B9280100553FD4 /* scheduled_fail.icns */,
+				B7DDCA2519B9280100553FD4 /* scheduled_alert.icns */,
 				B7DDCA2119B927E800553FD4 /* stop_sign.icns */,
 				B7DDCA3F19B92A7000553FD4 /* stop3.icns */,
 				B7DDCA3719B92A0E00553FD4 /* success.icns */,
@@ -385,7 +380,7 @@
 				B7DDCA3019B9282900553FD4 /* red.icns in Resources */,
 				B7DDCA2E19B9282900553FD4 /* orange.icns in Resources */,
 				B7DDCA3219B9283A00553FD4 /* yellow.icns in Resources */,
-				B7DDCA2619B9280100553FD4 /* scheduled_fail.icns in Resources */,
+				B7DDCA2619B9280100553FD4 /* scheduled_alert.icns in Resources */,
 				B7DDCA3819B92A0E00553FD4 /* success.icns in Resources */,
 				B73D0E5D19B5015C009802CF /* Images.xcassets in Resources */,
 				B7DDCA3C19B92A4500553FD4 /* play2.icns in Resources */,
@@ -452,7 +447,6 @@
 				B7A63DA2175B14E700B44C51 /* HBRecordingsTableViewController.m in Sources */,
 				B73B51EE175C4B5E00201BE7 /* HBRecording.m in Sources */,
 				B7F7A19A176EA507007C5D4C /* HBScheduler.m in Sources */,
-				B7802FCE177FCA0900727410 /* NSFileManager+DirectoryLocations.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -575,7 +569,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "HDHomeBase/HDHomeBase-Prefix.pch";
 				INFOPLIST_FILE = "HDHomeBase/HDHomeBase-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -589,7 +583,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "HDHomeBase/HDHomeBase-Prefix.pch";
 				INFOPLIST_FILE = "HDHomeBase/HDHomeBase-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
