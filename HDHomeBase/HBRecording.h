@@ -8,8 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-@class HDHRTunerReservation;
-
 @interface HBRecording : NSObject
 
 // persistent properties
@@ -33,14 +31,14 @@
 // non-persistent state used by the scheduler
 @property (copy) NSString *status;
 @property NSImage *statusIconImage;
-@property HDHRTunerReservation *tunerReservation;
 @property BOOL currentlyRecording;
 @property (copy) NSString *propertyListFilePath;
 @property (copy) NSString *recordingFilePath;
 @property NSTimer *startTimer;
 @property NSTimer *stopTimer;
-@property dispatch_source_t udpSource;
-@property UInt16 targetPort;
+@property int fileDescriptor;
+
+@property struct hdhomerun_device_t *tunerDevice;
 
 + (instancetype)recordingFromTVPIFile:(NSString *)tvpiFilePath;
 + (instancetype)recordingFromPropertyListFile:(NSString *)propertyListFilePath;
@@ -49,10 +47,5 @@
 - (instancetype)initWithPropertyListFile:(NSString *)propertyListFilePath;
 
 - (BOOL)serializeAsPropertyListFileToPath:(NSString *)path error:(NSError **)error;
-
-- (void)markAsScheduled;
-- (void)markAsExisting;
-- (void)markAsStarting;
-- (void)markAsSuccess;
 
 @end

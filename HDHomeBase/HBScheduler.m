@@ -8,17 +8,8 @@
 
 #import "HBScheduler.h"
 #import "HBRecording.h"
+#include "hdhomerun.h"
 
-#import "HDHRTunerReservation.h"
-#import "HDHRDeviceManager.h"
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <net/if.h>
-#include <net/if_dl.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <ifaddrs.h>
 
 #import <IOKit/pwr_mgt/IOPMLib.h>
 
@@ -104,74 +95,109 @@
         [[NSRunLoop mainRunLoop] addTimer:recording.stopTimer
                                   forMode:NSRunLoopCommonModes];
         
-        [recording markAsScheduled];
+        recording.statusIconImage = [NSImage imageNamed:@"scheduled"];
     }
     // if it already exists, just mark it as completed
-    else [recording markAsSuccess];
+    else recording.statusIconImage = [NSImage imageNamed:@"clapperboard"];
     
     [self.scheduledRecordings addObject:recording];
 }
 
-- (void)updateStatusForRecording:(HBRecording *)recording
-                          string:(NSString *)statusString
-                       imageName:(NSString *)statusImageName
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (statusString) recording.status = statusString;
-        if (statusImageName) recording.statusIconImage = [NSImage imageNamed:statusImageName];
-    });
-}
-
 - (void)startRecording:(HBRecording *)recording
 {
-    recording.status = @"searching for available tuner…";
+    int max_device_count = 8;
+    struct hdhomerun_discover_device_t device_list[max_device_count];
+    int devices_found_count = hdhomerun_discover_find_devices_custom(0, // auto-detect IP address
+                                                                     HDHOMERUN_DEVICE_TYPE_TUNER,
+                                                                     HDHOMERUN_DEVICE_ID_WILDCARD,
+                                                                     device_list,
+                                                                     max_device_count);
+    if (devices_found_count == -1) {
+        NSLog(@"error when discovering devices");
+        return;
+    }
     
-    void (^reservationBlock)(HDHRTunerReservation *, dispatch_semaphore_t) = ^(HDHRTunerReservation *tunerReservation, dispatch_semaphore_t sema) {
-        if (tunerReservation == nil) {
-            [self updateStatusForRecording:recording string:nil imageName:@"scheduled_fail"];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self cancelTimersForRecording:recording];
-            });
-            dispatch_semaphore_signal(sema);
-            return;
-        }
-                           
-        recording.tunerReservation = tunerReservation;
+    for (int device_index = 0; device_index < devices_found_count; device_index++) {
+        struct hdhomerun_discover_device_t *discovered_device = &device_list[device_index];
+        
+        NSLog(@"ip_addr: %u, device_id: %X, tuner_count: %hhu",
+              discovered_device->ip_addr,
+              discovered_device->device_id,
+              discovered_device->tuner_count);
+        
+        uint8_t tuner_count = discovered_device->tuner_count;
 
-        [self updateStatusForRecording:recording
-                                string:[NSString stringWithFormat:@"tuning to channel %@…", recording.rfChannel]
-                             imageName:nil];
+        struct hdhomerun_device_t *tuner_device = hdhomerun_device_create(HDHOMERUN_DEVICE_ID_WILDCARD,
+                                                                          discovered_device->ip_addr,
+                                                                          0,
+                                                                          NULL); // no debug info
 
-        [tunerReservation tuneToChannel:recording.rfChannel tuningCompletedBlock:^(BOOL success) {
-            if (!success) {
-                [self updateStatusForRecording:recording string:nil imageName:@"scheduled_fail"];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self cancelTimersForRecording:recording];
-                });
-                dispatch_semaphore_signal(sema);
+        for (uint8_t tuner_index = 0; tuner_index < tuner_count; tuner_index++) {
+            hdhomerun_device_set_tuner(tuner_device, tuner_index);
+            char *tuner_target;
+            // XXX check for error
+            hdhomerun_device_get_tuner_target(tuner_device, &tuner_target);
+            NSLog(@"tuner index: %hhu target: %s", tuner_index, tuner_target);
+            
+            if (strcmp(tuner_target, "none") == 0) {
+                NSLog(@"tuner %hhu is available", tuner_index);
+                // XXX check for error
+                // XXX set lock
+                hdhomerun_device_set_tuner_vchannel(tuner_device,
+                                                    [recording.rfChannel cStringUsingEncoding:NSASCIIStringEncoding]);
+                recording.tunerDevice = tuner_device;
+                
+                recording.fileDescriptor = open([recording.recordingFilePath fileSystemRepresentation],
+                                                O_CREAT|O_WRONLY);
+                
+                [NSThread detachNewThreadSelector:@selector(receiveStreamForRecording:)
+                                         toTarget:self
+                                       withObject:recording];
+                
+                recording.statusIconImage = [NSImage imageNamed:@"red"];
+                recording.status = @"recording";
+                recording.currentlyRecording = YES;
+                self.activeRecordingCount += 1;
+                [self updateDockTile];
                 return;
             }
-            
-            [self updateStatusForRecording:recording string:@"starting stream…" imageName:nil];
+        }
+        
+        hdhomerun_device_destroy(tuner_device);
+    }
+}
 
-            [self recordUDPStreamForRecording:recording];
-            [tunerReservation startStreamingToIPAddress:tunerReservation.targetIPAddress port:recording.targetPort];
-            dispatch_semaphore_signal(sema);
-            
-            [self updateStatusForRecording:recording string:@"recording" imageName:@"red"];
-            recording.currentlyRecording = YES;
-            self.activeRecordingCount += 1;
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self updateDockTile];
-            });
-        }];
-    };
+- (void)receiveStreamForRecording:(HBRecording *)recording
+{
+    size_t max_buffer_size = 1024 * 1024;
+    size_t buffer_size;
+    struct hdhomerun_device_t *tuner_device = recording.tunerDevice;
+    int fd = recording.fileDescriptor;
+    hdhomerun_device_stream_start(tuner_device);
+
+    while (recording.currentlyRecording) {
+        uint8_t *buffer = hdhomerun_device_stream_recv(tuner_device, max_buffer_size, &buffer_size);
+        write(fd, buffer, buffer_size);
+        usleep(15000);
+    }
     
-    void (^statusBlock)(NSString *) = ^(NSString *status) {
-        [self updateStatusForRecording:recording string:status imageName:nil];
-    };
+    hdhomerun_device_stream_stop(tuner_device);
+    hdhomerun_device_destroy(tuner_device);
+    close(fd);
+}
+
+- (void)stopRecording:(HBRecording *)recording
+{
+    [self cancelTimersForRecording:recording];
+
+    recording.currentlyRecording = NO;
+    recording.tunerDevice = NULL;
     
-    [self.deviceManager requestTunerReservationBlock:reservationBlock statusBlock:statusBlock];
+    recording.status = @"";
+    recording.statusIconImage = [NSImage imageNamed:@"clapperboard"];
+    
+    self.activeRecordingCount -= 1;
+    [self updateDockTile];
 }
 
 - (void)cancelTimersForRecording:(HBRecording *)recording
@@ -185,22 +211,6 @@
         [recording.stopTimer invalidate];
         recording.stopTimer = nil;
     }
-}
-
-- (void)stopRecording:(HBRecording *)recording
-{
-    [self updateStatusForRecording:recording string:@"" imageName:nil];
-    
-    if (recording.udpSource) dispatch_source_cancel(recording.udpSource);
-
-    [self cancelTimersForRecording:recording];
-
-    recording.udpSource = nil;
-    recording.currentlyRecording = NO;
-
-    self.activeRecordingCount -= 1;
-    [self updateDockTile];
-    [recording markAsSuccess];
 }
 
 - (void)playRecording:(HBRecording *)recording
@@ -239,111 +249,6 @@
 {
     NSDockTile *dockTile = [NSApp dockTile];
     dockTile.badgeLabel = (self.activeRecordingCount) ? [NSString stringWithFormat:@"%lu", (unsigned long)self.activeRecordingCount] : nil;
-}
-
-- (BOOL)recordUDPStreamForRecording:(HBRecording *)recording
-{
-    NSLog(@"saving UDP stream to %@", recording.recordingFilePath);
-    
-    [[NSFileManager defaultManager] createFileAtPath:recording.recordingFilePath contents:nil attributes:nil];
-    
-    dispatch_io_t outputChannel = dispatch_io_create_with_path(DISPATCH_IO_STREAM,
-                                                               [recording.recordingFilePath cStringUsingEncoding:NSASCIIStringEncoding],
-                                                               O_CREAT|O_WRONLY,
-                                                               S_IWUSR|S_IRUSR,
-                                                               dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-                                                               ^(int error) {
-                                                                   if (error)
-                                                                       NSLog(@"There was a problem opening the recording file. %d (%s)\n",
-                                                                               error,
-                                                                               strerror(error));
-                                                                   });
-    
-    NSLog(@"opening UDP socket");
-    int socketfd = socket(PF_INET, SOCK_DGRAM, 0);
-    
-    if (socketfd == -1) {
-        NSLog(@"a");
-        return NO;
-    }
-    
-    NSLog(@"setting UDP socket to non-blocking");
-    if (fcntl(socketfd, F_SETFL, O_NONBLOCK) == -1) {
-        close(socketfd);
-        NSLog(@"b");
-        return NO;
-    }
-    
-    struct sockaddr_in sockAddrIn;
-    sockAddrIn.sin_family = AF_INET;
-    sockAddrIn.sin_port = htons(0);
-    sockAddrIn.sin_addr.s_addr = inet_addr([recording.tunerReservation.targetIPAddress cStringUsingEncoding:NSASCIIStringEncoding]);
-    memset(sockAddrIn.sin_zero, '\0', sizeof(sockAddrIn.sin_zero));
-    
-    if (bind(socketfd, (struct sockaddr *)&sockAddrIn, sizeof(sockAddrIn)) != 0) {
-        NSLog(@"c");
-        return NO;
-    }
-    
-    socklen_t addressLength = sizeof(sockAddrIn);
-    if (getsockname(socketfd, (struct sockaddr *)&sockAddrIn, &addressLength) != 0) {
-        NSLog(@"d");
-        return NO;
-    }
-    
-    recording.targetPort = ntohs(sockAddrIn.sin_port);
-    NSLog(@"bound UDP socket to %hu", recording.targetPort);
-    
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    dispatch_source_t socketReadSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, socketfd, 0, queue);
-    
-    recording.udpSource = socketReadSource;
-    
-    dispatch_source_set_event_handler(socketReadSource, ^{
-        size_t estimatedReadLength = dispatch_source_get_data(socketReadSource);
-        UInt8 *bytes = (UInt8 *)malloc(estimatedReadLength);
-        
-        if (bytes) {
-            struct sockaddr_in theirAddress;
-            socklen_t addressLength = sizeof(theirAddress);
-            
-            ssize_t receivedByteCount = recvfrom(socketfd,
-                                                 bytes,
-                                                 estimatedReadLength,
-                                                 0,
-                                                 (struct sockaddr *)&theirAddress,
-                                                 &addressLength);
-
-            dispatch_data_t data = dispatch_data_create(bytes, receivedByteCount, NULL, DISPATCH_DATA_DESTRUCTOR_FREE);
-            dispatch_io_write(outputChannel,
-                              0,
-                              data,
-                              dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(bool done, dispatch_data_t data, int error) {
-                              });
-        }
-    });
-    
-    dispatch_source_set_cancel_handler(socketReadSource, ^{
-        NSLog(@"close UDP socket");
-        close(socketfd);
-        dispatch_io_close(outputChannel, 0);
-        NSLog(@"closed everything!");
-    });
-    
-    IOPMAssertionID assertionID;
-    IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertPreventUserIdleSystemSleep,
-                                                   kIOPMAssertionLevelOn,
-                                                   (__bridge CFStringRef)recording.recordingFilePath,
-                                                   &assertionID);
-    
-    if (success != kIOReturnSuccess)
-        NSLog(@"unable to create power assertion");
-    
-    dispatch_resume(socketReadSource);
-    
-    success = IOPMAssertionRelease(assertionID);
-    
-    return YES;
 }
 
 @end

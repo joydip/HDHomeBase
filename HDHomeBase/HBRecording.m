@@ -205,24 +205,4 @@
     return [propertyListData writeToFile:path atomically:YES];
 }
 
-- (void)markAsScheduled
-{
-    self.statusIconImage = [NSImage imageNamed:@"scheduled"];
-}
-
-- (void)markAsExisting
-{
-    self.statusIconImage = [NSImage imageNamed:@"movie"];
-}
-
-- (void)markAsStarting
-{
-    self.statusIconImage = [NSImage imageNamed:@"orange"];
-}
-
-- (void)markAsSuccess
-{
-    self.statusIconImage = [NSImage imageNamed:@"recording"];
-}
-
 @end

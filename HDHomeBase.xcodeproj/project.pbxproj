@@ -9,11 +9,18 @@
 /* Begin PBXBuildFile section */
 		B73B51EE175C4B5E00201BE7 /* HBRecording.m in Sources */ = {isa = PBXBuildFile; fileRef = B73B51ED175C4B5E00201BE7 /* HBRecording.m */; };
 		B73D0E5D19B5015C009802CF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B73D0E5C19B5015C009802CF /* Images.xcassets */; };
-		B73D0E6019B629C3009802CF /* HDHRTunerReservation.m in Sources */ = {isa = PBXBuildFile; fileRef = B73D0E5F19B629C3009802CF /* HDHRTunerReservation.m */; };
-		B740C8BD172E14A00058B522 /* HDHRTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = B740C8BC172E14A00058B522 /* HDHRTypes.m */; };
-		B78DA54A172A398A00917635 /* HDHRTLVFragment.m in Sources */ = {isa = PBXBuildFile; fileRef = B78DA549172A398900917635 /* HDHRTLVFragment.m */; };
-		B7A4BA101722570E00AB346E /* HDHRPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = B7A4BA0F1722570E00AB346E /* HDHRPacket.m */; };
-		B7A5827919B9988700E1CA76 /* stop2.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7A5827819B9988700E1CA76 /* stop2.icns */; };
+		B7A5827919B9988700E1CA76 /* stop_red_button.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7A5827819B9988700E1CA76 /* stop_red_button.icns */; };
+		B7A5829B19BC0AFA00E1CA76 /* hdhomerun_channels.c in Sources */ = {isa = PBXBuildFile; fileRef = B7A5827B19BC0AFA00E1CA76 /* hdhomerun_channels.c */; };
+		B7A5829C19BC0AFA00E1CA76 /* hdhomerun_channelscan.c in Sources */ = {isa = PBXBuildFile; fileRef = B7A5827D19BC0AFA00E1CA76 /* hdhomerun_channelscan.c */; };
+		B7A5829E19BC0AFA00E1CA76 /* hdhomerun_control.c in Sources */ = {isa = PBXBuildFile; fileRef = B7A5828019BC0AFA00E1CA76 /* hdhomerun_control.c */; };
+		B7A5829F19BC0AFA00E1CA76 /* hdhomerun_debug.c in Sources */ = {isa = PBXBuildFile; fileRef = B7A5828219BC0AFA00E1CA76 /* hdhomerun_debug.c */; };
+		B7A582A019BC0AFA00E1CA76 /* hdhomerun_device_selector.c in Sources */ = {isa = PBXBuildFile; fileRef = B7A5828419BC0AFA00E1CA76 /* hdhomerun_device_selector.c */; };
+		B7A582A119BC0AFA00E1CA76 /* hdhomerun_device.c in Sources */ = {isa = PBXBuildFile; fileRef = B7A5828619BC0AFA00E1CA76 /* hdhomerun_device.c */; };
+		B7A582A219BC0AFA00E1CA76 /* hdhomerun_discover.c in Sources */ = {isa = PBXBuildFile; fileRef = B7A5828819BC0AFA00E1CA76 /* hdhomerun_discover.c */; };
+		B7A582A319BC0AFA00E1CA76 /* hdhomerun_os_posix.c in Sources */ = {isa = PBXBuildFile; fileRef = B7A5828A19BC0AFA00E1CA76 /* hdhomerun_os_posix.c */; };
+		B7A582A519BC0AFA00E1CA76 /* hdhomerun_pkt.c in Sources */ = {isa = PBXBuildFile; fileRef = B7A5828F19BC0AFA00E1CA76 /* hdhomerun_pkt.c */; };
+		B7A582A619BC0AFA00E1CA76 /* hdhomerun_sock_posix.c in Sources */ = {isa = PBXBuildFile; fileRef = B7A5829119BC0AFA00E1CA76 /* hdhomerun_sock_posix.c */; };
+		B7A582A819BC0AFA00E1CA76 /* hdhomerun_video.c in Sources */ = {isa = PBXBuildFile; fileRef = B7A5829519BC0AFA00E1CA76 /* hdhomerun_video.c */; };
 		B7A63DA2175B14E700B44C51 /* HBRecordingsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7A63DA0175B14E700B44C51 /* HBRecordingsTableViewController.m */; };
 		B7C94869171E7591008250E2 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7C94868171E7591008250E2 /* Cocoa.framework */; };
 		B7C94873171E7591008250E2 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B7C94871171E7591008250E2 /* InfoPlist.strings */; };
@@ -24,33 +31,29 @@
 		B7C9488B171E7592008250E2 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7C94868171E7591008250E2 /* Cocoa.framework */; };
 		B7C94893171E7592008250E2 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B7C94891171E7592008250E2 /* InfoPlist.strings */; };
 		B7C94896171E7592008250E2 /* HDHomeBaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B7C94895171E7592008250E2 /* HDHomeBaseTests.m */; };
-		B7C948C2171FD439008250E2 /* HDHRDeviceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B7C948C1171FD439008250E2 /* HDHRDeviceManager.m */; };
 		B7DDCA1419B8B43800553FD4 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7DDCA1319B8B43800553FD4 /* IOKit.framework */; };
-		B7DDCA1719B925BB00553FD4 /* play.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA1519B925BB00553FD4 /* play.icns */; };
-		B7DDCA1819B925BB00553FD4 /* delete.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA1619B925BB00553FD4 /* delete.icns */; };
-		B7DDCA1C19B9266600553FD4 /* record.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA1B19B9266600553FD4 /* record.icns */; };
+		B7DDCA1819B925BB00553FD4 /* prohibited.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA1619B925BB00553FD4 /* prohibited.icns */; };
 		B7DDCA1E19B9269100553FD4 /* alert.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA1D19B9269100553FD4 /* alert.icns */; };
 		B7DDCA2019B927CC00553FD4 /* scheduled.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA1F19B927CC00553FD4 /* scheduled.icns */; };
 		B7DDCA2219B927E800553FD4 /* stop_sign.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2119B927E800553FD4 /* stop_sign.icns */; };
-		B7DDCA2419B927FA00553FD4 /* new_schedule.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2319B927FA00553FD4 /* new_schedule.icns */; };
-		B7DDCA2619B9280100553FD4 /* scheduled_alert.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2519B9280100553FD4 /* scheduled_alert.icns */; };
-		B7DDCA2819B9280900553FD4 /* restart_schedule.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2719B9280900553FD4 /* restart_schedule.icns */; };
+		B7DDCA2419B927FA00553FD4 /* schedule_add.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2319B927FA00553FD4 /* schedule_add.icns */; };
+		B7DDCA2619B9280100553FD4 /* schedule_alert.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2519B9280100553FD4 /* schedule_alert.icns */; };
+		B7DDCA2819B9280900553FD4 /* reschedule_green_button.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2719B9280900553FD4 /* reschedule_green_button.icns */; };
 		B7DDCA2D19B9282900553FD4 /* green.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2919B9282900553FD4 /* green.icns */; };
 		B7DDCA2E19B9282900553FD4 /* orange.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2A19B9282900553FD4 /* orange.icns */; };
 		B7DDCA3019B9282900553FD4 /* red.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA2C19B9282900553FD4 /* red.icns */; };
 		B7DDCA3219B9283A00553FD4 /* yellow.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA3119B9283A00553FD4 /* yellow.icns */; };
-		B7DDCA3819B92A0E00553FD4 /* success.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA3719B92A0E00553FD4 /* success.icns */; };
+		B7DDCA3819B92A0E00553FD4 /* validate_green_button.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA3719B92A0E00553FD4 /* validate_green_button.icns */; };
 		B7DDCA3A19B92A2700553FD4 /* gray.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA3919B92A2700553FD4 /* gray.icns */; };
-		B7DDCA3C19B92A4500553FD4 /* play2.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA3B19B92A4500553FD4 /* play2.icns */; };
+		B7DDCA3C19B92A4500553FD4 /* play_green_button.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA3B19B92A4500553FD4 /* play_green_button.icns */; };
 		B7DDCA3E19B92A5900553FD4 /* purple.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA3D19B92A5900553FD4 /* purple.icns */; };
-		B7DDCA4019B92A7000553FD4 /* stop3.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA3F19B92A7000553FD4 /* stop3.icns */; };
-		B7DDCA4219B92A8C00553FD4 /* record2.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA4119B92A8C00553FD4 /* record2.icns */; };
-		B7DDCA4419B92AA600553FD4 /* delete_schedule.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA4319B92AA600553FD4 /* delete_schedule.icns */; };
-		B7DDCA4719B92BF000553FD4 /* delete2a.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA4519B92BF000553FD4 /* delete2a.icns */; };
-		B7DDCA4819B92BF000553FD4 /* delete2b.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA4619B92BF000553FD4 /* delete2b.icns */; };
+		B7DDCA4019B92A7000553FD4 /* stop_green_button.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA3F19B92A7000553FD4 /* stop_green_button.icns */; };
+		B7DDCA4219B92A8C00553FD4 /* record_button.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA4119B92A8C00553FD4 /* record_button.icns */; };
+		B7DDCA4419B92AA600553FD4 /* schedule_remove.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA4319B92AA600553FD4 /* schedule_remove.icns */; };
+		B7DDCA4719B92BF000553FD4 /* delete_green_button.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA4519B92BF000553FD4 /* delete_green_button.icns */; };
+		B7DDCA4819B92BF000553FD4 /* delete_red_button.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA4619B92BF000553FD4 /* delete_red_button.icns */; };
 		B7DDCA4A19B9512C00553FD4 /* filmstrip.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA4919B9512C00553FD4 /* filmstrip.icns */; };
-		B7DDCA4C19B97E8800553FD4 /* recording.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA4B19B97E8800553FD4 /* recording.icns */; };
-		B7EA0CEA1723361000B5DCA6 /* HDHRDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = B7EA0CE91723361000B5DCA6 /* HDHRDevice.m */; };
+		B7DDCA4C19B97E8800553FD4 /* clapperboard.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA4B19B97E8800553FD4 /* clapperboard.icns */; };
 		B7F7A19A176EA507007C5D4C /* HBScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = B7F7A199176EA507007C5D4C /* HBScheduler.m */; };
 /* End PBXBuildFile section */
 
@@ -80,15 +83,39 @@
 		B73B51EC175C4B5E00201BE7 /* HBRecording.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HBRecording.h; sourceTree = "<group>"; };
 		B73B51ED175C4B5E00201BE7 /* HBRecording.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HBRecording.m; sourceTree = "<group>"; };
 		B73D0E5C19B5015C009802CF /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		B73D0E5E19B629C3009802CF /* HDHRTunerReservation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDHRTunerReservation.h; sourceTree = "<group>"; };
-		B73D0E5F19B629C3009802CF /* HDHRTunerReservation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDHRTunerReservation.m; sourceTree = "<group>"; };
-		B740C8BB172E14A00058B522 /* HDHRTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDHRTypes.h; sourceTree = "<group>"; };
-		B740C8BC172E14A00058B522 /* HDHRTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDHRTypes.m; sourceTree = "<group>"; };
-		B78DA548172A398900917635 /* HDHRTLVFragment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDHRTLVFragment.h; sourceTree = "<group>"; };
-		B78DA549172A398900917635 /* HDHRTLVFragment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDHRTLVFragment.m; sourceTree = "<group>"; };
-		B7A4BA0E1722570E00AB346E /* HDHRPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDHRPacket.h; sourceTree = "<group>"; };
-		B7A4BA0F1722570E00AB346E /* HDHRPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDHRPacket.m; sourceTree = "<group>"; };
-		B7A5827819B9988700E1CA76 /* stop2.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = stop2.icns; sourceTree = "<group>"; };
+		B7A5827819B9988700E1CA76 /* stop_red_button.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = stop_red_button.icns; sourceTree = "<group>"; };
+		B7A5827B19BC0AFA00E1CA76 /* hdhomerun_channels.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_channels.c; sourceTree = "<group>"; };
+		B7A5827C19BC0AFA00E1CA76 /* hdhomerun_channels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_channels.h; sourceTree = "<group>"; };
+		B7A5827D19BC0AFA00E1CA76 /* hdhomerun_channelscan.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_channelscan.c; sourceTree = "<group>"; };
+		B7A5827E19BC0AFA00E1CA76 /* hdhomerun_channelscan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_channelscan.h; sourceTree = "<group>"; };
+		B7A5827F19BC0AFA00E1CA76 /* hdhomerun_config.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_config.c; sourceTree = "<group>"; };
+		B7A5828019BC0AFA00E1CA76 /* hdhomerun_control.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_control.c; sourceTree = "<group>"; };
+		B7A5828119BC0AFA00E1CA76 /* hdhomerun_control.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_control.h; sourceTree = "<group>"; };
+		B7A5828219BC0AFA00E1CA76 /* hdhomerun_debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_debug.c; sourceTree = "<group>"; };
+		B7A5828319BC0AFA00E1CA76 /* hdhomerun_debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_debug.h; sourceTree = "<group>"; };
+		B7A5828419BC0AFA00E1CA76 /* hdhomerun_device_selector.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_device_selector.c; sourceTree = "<group>"; };
+		B7A5828519BC0AFA00E1CA76 /* hdhomerun_device_selector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_device_selector.h; sourceTree = "<group>"; };
+		B7A5828619BC0AFA00E1CA76 /* hdhomerun_device.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_device.c; sourceTree = "<group>"; };
+		B7A5828719BC0AFA00E1CA76 /* hdhomerun_device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_device.h; sourceTree = "<group>"; };
+		B7A5828819BC0AFA00E1CA76 /* hdhomerun_discover.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_discover.c; sourceTree = "<group>"; };
+		B7A5828919BC0AFA00E1CA76 /* hdhomerun_discover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_discover.h; sourceTree = "<group>"; };
+		B7A5828A19BC0AFA00E1CA76 /* hdhomerun_os_posix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_os_posix.c; sourceTree = "<group>"; };
+		B7A5828B19BC0AFA00E1CA76 /* hdhomerun_os_posix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_os_posix.h; sourceTree = "<group>"; };
+		B7A5828C19BC0AFA00E1CA76 /* hdhomerun_os_windows.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_os_windows.c; sourceTree = "<group>"; };
+		B7A5828D19BC0AFA00E1CA76 /* hdhomerun_os_windows.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_os_windows.h; sourceTree = "<group>"; };
+		B7A5828E19BC0AFA00E1CA76 /* hdhomerun_os.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_os.h; sourceTree = "<group>"; };
+		B7A5828F19BC0AFA00E1CA76 /* hdhomerun_pkt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_pkt.c; sourceTree = "<group>"; };
+		B7A5829019BC0AFA00E1CA76 /* hdhomerun_pkt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_pkt.h; sourceTree = "<group>"; };
+		B7A5829119BC0AFA00E1CA76 /* hdhomerun_sock_posix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_sock_posix.c; sourceTree = "<group>"; };
+		B7A5829219BC0AFA00E1CA76 /* hdhomerun_sock_windows.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_sock_windows.c; sourceTree = "<group>"; };
+		B7A5829319BC0AFA00E1CA76 /* hdhomerun_sock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_sock.h; sourceTree = "<group>"; };
+		B7A5829419BC0AFA00E1CA76 /* hdhomerun_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_types.h; sourceTree = "<group>"; };
+		B7A5829519BC0AFA00E1CA76 /* hdhomerun_video.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_video.c; sourceTree = "<group>"; };
+		B7A5829619BC0AFA00E1CA76 /* hdhomerun_video.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_video.h; sourceTree = "<group>"; };
+		B7A5829719BC0AFA00E1CA76 /* hdhomerun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun.h; sourceTree = "<group>"; };
+		B7A5829819BC0AFA00E1CA76 /* lgpl.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lgpl.txt; sourceTree = "<group>"; };
+		B7A5829919BC0AFA00E1CA76 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		B7A5829A19BC0AFA00E1CA76 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		B7A63D9F175B14E700B44C51 /* HBRecordingsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HBRecordingsTableViewController.h; sourceTree = "<group>"; };
 		B7A63DA0175B14E700B44C51 /* HBRecordingsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HBRecordingsTableViewController.m; sourceTree = "<group>"; };
 		B7C94865171E7591008250E2 /* HDHomeBase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HDHomeBase.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -109,36 +136,29 @@
 		B7C94892171E7592008250E2 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		B7C94894171E7592008250E2 /* HDHomeBaseTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HDHomeBaseTests.h; sourceTree = "<group>"; };
 		B7C94895171E7592008250E2 /* HDHomeBaseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HDHomeBaseTests.m; sourceTree = "<group>"; };
-		B7C948C0171FD439008250E2 /* HDHRDeviceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDHRDeviceManager.h; sourceTree = "<group>"; };
-		B7C948C1171FD439008250E2 /* HDHRDeviceManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDHRDeviceManager.m; sourceTree = "<group>"; };
-		B7CAD1E5177BCCDC00324C23 /* HDHRKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HDHRKit.h; sourceTree = "<group>"; };
 		B7DDCA1319B8B43800553FD4 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
-		B7DDCA1519B925BB00553FD4 /* play.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = play.icns; sourceTree = "<group>"; };
-		B7DDCA1619B925BB00553FD4 /* delete.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = delete.icns; sourceTree = "<group>"; };
-		B7DDCA1B19B9266600553FD4 /* record.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = record.icns; sourceTree = "<group>"; };
+		B7DDCA1619B925BB00553FD4 /* prohibited.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = prohibited.icns; sourceTree = "<group>"; };
 		B7DDCA1D19B9269100553FD4 /* alert.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = alert.icns; sourceTree = "<group>"; };
 		B7DDCA1F19B927CC00553FD4 /* scheduled.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = scheduled.icns; sourceTree = "<group>"; };
 		B7DDCA2119B927E800553FD4 /* stop_sign.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = stop_sign.icns; sourceTree = "<group>"; };
-		B7DDCA2319B927FA00553FD4 /* new_schedule.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = new_schedule.icns; sourceTree = "<group>"; };
-		B7DDCA2519B9280100553FD4 /* scheduled_alert.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = scheduled_alert.icns; sourceTree = "<group>"; };
-		B7DDCA2719B9280900553FD4 /* restart_schedule.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = restart_schedule.icns; sourceTree = "<group>"; };
+		B7DDCA2319B927FA00553FD4 /* schedule_add.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = schedule_add.icns; sourceTree = "<group>"; };
+		B7DDCA2519B9280100553FD4 /* schedule_alert.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = schedule_alert.icns; sourceTree = "<group>"; };
+		B7DDCA2719B9280900553FD4 /* reschedule_green_button.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = reschedule_green_button.icns; sourceTree = "<group>"; };
 		B7DDCA2919B9282900553FD4 /* green.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = green.icns; sourceTree = "<group>"; };
 		B7DDCA2A19B9282900553FD4 /* orange.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = orange.icns; sourceTree = "<group>"; };
 		B7DDCA2C19B9282900553FD4 /* red.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = red.icns; sourceTree = "<group>"; };
 		B7DDCA3119B9283A00553FD4 /* yellow.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = yellow.icns; sourceTree = "<group>"; };
-		B7DDCA3719B92A0E00553FD4 /* success.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = success.icns; sourceTree = "<group>"; };
+		B7DDCA3719B92A0E00553FD4 /* validate_green_button.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = validate_green_button.icns; sourceTree = "<group>"; };
 		B7DDCA3919B92A2700553FD4 /* gray.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = gray.icns; sourceTree = "<group>"; };
-		B7DDCA3B19B92A4500553FD4 /* play2.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = play2.icns; sourceTree = "<group>"; };
+		B7DDCA3B19B92A4500553FD4 /* play_green_button.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = play_green_button.icns; sourceTree = "<group>"; };
 		B7DDCA3D19B92A5900553FD4 /* purple.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = purple.icns; sourceTree = "<group>"; };
-		B7DDCA3F19B92A7000553FD4 /* stop3.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = stop3.icns; sourceTree = "<group>"; };
-		B7DDCA4119B92A8C00553FD4 /* record2.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = record2.icns; sourceTree = "<group>"; };
-		B7DDCA4319B92AA600553FD4 /* delete_schedule.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = delete_schedule.icns; sourceTree = "<group>"; };
-		B7DDCA4519B92BF000553FD4 /* delete2a.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = delete2a.icns; sourceTree = "<group>"; };
-		B7DDCA4619B92BF000553FD4 /* delete2b.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = delete2b.icns; sourceTree = "<group>"; };
+		B7DDCA3F19B92A7000553FD4 /* stop_green_button.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = stop_green_button.icns; sourceTree = "<group>"; };
+		B7DDCA4119B92A8C00553FD4 /* record_button.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = record_button.icns; sourceTree = "<group>"; };
+		B7DDCA4319B92AA600553FD4 /* schedule_remove.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = schedule_remove.icns; sourceTree = "<group>"; };
+		B7DDCA4519B92BF000553FD4 /* delete_green_button.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = delete_green_button.icns; sourceTree = "<group>"; };
+		B7DDCA4619B92BF000553FD4 /* delete_red_button.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = delete_red_button.icns; sourceTree = "<group>"; };
 		B7DDCA4919B9512C00553FD4 /* filmstrip.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = filmstrip.icns; sourceTree = "<group>"; };
-		B7DDCA4B19B97E8800553FD4 /* recording.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = recording.icns; sourceTree = "<group>"; };
-		B7EA0CE81723361000B5DCA6 /* HDHRDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDHRDevice.h; sourceTree = "<group>"; };
-		B7EA0CE91723361000B5DCA6 /* HDHRDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDHRDevice.m; sourceTree = "<group>"; };
+		B7DDCA4B19B97E8800553FD4 /* clapperboard.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = clapperboard.icns; sourceTree = "<group>"; };
 		B7F7A198176EA507007C5D4C /* HBScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HBScheduler.h; sourceTree = "<group>"; };
 		B7F7A199176EA507007C5D4C /* HBScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HBScheduler.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -164,10 +184,49 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B7A5827A19BC0AD800E1CA76 /* libhdhomerun */ = {
+			isa = PBXGroup;
+			children = (
+				B7A5827B19BC0AFA00E1CA76 /* hdhomerun_channels.c */,
+				B7A5827C19BC0AFA00E1CA76 /* hdhomerun_channels.h */,
+				B7A5827D19BC0AFA00E1CA76 /* hdhomerun_channelscan.c */,
+				B7A5827E19BC0AFA00E1CA76 /* hdhomerun_channelscan.h */,
+				B7A5827F19BC0AFA00E1CA76 /* hdhomerun_config.c */,
+				B7A5828019BC0AFA00E1CA76 /* hdhomerun_control.c */,
+				B7A5828119BC0AFA00E1CA76 /* hdhomerun_control.h */,
+				B7A5828219BC0AFA00E1CA76 /* hdhomerun_debug.c */,
+				B7A5828319BC0AFA00E1CA76 /* hdhomerun_debug.h */,
+				B7A5828419BC0AFA00E1CA76 /* hdhomerun_device_selector.c */,
+				B7A5828519BC0AFA00E1CA76 /* hdhomerun_device_selector.h */,
+				B7A5828619BC0AFA00E1CA76 /* hdhomerun_device.c */,
+				B7A5828719BC0AFA00E1CA76 /* hdhomerun_device.h */,
+				B7A5828819BC0AFA00E1CA76 /* hdhomerun_discover.c */,
+				B7A5828919BC0AFA00E1CA76 /* hdhomerun_discover.h */,
+				B7A5828A19BC0AFA00E1CA76 /* hdhomerun_os_posix.c */,
+				B7A5828B19BC0AFA00E1CA76 /* hdhomerun_os_posix.h */,
+				B7A5828C19BC0AFA00E1CA76 /* hdhomerun_os_windows.c */,
+				B7A5828D19BC0AFA00E1CA76 /* hdhomerun_os_windows.h */,
+				B7A5828E19BC0AFA00E1CA76 /* hdhomerun_os.h */,
+				B7A5828F19BC0AFA00E1CA76 /* hdhomerun_pkt.c */,
+				B7A5829019BC0AFA00E1CA76 /* hdhomerun_pkt.h */,
+				B7A5829119BC0AFA00E1CA76 /* hdhomerun_sock_posix.c */,
+				B7A5829219BC0AFA00E1CA76 /* hdhomerun_sock_windows.c */,
+				B7A5829319BC0AFA00E1CA76 /* hdhomerun_sock.h */,
+				B7A5829419BC0AFA00E1CA76 /* hdhomerun_types.h */,
+				B7A5829519BC0AFA00E1CA76 /* hdhomerun_video.c */,
+				B7A5829619BC0AFA00E1CA76 /* hdhomerun_video.h */,
+				B7A5829719BC0AFA00E1CA76 /* hdhomerun.h */,
+				B7A5829819BC0AFA00E1CA76 /* lgpl.txt */,
+				B7A5829919BC0AFA00E1CA76 /* Makefile */,
+				B7A5829A19BC0AFA00E1CA76 /* README */,
+			);
+			path = libhdhomerun;
+			sourceTree = "<group>";
+		};
 		B7C9485C171E7590008250E2 = {
 			isa = PBXGroup;
 			children = (
-				B7EA0CF317234FB100B5DCA6 /* HDHRKit */,
+				B7A5827A19BC0AD800E1CA76 /* libhdhomerun */,
 				B7C9486E171E7591008250E2 /* HDHomeBase */,
 				B7C9488E171E7592008250E2 /* HDHomeBaseTests */,
 				B7C94867171E7591008250E2 /* Frameworks */,
@@ -225,30 +284,28 @@
 		B7C9486F171E7591008250E2 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				B7A5827819B9988700E1CA76 /* stop2.icns */,
 				B7DDCA1D19B9269100553FD4 /* alert.icns */,
-				B7DDCA1619B925BB00553FD4 /* delete.icns */,
-				B7DDCA4519B92BF000553FD4 /* delete2a.icns */,
-				B7DDCA4619B92BF000553FD4 /* delete2b.icns */,
-				B7DDCA4319B92AA600553FD4 /* delete_schedule.icns */,
+				B7DDCA4B19B97E8800553FD4 /* clapperboard.icns */,
+				B7DDCA1619B925BB00553FD4 /* prohibited.icns */,
+				B7DDCA4519B92BF000553FD4 /* delete_green_button.icns */,
+				B7DDCA4619B92BF000553FD4 /* delete_red_button.icns */,
+				B7DDCA4919B9512C00553FD4 /* filmstrip.icns */,
 				B7DDCA3919B92A2700553FD4 /* gray.icns */,
 				B7DDCA2919B9282900553FD4 /* green.icns */,
-				B7DDCA4B19B97E8800553FD4 /* recording.icns */,
-				B7DDCA2319B927FA00553FD4 /* new_schedule.icns */,
 				B7DDCA2A19B9282900553FD4 /* orange.icns */,
-				B7DDCA1519B925BB00553FD4 /* play.icns */,
-				B7DDCA3B19B92A4500553FD4 /* play2.icns */,
+				B7DDCA3B19B92A4500553FD4 /* play_green_button.icns */,
 				B7DDCA3D19B92A5900553FD4 /* purple.icns */,
-				B7DDCA1B19B9266600553FD4 /* record.icns */,
-				B7DDCA4119B92A8C00553FD4 /* record2.icns */,
-				B7DDCA4919B9512C00553FD4 /* filmstrip.icns */,
+				B7DDCA4119B92A8C00553FD4 /* record_button.icns */,
 				B7DDCA2C19B9282900553FD4 /* red.icns */,
-				B7DDCA2719B9280900553FD4 /* restart_schedule.icns */,
+				B7DDCA2719B9280900553FD4 /* reschedule_green_button.icns */,
+				B7DDCA2319B927FA00553FD4 /* schedule_add.icns */,
+				B7DDCA2519B9280100553FD4 /* schedule_alert.icns */,
+				B7DDCA4319B92AA600553FD4 /* schedule_remove.icns */,
 				B7DDCA1F19B927CC00553FD4 /* scheduled.icns */,
-				B7DDCA2519B9280100553FD4 /* scheduled_alert.icns */,
+				B7DDCA3F19B92A7000553FD4 /* stop_green_button.icns */,
+				B7A5827819B9988700E1CA76 /* stop_red_button.icns */,
 				B7DDCA2119B927E800553FD4 /* stop_sign.icns */,
-				B7DDCA3F19B92A7000553FD4 /* stop3.icns */,
-				B7DDCA3719B92A0E00553FD4 /* success.icns */,
+				B7DDCA3719B92A0E00553FD4 /* validate_green_button.icns */,
 				B7DDCA3119B9283A00553FD4 /* yellow.icns */,
 				B7C94874171E7591008250E2 /* main.m */,
 				B7C94876171E7591008250E2 /* HDHomeBase-Prefix.pch */,
@@ -276,27 +333,6 @@
 				B7C94891171E7592008250E2 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		B7EA0CF317234FB100B5DCA6 /* HDHRKit */ = {
-			isa = PBXGroup;
-			children = (
-				B7CAD1E5177BCCDC00324C23 /* HDHRKit.h */,
-				B7C948C0171FD439008250E2 /* HDHRDeviceManager.h */,
-				B7C948C1171FD439008250E2 /* HDHRDeviceManager.m */,
-				B73D0E5E19B629C3009802CF /* HDHRTunerReservation.h */,
-				B73D0E5F19B629C3009802CF /* HDHRTunerReservation.m */,
-				B7EA0CE81723361000B5DCA6 /* HDHRDevice.h */,
-				B7EA0CE91723361000B5DCA6 /* HDHRDevice.m */,
-				B7A4BA0E1722570E00AB346E /* HDHRPacket.h */,
-				B7A4BA0F1722570E00AB346E /* HDHRPacket.m */,
-				B78DA548172A398900917635 /* HDHRTLVFragment.h */,
-				B78DA549172A398900917635 /* HDHRTLVFragment.m */,
-				B740C8BB172E14A00058B522 /* HDHRTypes.h */,
-				B740C8BC172E14A00058B522 /* HDHRTypes.m */,
-			);
-			name = HDHRKit;
-			path = HDHomeBase;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -373,35 +409,33 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B7DDCA4219B92A8C00553FD4 /* record2.icns in Resources */,
-				B7DDCA1C19B9266600553FD4 /* record.icns in Resources */,
-				B7DDCA4819B92BF000553FD4 /* delete2b.icns in Resources */,
+				B7DDCA4219B92A8C00553FD4 /* record_button.icns in Resources */,
+				B7DDCA4819B92BF000553FD4 /* delete_red_button.icns in Resources */,
 				B7C94873171E7591008250E2 /* InfoPlist.strings in Resources */,
 				B7DDCA3019B9282900553FD4 /* red.icns in Resources */,
 				B7DDCA2E19B9282900553FD4 /* orange.icns in Resources */,
 				B7DDCA3219B9283A00553FD4 /* yellow.icns in Resources */,
-				B7DDCA2619B9280100553FD4 /* scheduled_alert.icns in Resources */,
-				B7DDCA3819B92A0E00553FD4 /* success.icns in Resources */,
+				B7DDCA2619B9280100553FD4 /* schedule_alert.icns in Resources */,
+				B7DDCA3819B92A0E00553FD4 /* validate_green_button.icns in Resources */,
 				B73D0E5D19B5015C009802CF /* Images.xcassets in Resources */,
-				B7DDCA3C19B92A4500553FD4 /* play2.icns in Resources */,
+				B7DDCA3C19B92A4500553FD4 /* play_green_button.icns in Resources */,
 				B7DDCA2D19B9282900553FD4 /* green.icns in Resources */,
-				B7DDCA4019B92A7000553FD4 /* stop3.icns in Resources */,
-				B7DDCA1819B925BB00553FD4 /* delete.icns in Resources */,
-				B7A5827919B9988700E1CA76 /* stop2.icns in Resources */,
-				B7DDCA4C19B97E8800553FD4 /* recording.icns in Resources */,
-				B7DDCA4719B92BF000553FD4 /* delete2a.icns in Resources */,
-				B7DDCA1719B925BB00553FD4 /* play.icns in Resources */,
-				B7DDCA2819B9280900553FD4 /* restart_schedule.icns in Resources */,
+				B7DDCA4019B92A7000553FD4 /* stop_green_button.icns in Resources */,
+				B7DDCA1819B925BB00553FD4 /* prohibited.icns in Resources */,
+				B7A5827919B9988700E1CA76 /* stop_red_button.icns in Resources */,
+				B7DDCA4C19B97E8800553FD4 /* clapperboard.icns in Resources */,
+				B7DDCA4719B92BF000553FD4 /* delete_green_button.icns in Resources */,
+				B7DDCA2819B9280900553FD4 /* reschedule_green_button.icns in Resources */,
 				B7DDCA2219B927E800553FD4 /* stop_sign.icns in Resources */,
 				B7DDCA4A19B9512C00553FD4 /* filmstrip.icns in Resources */,
 				B7C94879171E7591008250E2 /* Credits.rtf in Resources */,
 				B7C9487F171E7591008250E2 /* MainMenu.xib in Resources */,
-				B7DDCA4419B92AA600553FD4 /* delete_schedule.icns in Resources */,
+				B7DDCA4419B92AA600553FD4 /* schedule_remove.icns in Resources */,
 				B7DDCA3E19B92A5900553FD4 /* purple.icns in Resources */,
 				B7DDCA3A19B92A2700553FD4 /* gray.icns in Resources */,
 				B7DDCA1E19B9269100553FD4 /* alert.icns in Resources */,
 				B7DDCA2019B927CC00553FD4 /* scheduled.icns in Resources */,
-				B7DDCA2419B927FA00553FD4 /* new_schedule.icns in Resources */,
+				B7DDCA2419B927FA00553FD4 /* schedule_add.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -437,15 +471,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				B7C94875171E7591008250E2 /* main.m in Sources */,
+				B7A582A019BC0AFA00E1CA76 /* hdhomerun_device_selector.c in Sources */,
+				B7A582A319BC0AFA00E1CA76 /* hdhomerun_os_posix.c in Sources */,
 				B7C9487C171E7591008250E2 /* HBAppDelegate.m in Sources */,
-				B7C948C2171FD439008250E2 /* HDHRDeviceManager.m in Sources */,
-				B73D0E6019B629C3009802CF /* HDHRTunerReservation.m in Sources */,
-				B7A4BA101722570E00AB346E /* HDHRPacket.m in Sources */,
-				B7EA0CEA1723361000B5DCA6 /* HDHRDevice.m in Sources */,
-				B78DA54A172A398A00917635 /* HDHRTLVFragment.m in Sources */,
-				B740C8BD172E14A00058B522 /* HDHRTypes.m in Sources */,
+				B7A5829F19BC0AFA00E1CA76 /* hdhomerun_debug.c in Sources */,
+				B7A582A119BC0AFA00E1CA76 /* hdhomerun_device.c in Sources */,
+				B7A5829B19BC0AFA00E1CA76 /* hdhomerun_channels.c in Sources */,
+				B7A582A619BC0AFA00E1CA76 /* hdhomerun_sock_posix.c in Sources */,
+				B7A5829E19BC0AFA00E1CA76 /* hdhomerun_control.c in Sources */,
+				B7A5829C19BC0AFA00E1CA76 /* hdhomerun_channelscan.c in Sources */,
+				B7A582A219BC0AFA00E1CA76 /* hdhomerun_discover.c in Sources */,
 				B7A63DA2175B14E700B44C51 /* HBRecordingsTableViewController.m in Sources */,
+				B7A582A819BC0AFA00E1CA76 /* hdhomerun_video.c in Sources */,
 				B73B51EE175C4B5E00201BE7 /* HBRecording.m in Sources */,
+				B7A582A519BC0AFA00E1CA76 /* hdhomerun_pkt.c in Sources */,
 				B7F7A19A176EA507007C5D4C /* HBScheduler.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

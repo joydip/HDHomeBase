@@ -9,11 +9,9 @@
 #import <Foundation/Foundation.h>
 
 @class HBRecording;
-@class HDHRDeviceManager;
 
 @interface HBScheduler : NSObject
 
-@property IBOutlet HDHRDeviceManager *deviceManager;
 @property (readonly) NSMutableArray *scheduledRecordings;
 @property (readonly) NSString *recordingsFolder;
 
