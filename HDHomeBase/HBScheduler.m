@@ -10,7 +10,6 @@
 #import "HBRecording.h"
 #include "hdhomerun.h"
 
-
 #import <IOKit/pwr_mgt/IOPMLib.h>
 
 @interface HBScheduler ()
@@ -31,42 +30,61 @@
     return self;
 }
 
+- (NSUInteger)totalTunerCount
+{
+    return [[NSUserDefaults standardUserDefaults] integerForKey:@"TotalTunerCount"];
+}
+
+- (NSUInteger)maxAcceptableOverlappingRecordingsCount
+{
+    return self.totalTunerCount-1;
+}
+
+
 - (NSString *)recordingsFolder
 {
     return [[NSUserDefaults standardUserDefaults] stringForKey:@"RecordingsFolder"];
 }
 
-- (void)importExistingRecordings
+- (void)importExistingSchedules
 {
     NSFileManager *defaultFileManager = [NSFileManager defaultManager];
     NSArray *recordingsFolderContents = [defaultFileManager contentsOfDirectoryAtPath:self.recordingsFolder error:NULL];
     
     for (NSString *file in recordingsFolderContents)
-        if ([file hasSuffix:@".plist"]) [self importPropertyListFile:[self.recordingsFolder stringByAppendingPathComponent:file]];
+        if ([file hasSuffix:@".hbsched"]) [self importPropertyListFile:[self.recordingsFolder stringByAppendingPathComponent:file]];
 }
 
 - (void)importTVPIFile:(NSString *)tvpiFilePath
 {
     HBRecording *recording = [HBRecording recordingFromTVPIFile:tvpiFilePath];
-    
-    if ([recording hasEndDatePassed]) return;
-    
-    NSString *newPropertyListFilename = [recording.uniqueName stringByAppendingString:@".plist"];
-    NSString *newPropertyListPath = [self.recordingsFolder stringByAppendingPathComponent:newPropertyListFilename];
-    
-    [recording serializeAsPropertyListFileToPath:newPropertyListPath error:NULL];
-    recording.propertyListFilePath = newPropertyListPath;
+
     [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:tvpiFilePath]
                                   resultingItemURL:NULL
                                              error:NULL];
-    [self scheduleRecording:recording];
+
+    if (![recording hasEndDatePassed]) {
+        NSString *newPropertyListFilename = [recording.uniqueName stringByAppendingString:@".hbsched"];
+        NSString *newPropertyListPath = [self.recordingsFolder stringByAppendingPathComponent:newPropertyListFilename];
+        
+        [recording serializeAsPropertyListFileToPath:newPropertyListPath error:NULL];
+        recording.propertyListFilePath = newPropertyListPath;
+
+        [self scheduleRecording:recording];
+    }
 }
 
 - (void)importPropertyListFile:(NSString *)propertyListFilePath
 {
     HBRecording *recording = [HBRecording recordingFromPropertyListFile:propertyListFilePath];
 
-    if ([recording hasEndDatePassed]) return;
+    if ([recording hasEndDatePassed]) {
+        [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:propertyListFilePath]
+                                      resultingItemURL:NULL
+                                                 error:NULL];
+        return;
+    }
+    
     recording.propertyListFilePath = propertyListFilePath;
     [self scheduleRecording:recording];
 }
@@ -110,21 +128,21 @@
 - (void)searchForScheduleConflicts
 {
     for (HBRecording *recording in self.scheduledRecordings) {
-        recording.conflictingRecordings = nil;
-        NSMutableArray *conflictingRecordings = nil;
+        recording.overlappingRecordings = nil;
+        NSMutableArray *overlappingRecordings = nil;
         
         for (HBRecording *otherRecording in self.scheduledRecordings) {
             if (recording == otherRecording) continue;
             
             if ([recording overlapsWithRecording:otherRecording]) {
-                if (!conflictingRecordings) conflictingRecordings = [NSMutableArray new];
-                [conflictingRecordings addObject:otherRecording];
+                if (!overlappingRecordings) overlappingRecordings = [NSMutableArray new];
+                [overlappingRecordings addObject:otherRecording];
             }
         }
         
-        recording.conflictingRecordings = conflictingRecordings;
-        // XXX this should be made to be the same value as the table view
-        recording.statusIconImage = [NSImage imageNamed:(recording.conflictingRecordings.count > 1) ? @"schedule_alert" : @"scheduled"];
+        recording.overlappingRecordings = overlappingRecordings;
+        BOOL tooManyOverlappingRecordings = (recording.overlappingRecordings.count > self.maxAcceptableOverlappingRecordingsCount);
+        recording.statusIconImage = [NSImage imageNamed:(tooManyOverlappingRecordings ? @"schedule_alert" : @"scheduled")];
     }
 }
 

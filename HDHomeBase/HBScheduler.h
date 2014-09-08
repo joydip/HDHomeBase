@@ -14,10 +14,13 @@
 
 @property (readonly) NSMutableArray *scheduledRecordings;
 @property (readonly) NSString *recordingsFolder;
+@property (readonly) NSUInteger totalTunerCount;
+@property (readonly) NSUInteger maxAcceptableOverlappingRecordingsCount;
+
 
 - (void)importTVPIFile:(NSString *)tvpiFilePath;
 - (void)importPropertyListFile:(NSString *)propertyListFilePath;
-- (void)importExistingRecordings;
+- (void)importExistingSchedules;
 
 - (void)scheduleRecording:(HBRecording *)recording;
 - (void)startRecording:(HBRecording *)recording;

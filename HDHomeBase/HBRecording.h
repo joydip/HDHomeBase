@@ -40,7 +40,7 @@
 @property NSTimer *stopTimer;
 @property NSDate *paddedStartDate;
 @property NSDate *paddedEndDate;
-@property NSMutableArray *conflictingRecordings;
+@property NSMutableArray *overlappingRecordings;
 
 
 @property struct hdhomerun_device_t *tunerDevice;

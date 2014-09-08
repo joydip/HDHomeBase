@@ -27,7 +27,7 @@
     
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
 
-    [self.scheduler importExistingRecordings];
+    [self.scheduler importExistingSchedules];
     [self.recordingsTableViewController refresh:self];
 }
 
