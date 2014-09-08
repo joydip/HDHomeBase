@@ -150,7 +150,8 @@
     for (HBRecording *recording in self.scheduledRecordings) {
         BOOL tooManyOverlappingRecordings = (recording.overlappingRecordings.count > self.maxAcceptableOverlappingRecordingsCount);
         recording.tooManyOverlappingRecordings = tooManyOverlappingRecordings;
-        recording.statusIconImage = [NSImage imageNamed:(tooManyOverlappingRecordings ? @"schedule_alert" : @"scheduled")];
+        if (!recording.currentlyRecording)
+            recording.statusIconImage = [NSImage imageNamed:(tooManyOverlappingRecordings ? @"schedule_alert" : @"scheduled")];
     }
 }
 
