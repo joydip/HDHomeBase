@@ -122,26 +122,34 @@
     }
     
     [self.scheduledRecordings addObject:recording];
-    [self searchForScheduleConflicts];
+    [self searchForSchedulingConflicts];
 }
 
-- (void)searchForScheduleConflicts
+- (void)searchForSchedulingConflicts
 {
-    for (HBRecording *recording in self.scheduledRecordings) {
+    for (HBRecording *recording in self.scheduledRecordings)
         recording.overlappingRecordings = nil;
-        NSMutableArray *overlappingRecordings = nil;
+
+    NSArray *sortedScheduledRecordings = [self.scheduledRecordings sortedArrayUsingComparator:^(HBRecording *q, HBRecording *r) {
+        return [q.startDate compare:r.startDate];
+    }];
+    
+    for (NSUInteger i = 0; i < sortedScheduledRecordings.count; i++) {
+        HBRecording *recording = sortedScheduledRecordings[i];
         
-        for (HBRecording *otherRecording in self.scheduledRecordings) {
-            if (recording == otherRecording) continue;
+        for (NSUInteger j = i+1; j < sortedScheduledRecordings.count; j++) {
+            HBRecording *otherRecording = sortedScheduledRecordings[j];
             
-            if ([recording overlapsWithRecording:otherRecording]) {
-                if (!overlappingRecordings) overlappingRecordings = [NSMutableArray new];
-                [overlappingRecordings addObject:otherRecording];
-            }
+            if ([otherRecording startOverlapsWithRecording:recording]) {
+                if (!otherRecording.overlappingRecordings) otherRecording.overlappingRecordings = [NSMutableSet new];
+                [otherRecording.overlappingRecordings addObject:recording];
+            } else break;
         }
-        
-        recording.overlappingRecordings = overlappingRecordings;
+    }
+
+    for (HBRecording *recording in self.scheduledRecordings) {
         BOOL tooManyOverlappingRecordings = (recording.overlappingRecordings.count > self.maxAcceptableOverlappingRecordingsCount);
+        recording.tooManyOverlappingRecordings = tooManyOverlappingRecordings;
         recording.statusIconImage = [NSImage imageNamed:(tooManyOverlappingRecordings ? @"schedule_alert" : @"scheduled")];
     }
 }
@@ -357,7 +365,7 @@
                                  error:NULL];
 
     [self.scheduledRecordings removeObject:recording];
-    [self searchForScheduleConflicts];
+    [self searchForSchedulingConflicts];
 }
 
 - (void)startRecordingTimerFired:(NSTimer *)timer

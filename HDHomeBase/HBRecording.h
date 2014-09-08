@@ -40,8 +40,8 @@
 @property NSTimer *stopTimer;
 @property NSDate *paddedStartDate;
 @property NSDate *paddedEndDate;
-@property NSMutableArray *overlappingRecordings;
-
+@property NSMutableSet *overlappingRecordings;
+@property BOOL tooManyOverlappingRecordings;
 
 @property struct hdhomerun_device_t *tunerDevice;
 
@@ -53,7 +53,7 @@
 
 - (BOOL)serializeAsPropertyListFileToPath:(NSString *)path error:(NSError **)error;
 
-- (BOOL)overlapsWithRecording:(HBRecording *)otherRecording;
+- (BOOL)startOverlapsWithRecording:(HBRecording *)otherRecording;
 - (BOOL)hasEndDatePassed;
 
 @end

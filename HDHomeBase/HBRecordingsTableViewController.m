@@ -51,26 +51,24 @@
 
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification
 {
-    HBRecording *recording = nil;
-    NSArray *conflictingRecordings = nil;
-    HBRecording *candidateRecording = nil;
-    NSUInteger maxAcceptableOverlappingRecordingsCount = self.scheduler.maxAcceptableOverlappingRecordingsCount;
-    
     NSInteger selectedRowIndex = [self.tableView selectedRow];
+    HBRecording *selectedRecording = nil;
     
-    if (selectedRowIndex != -1) {
-        recording = self.recordings[selectedRowIndex];
-        conflictingRecordings = recording.overlappingRecordings;
-    }
+    if (selectedRowIndex != -1) selectedRecording = self.recordings[selectedRowIndex];
     
     for (NSUInteger rowIndex = 0; rowIndex < self.recordings.count; rowIndex++) {
-        if (recording) candidateRecording = self.recordings[rowIndex];
-        NSTableRowView *view = [self.tableView rowViewAtRow:rowIndex makeIfNecessary:NO];
+        NSTableRowView *rowView = [self.tableView rowViewAtRow:rowIndex makeIfNecessary:NO];
 
-        if (recording && (conflictingRecordings.count > maxAcceptableOverlappingRecordingsCount) && [conflictingRecordings containsObject:candidateRecording])
-            view.backgroundColor = [NSColor colorWithDeviceRed:1.0f green:0.0f blue:0.0f alpha:0.25f];
-        else
-            view.backgroundColor = (rowIndex % 2) ? [NSColor controlAlternatingRowBackgroundColors][1] : [NSColor controlAlternatingRowBackgroundColors][0];
+        if (selectedRecording.tooManyOverlappingRecordings) {
+            if ([selectedRecording.overlappingRecordings containsObject:self.recordings[rowIndex]])
+                rowView.backgroundColor = [NSColor colorWithDeviceRed:1.0f green:0.0f blue:0.0f alpha:0.25f];
+        }
+        
+        else {
+            rowView.backgroundColor = (rowIndex % 2) ?
+            [NSColor controlAlternatingRowBackgroundColors][1] :
+            [NSColor controlAlternatingRowBackgroundColors][0];
+        }
     }
 }
 
