@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <IOKit/pwr_mgt/IOPMLib.h>
 
 @interface HBRecording : NSObject
 
@@ -33,6 +34,7 @@
 @property (copy) NSString *status;
 @property NSImage *statusIconImage;
 @property BOOL currentlyRecording;
+@property BOOL completed;
 @property (copy) NSString *propertyListFilePath;
 @property (copy) NSString *recordingFilePath;
 @property BOOL recordingFileExists;
@@ -42,6 +44,8 @@
 @property NSDate *paddedEndDate;
 @property NSMutableSet *overlappingRecordings;
 @property BOOL tooManyOverlappingRecordings;
+@property FILE *filePointer;
+@property IOPMAssertionID assertionID;
 
 @property struct hdhomerun_device_t *tunerDevice;
 

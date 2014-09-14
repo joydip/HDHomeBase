@@ -40,7 +40,6 @@
     return self.totalTunerCount-1;
 }
 
-
 - (NSString *)recordingsFolder
 {
     return [[NSUserDefaults standardUserDefaults] stringForKey:@"RecordingsFolder"];
@@ -119,13 +118,19 @@
                                                         repeats:NO];
         [[NSRunLoop mainRunLoop] addTimer:recording.stopTimer
                                   forMode:NSRunLoopCommonModes];
+    } else {
+        recording.statusIconImage = [NSImage imageNamed:@"clapperboard"];
+        recording.completed = YES;
+        [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:recording.propertyListFilePath]
+                                      resultingItemURL:NULL
+                                                 error:NULL];
     }
     
     [self.scheduledRecordings addObject:recording];
-    [self searchForSchedulingConflicts];
+    [self calculateSchedulingConflicts];
 }
 
-- (void)searchForSchedulingConflicts
+- (void)calculateSchedulingConflicts
 {
     for (HBRecording *recording in self.scheduledRecordings)
         recording.overlappingRecordings = nil;
@@ -136,9 +141,11 @@
     
     for (NSUInteger i = 0; i < sortedScheduledRecordings.count; i++) {
         HBRecording *recording = sortedScheduledRecordings[i];
+        if (recording.completed) continue;
         
         for (NSUInteger j = i+1; j < sortedScheduledRecordings.count; j++) {
             HBRecording *otherRecording = sortedScheduledRecordings[j];
+            if (otherRecording.completed) continue;
             
             if ([otherRecording startOverlapsWithRecording:recording]) {
                 if (!otherRecording.overlappingRecordings) otherRecording.overlappingRecordings = [NSMutableSet new];
@@ -148,184 +155,250 @@
     }
 
     for (HBRecording *recording in self.scheduledRecordings) {
+        if (recording.currentlyRecording || recording.completed) continue;
+
         BOOL tooManyOverlappingRecordings = (recording.overlappingRecordings.count > self.maxAcceptableOverlappingRecordingsCount);
         recording.tooManyOverlappingRecordings = tooManyOverlappingRecordings;
-        if (!recording.currentlyRecording)
-            recording.statusIconImage = [NSImage imageNamed:(tooManyOverlappingRecordings ? @"schedule_alert" : @"scheduled")];
+        recording.statusIconImage = [NSImage imageNamed:(tooManyOverlappingRecordings ? @"schedule_alert" : @"scheduled")];
+    }
+}
+
+- (void)abortRecording:(HBRecording *)recording errorMessage:(NSString *)errorMessage
+{
+    NSLog(@"aborting recording: %@", errorMessage);
+    recording.status = errorMessage;
+    recording.statusIconImage = [NSImage imageNamed:@"prohibited"];
+    [self cancelTimersForRecording:recording];
+
+    if (recording.tunerDevice) {
+        hdhomerun_device_destroy(recording.tunerDevice);
+        recording.tunerDevice = NULL;
+    }
+    
+    if (recording.assertionID != kIOPMNullAssertionID) {
+        IOReturn success = IOPMAssertionRelease(recording.assertionID);
+        
+        if (success != kIOReturnSuccess)
+            NSLog(@"unable to release power assertion");
     }
 }
 
 - (void)startRecording:(HBRecording *)recording
 {
-    int max_device_count = 8;
-    struct hdhomerun_discover_device_t device_list[max_device_count];
-    int devices_found_count = hdhomerun_discover_find_devices_custom(0, // auto-detect IP address
-                                                                     HDHOMERUN_DEVICE_TYPE_TUNER,
-                                                                     HDHOMERUN_DEVICE_ID_WILDCARD,
-                                                                     device_list,
-                                                                     max_device_count);
-    if (devices_found_count == -1) {
-        NSLog(@"error when discovering devices");
+    recording.statusIconImage = [NSImage imageNamed:@"yellow"];
+    recording.status = @"searching for devices…";
+
+    UInt8 maxDeviceCount = 8;
+    struct hdhomerun_discover_device_t deviceList[maxDeviceCount];
+    int devicesFoundCount = hdhomerun_discover_find_devices_custom(0, // auto-detect IP address
+                                                                   HDHOMERUN_DEVICE_TYPE_TUNER,
+                                                                   HDHOMERUN_DEVICE_ID_WILDCARD,
+                                                                   deviceList,
+                                                                   maxDeviceCount);
+    if (devicesFoundCount == -1) {
+        [self abortRecording:recording errorMessage:@"unable to discover devices"];
+        return;
+    }
+
+    if (devicesFoundCount == 0) {
+        [self abortRecording:recording errorMessage:@"no devices found"];
         return;
     }
     
-    for (int device_index = 0; device_index < devices_found_count; device_index++) {
-        struct hdhomerun_discover_device_t *discovered_device = &device_list[device_index];
+    recording.status = @"searching for available tuner…";
+
+    for (UInt8 deviceIndex = 0; deviceIndex < devicesFoundCount; deviceIndex++) {
+        struct hdhomerun_discover_device_t *discoveredDevice = &deviceList[deviceIndex];
+        UInt8 tunerCount = discoveredDevice->tuner_count;
+        NSLog(@"examining device %X with %hhu tuners", discoveredDevice->device_id, tunerCount);
+
+        struct hdhomerun_device_t *device = hdhomerun_device_create(HDHOMERUN_DEVICE_ID_WILDCARD,
+                                                                    discoveredDevice->ip_addr,
+                                                                    0, // tuner index
+                                                                    NULL); // no debug info
+        if (device == NULL) continue;
         
-        uint8_t tuner_count = discovered_device->tuner_count;
-
-        struct hdhomerun_device_t *tuner_device = hdhomerun_device_create(HDHOMERUN_DEVICE_ID_WILDCARD,
-                                                                          discovered_device->ip_addr,
-                                                                          0,
-                                                                          NULL); // no debug info
-
-        for (uint8_t tuner_index = 0; tuner_index < tuner_count; tuner_index++) {
-            hdhomerun_device_set_tuner(tuner_device, tuner_index);
-            char *tuner_target;
-            // XXX check for error
-            hdhomerun_device_get_tuner_target(tuner_device, &tuner_target);
-            NSLog(@"tuner index: %hhu target: %s", tuner_index, tuner_target);
+        for (UInt8 tunerIndex = 0; tunerIndex < tunerCount; tunerIndex++) {
+            NSLog(@"examining tuner %hhu", tunerIndex);
             
-            if (strcmp(tuner_target, "none") == 0) {
-                NSLog(@"tuner %hhu is available", tuner_index);
-                // XXX check for error
-                // XXX set lock
-                hdhomerun_device_set_tuner_vchannel(tuner_device,
-                                                    [recording.rfChannel cStringUsingEncoding:NSASCIIStringEncoding]);
-                
-                recording.tunerDevice = tuner_device;
-                
-                [NSThread detachNewThreadSelector:@selector(receiveStreamForRecording:)
-                                         toTarget:self
-                                       withObject:recording];
-                
-                recording.statusIconImage = [NSImage imageNamed:@"red"];
-                recording.status = @"recording";
-                recording.currentlyRecording = YES;
-                self.activeRecordingCount += 1;
-                [self updateDockTile];
-                return;
+            hdhomerun_device_set_tuner(device, tunerIndex);
+            char *tunerTargetBuffer;
+            int result = hdhomerun_device_get_tuner_target(device, &tunerTargetBuffer);
+            
+            switch (result) {
+                case 0:  NSLog(@"operation rejected"); continue;
+                case -1: NSLog(@"communication error"); continue;
+                default: break;
             }
+            
+            NSLog(@"tuner %hhu target is %s", tunerIndex, tunerTargetBuffer);
+            
+            if (strcmp(tunerTargetBuffer, "none") == 0) {
+                NSLog(@"tuner %hhu is available", tunerIndex);
+                recording.tunerDevice = device;
+                [self lockTunerAndPrepareRecording:recording];
+                return;
+            } else
+                NSLog(@"tuner %hhu in use, skipping", tunerIndex);
         }
         
-        hdhomerun_device_destroy(tuner_device);
+        // no tuners free on this device, so destroy it
+        NSLog(@"no tuners available on device, skipping");
+        hdhomerun_device_destroy(device);
     }
+    
+    // no more devices to try, fail the recording
+    [self abortRecording:recording errorMessage:@"no tuners available"];
 }
 
-- (int)receiveStreamForRecording:(HBRecording *)recording
+- (void)lockTunerAndPrepareRecording:(HBRecording *)recording
 {
+    // XXX set lock here
+    struct hdhomerun_device_t *device = recording.tunerDevice;
+
+    // tune channel based off the mode
+    if ([recording.mode isEqualToString:@"digital"]) {
+        NSLog(@"tuning digital broadcast");
+        hdhomerun_device_set_tuner_channel(device,
+                                           [[@"auto:" stringByAppendingString:recording.rfChannel]
+                                            cStringUsingEncoding:NSASCIIStringEncoding]);
+    } else if ([recording.mode isEqualToString:@"digital_cable"]) {
+        NSLog(@"tuning digital cable");
+        hdhomerun_device_set_tuner_vchannel(device,
+                                            [recording.rfChannel cStringUsingEncoding:NSASCIIStringEncoding]);
+    } else {
+        [self abortRecording:recording errorMessage:[@"unknown mode " stringByAppendingString:recording.mode]];
+        return;
+    }
+    
+    // open recording file
+    FILE *filePointer = fopen([recording.recordingFilePath fileSystemRepresentation], "wb");
+    if (!filePointer) {
+        [self abortRecording:recording errorMessage:@"unable to create recording file"];
+        return;
+    }
+    
+    recording.filePointer = filePointer;
+    recording.recordingFileExists = YES;
+    
+    // take power assertion
     IOPMAssertionID assertionID;
     IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertPreventUserIdleSystemSleep,
                                                    kIOPMAssertionLevelOn,
                                                    (__bridge CFStringRef)recording.recordingFilePath,
                                                    &assertionID);
-    
-    if (success != kIOReturnSuccess)
+    if (success != kIOReturnSuccess) {
         NSLog(@"unable to create power assertion");
-
-    size_t buffer_size;
-    struct hdhomerun_device_t *tuner_device = recording.tunerDevice;
+        recording.assertionID = kIOPMNullAssertionID;
+    } else recording.assertionID = assertionID;
     
-	FILE *fp;
-    fp = fopen([recording.recordingFilePath fileSystemRepresentation], "wb");
-    if (!fp) {
-        fprintf(stderr, "unable to create file\n");
-        return -1;
+    
+    int result = hdhomerun_device_stream_start(device);
+    if (result <= 0) {
+        [self abortRecording:recording errorMessage:@"unable to start stream"];
+        return;
     }
     
-    recording.recordingFileExists = YES;
-    
-	int ret = hdhomerun_device_stream_start(tuner_device);
-    
-    
-    
+    recording.currentlyRecording = YES;
+    [NSThread detachNewThreadSelector:@selector(receiveStreamForRecording:)
+                             toTarget:self
+                           withObject:recording];
 
-	if (ret <= 0) {
-		fprintf(stderr, "unable to start stream\n");
-		if (fp && fp != stdout) {
-			fclose(fp);
-		}
-		return ret;
-	}
+    recording.status = @"recording";
+    recording.statusIconImage = [NSImage imageNamed:@"red"];
+    self.activeRecordingCount += 1;
+    [self updateDockTile];
+    return;
+}
 
-    BOOL streamReady = NO;
-    BOOL programIdentified = NO;
-    NSString *programString = nil;
+- (void)receiveStreamForRecording:(HBRecording *)recording
+{
+    NSLog(@"receiving stream");
+    NSLog(@"recording %@", recording.title);
+
+    FILE *filePointer = recording.filePointer;
+    size_t bufferSize;
+    struct hdhomerun_device_t *tuner_device = recording.tunerDevice;
+    
+    BOOL streamReadyForSaving = NO;
+    NSString *programNamePrefix = nil;
+   
+    if ([recording.mode isEqualToString:@"digital"])
+        programNamePrefix = [NSString stringWithFormat:@"%hu.%hu", recording.psipMajor, recording.psipMinor];
+    
 	while (recording.currentlyRecording) {
 		uint64_t loop_start_time = getcurrenttime();
         
-		uint8_t *ptr = hdhomerun_device_stream_recv(tuner_device, VIDEO_DATA_BUFFER_SIZE_1S, &buffer_size);
+		uint8_t *ptr = hdhomerun_device_stream_recv(tuner_device, VIDEO_DATA_BUFFER_SIZE_1S, &bufferSize);
 		if (!ptr) {
 			msleep_approx(64);
 			continue;
 		}
 
-        if (!programIdentified) {
-            char *program;
-            hdhomerun_device_get_tuner_program(tuner_device, &program);
-            
-            programString = @(program);
-            
-            if (![programString isEqualToString:@"none"]) {
-                programIdentified = YES;
-            }
-        }
-
-        if (programIdentified && !streamReady) {
+        /*
+         NSString *programNumber = nil;
+         char *program;
+         hdhomerun_device_get_tuner_program(tuner_device, &program);
+         programNumber = @(program);
+        */
+        
+        if (!streamReadyForSaving) {
             char *streamInfo;
             hdhomerun_device_get_tuner_streaminfo(tuner_device, &streamInfo);
 
             NSString *streamInfoString = @(streamInfo);
 
             NSArray *streams = [streamInfoString componentsSeparatedByString:@"\n"];
-            for (NSString *streamInfo in streams) {
-                NSLog(@"%@", streamInfoString);
 
-                if ([streamInfo hasPrefix:programString])
-                    if (![streamInfo hasSuffix:@")"]) {
-                        NSLog(@"streamReady!");
-                        streamReady = YES;
-                    }
+            for (NSString *stream in streams) {
+                NSArray *streamFields = [stream componentsSeparatedByString:@": "];
+                if (streamFields.count < 2) continue;
                 
-                if (streamReady)
+                NSString *streamProgramNumberString = streamFields[0];
+                NSString *streamName = streamFields[1];
+                NSLog(@"program: %@ name: %@", streamProgramNumberString, streamName);
+                
+                if ([streamName hasPrefix:programNamePrefix]) {
+                    NSLog(@"matched desired program name %@", streamName);
+                    hdhomerun_device_set_tuner_program(tuner_device, [streamProgramNumberString cStringUsingEncoding:NSASCIIStringEncoding]);
+                    streamReadyForSaving = YES;
                     break;
+                }
             }
             
             continue;
         }
         
-
-        
-        
-		if (programIdentified && streamReady && fp) {
-			if (fwrite(ptr, 1, buffer_size, fp) != buffer_size) {
+		if (streamReadyForSaving && filePointer) {
+			if (fwrite(ptr, 1, bufferSize, filePointer) != bufferSize) {
 				fprintf(stderr, "error writing output\n");
-				return -1;
+				break;
 			}
 		}
         
 		int32_t delay = 64 - (int32_t)(getcurrenttime() - loop_start_time);
-		if (delay <= 0) {
-			continue;
-		}
-        
+		if (delay <= 0) continue;
 		msleep_approx(delay);
 	}
     
-	if (fp) fclose(fp);
-    
-	hdhomerun_device_stream_stop(tuner_device);
-    success = IOPMAssertionRelease(assertionID);
-    
-    hdhomerun_device_destroy(tuner_device);
-    return 0;
+    NSLog(@"stopping receiving stream");
 }
 
 - (void)stopRecording:(HBRecording *)recording
 {
+    recording.currentlyRecording = NO;
+    recording.completed = YES;
+
+	if (recording.filePointer) fclose(recording.filePointer);
+    recording.filePointer = NULL;
+    
+	hdhomerun_device_stream_stop(recording.tunerDevice);
+    IOPMAssertionRelease(recording.assertionID);
+    
+    hdhomerun_device_destroy(recording.tunerDevice);
+
     [self cancelTimersForRecording:recording];
 
-    recording.currentlyRecording = NO;
     recording.tunerDevice = NULL;
     
     recording.status = @"";
@@ -366,7 +439,7 @@
                                  error:NULL];
 
     [self.scheduledRecordings removeObject:recording];
-    [self searchForSchedulingConflicts];
+    [self calculateSchedulingConflicts];
 }
 
 - (void)startRecordingTimerFired:(NSTimer *)timer

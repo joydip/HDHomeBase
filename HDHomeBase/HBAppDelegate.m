@@ -22,7 +22,7 @@
                                   @"RecordingsFolder": defaultRecordingsFolder,
                                   @"BeginningPadding": @30,
                                   @"EndingPadding":    @30,
-                                  @"TotalTunerCount":  @3,
+                                  @"TotalTunerCount":  @2,
                                 };
     
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];

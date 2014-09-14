@@ -52,9 +52,7 @@
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification
 {
     NSInteger selectedRowIndex = [self.tableView selectedRow];
-    HBRecording *selectedRecording = nil;
-    
-    if (selectedRowIndex != -1) selectedRecording = self.recordings[selectedRowIndex];
+    HBRecording *selectedRecording = (selectedRowIndex != -1) ? self.recordings[selectedRowIndex] : nil;
     
     for (NSUInteger rowIndex = 0; rowIndex < self.recordings.count; rowIndex++) {
         NSTableRowView *rowView = [self.tableView rowViewAtRow:rowIndex makeIfNecessary:NO];
@@ -74,8 +72,7 @@
 
 - (void)doubleClickAction:(id)sender
 {
-    if (self.tableView.numberOfSelectedRows)
-        [self playRecordingAction:self];
+    if (self.tableView.numberOfSelectedRows > 0) [self playRecordingAction:self];
 }
 
 - (IBAction)deleteRecordingAction:(id)sender
@@ -95,8 +92,7 @@
 
 - (BOOL)validateToolbarItem:(id)sender
 {
-    if (self.tableView.numberOfSelectedRows == 0)
-        return NO;
+    if (self.tableView.numberOfSelectedRows == 0) return NO;
 
     if (sender == self.playRecordingToolbarItem)
         return [self.recordings[self.tableView.selectedRow] recordingFileExists];
