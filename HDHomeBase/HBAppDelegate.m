@@ -20,8 +20,8 @@
 
     NSDictionary *appDefaults = @{
                                   @"RecordingsFolder": defaultRecordingsFolder,
-                                  @"BeginningPadding": @30,
-                                  @"EndingPadding":    @30,
+                                  @"BeginningPadding": @60,
+                                  @"EndingPadding":    @60,
                                   @"TotalTunerCount":  @2,
                                 };
     

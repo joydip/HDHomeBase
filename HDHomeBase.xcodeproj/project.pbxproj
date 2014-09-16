@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		B73B51EE175C4B5E00201BE7 /* HBRecording.m in Sources */ = {isa = PBXBuildFile; fileRef = B73B51ED175C4B5E00201BE7 /* HBRecording.m */; };
 		B73D0E5D19B5015C009802CF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B73D0E5C19B5015C009802CF /* Images.xcassets */; };
+		B73D687119C7E211007DFC10 /* spotlight_blue_button.icns in Resources */ = {isa = PBXBuildFile; fileRef = B73D687019C7E211007DFC10 /* spotlight_blue_button.icns */; };
 		B7A5827919B9988700E1CA76 /* stop_red_button.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7A5827819B9988700E1CA76 /* stop_red_button.icns */; };
 		B7A5829B19BC0AFA00E1CA76 /* hdhomerun_channels.c in Sources */ = {isa = PBXBuildFile; fileRef = B7A5827B19BC0AFA00E1CA76 /* hdhomerun_channels.c */; };
 		B7A5829C19BC0AFA00E1CA76 /* hdhomerun_channelscan.c in Sources */ = {isa = PBXBuildFile; fileRef = B7A5827D19BC0AFA00E1CA76 /* hdhomerun_channelscan.c */; };
@@ -83,6 +84,7 @@
 		B73B51EC175C4B5E00201BE7 /* HBRecording.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HBRecording.h; sourceTree = "<group>"; };
 		B73B51ED175C4B5E00201BE7 /* HBRecording.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HBRecording.m; sourceTree = "<group>"; };
 		B73D0E5C19B5015C009802CF /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		B73D687019C7E211007DFC10 /* spotlight_blue_button.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = spotlight_blue_button.icns; sourceTree = "<group>"; };
 		B7A5827819B9988700E1CA76 /* stop_red_button.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = stop_red_button.icns; sourceTree = "<group>"; };
 		B7A5827B19BC0AFA00E1CA76 /* hdhomerun_channels.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_channels.c; sourceTree = "<group>"; };
 		B7A5827C19BC0AFA00E1CA76 /* hdhomerun_channels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_channels.h; sourceTree = "<group>"; };
@@ -286,7 +288,6 @@
 			children = (
 				B7DDCA1D19B9269100553FD4 /* alert.icns */,
 				B7DDCA4B19B97E8800553FD4 /* clapperboard.icns */,
-				B7DDCA1619B925BB00553FD4 /* prohibited.icns */,
 				B7DDCA4519B92BF000553FD4 /* delete_green_button.icns */,
 				B7DDCA4619B92BF000553FD4 /* delete_red_button.icns */,
 				B7DDCA4919B9512C00553FD4 /* filmstrip.icns */,
@@ -294,6 +295,7 @@
 				B7DDCA2919B9282900553FD4 /* green.icns */,
 				B7DDCA2A19B9282900553FD4 /* orange.icns */,
 				B7DDCA3B19B92A4500553FD4 /* play_green_button.icns */,
+				B7DDCA1619B925BB00553FD4 /* prohibited.icns */,
 				B7DDCA3D19B92A5900553FD4 /* purple.icns */,
 				B7DDCA4119B92A8C00553FD4 /* record_button.icns */,
 				B7DDCA2C19B9282900553FD4 /* red.icns */,
@@ -302,6 +304,7 @@
 				B7DDCA2519B9280100553FD4 /* schedule_alert.icns */,
 				B7DDCA4319B92AA600553FD4 /* schedule_remove.icns */,
 				B7DDCA1F19B927CC00553FD4 /* scheduled.icns */,
+				B73D687019C7E211007DFC10 /* spotlight_blue_button.icns */,
 				B7DDCA3F19B92A7000553FD4 /* stop_green_button.icns */,
 				B7A5827819B9988700E1CA76 /* stop_red_button.icns */,
 				B7DDCA2119B927E800553FD4 /* stop_sign.icns */,
@@ -436,6 +439,7 @@
 				B7DDCA1E19B9269100553FD4 /* alert.icns in Resources */,
 				B7DDCA2019B927CC00553FD4 /* scheduled.icns in Resources */,
 				B7DDCA2419B927FA00553FD4 /* schedule_add.icns in Resources */,
+				B73D687119C7E211007DFC10 /* spotlight_blue_button.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -608,7 +612,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "HDHomeBase/HDHomeBase-Prefix.pch";
 				INFOPLIST_FILE = "HDHomeBase/HDHomeBase-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -622,7 +626,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "HDHomeBase/HDHomeBase-Prefix.pch";
 				INFOPLIST_FILE = "HDHomeBase/HDHomeBase-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

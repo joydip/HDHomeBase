@@ -24,6 +24,7 @@
 @property (readonly) NSString *streamNumber;
 @property (readonly) UInt16 psipMajor;
 @property (readonly) UInt16 psipMinor;
+@property (readonly) NSString *canonicalChannel;
 
 // dynamically computed properties
 @property (readonly) NSString *uniqueName;

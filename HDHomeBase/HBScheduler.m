@@ -62,7 +62,7 @@
                                   resultingItemURL:NULL
                                              error:NULL];
 
-    if (![recording hasEndDatePassed]) {
+    if (![recording hasEndDatePassed] && ![self recordingAlreadyScheduled:recording]) {
         NSString *newPropertyListFilename = [recording.uniqueName stringByAppendingString:@".hbsched"];
         NSString *newPropertyListPath = [self.recordingsFolder stringByAppendingPathComponent:newPropertyListFilename];
         
@@ -86,6 +86,21 @@
     
     recording.propertyListFilePath = propertyListFilePath;
     [self scheduleRecording:recording];
+}
+
+- (BOOL)recordingAlreadyScheduled:(HBRecording *)recording
+{
+    for (HBRecording *existingRecording in self.scheduledRecordings) {
+        if (([recording.startDate isEqualToDate:existingRecording.startDate]) &&
+            ([recording.endDate isEqualToDate:existingRecording.endDate]) &&
+            ([recording.rfChannel isEqualToString:existingRecording.rfChannel] &&
+             (recording.psipMinor == existingRecording.psipMinor))) {
+            NSLog(@"recording already exists, not adding");
+            return YES;
+        }
+    }
+    
+    return NO;
 }
 
 - (void)scheduleRecording:(HBRecording *)recording
@@ -403,6 +418,10 @@
     
     recording.status = @"";
     recording.statusIconImage = [NSImage imageNamed:@"clapperboard"];
+    
+    [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:recording.propertyListFilePath]
+                                  resultingItemURL:NULL
+                                             error:NULL];
     
     self.activeRecordingCount -= 1;
     [self updateDockTile];

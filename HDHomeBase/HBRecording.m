@@ -218,4 +218,12 @@
     return ([self.endDate compare:[NSDate date]] != NSOrderedDescending);
 }
 
+-(NSString *)canonicalChannel
+{
+    if ([self.mode isEqualToString:@"digital"])
+        return [NSString stringWithFormat:@"%hu.%hu", self.psipMajor, self.psipMinor];
+
+    return self.rfChannel;
+}
+
 @end

@@ -20,10 +20,12 @@
 @property IBOutlet NSToolbarItem *playRecordingToolbarItem;
 @property IBOutlet NSToolbarItem *stopRecordingToolbarItem;
 @property IBOutlet NSToolbarItem *deleteRecordingToolbarItem;
+@property IBOutlet NSToolbarItem *showFileToolbarItem;
 
 - (IBAction)refresh:(id)sender;
 - (IBAction)playRecordingAction:(id)sender;
 - (IBAction)stopRecordingAction:(id)sender;
 - (IBAction)deleteRecordingAction:(id)sender;
+- (IBAction)showFileAction:(id)sender;
 
 @end

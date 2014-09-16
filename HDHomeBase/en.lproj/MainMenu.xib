@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <deployment defaultVersion="1080" identifier="macosx"/>
+        <deployment defaultVersion="1070" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
     </dependencies>
     <objects>
@@ -753,7 +753,7 @@
                                                             <rect key="frame" x="0.0" y="16" width="129" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                             <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="657">
-                                                                <dateFormatter key="formatter" dateStyle="short" timeStyle="short" doesRelativeDateFormatting="YES" id="658"/>
+                                                                <dateFormatter key="formatter" formatterBehavior="custom10_4" dateStyle="short" timeStyle="short" dateFormat="EEE M/d h:mm a" id="658"/>
                                                                 <font key="font" metaFont="smallSystem"/>
                                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -791,7 +791,7 @@
                                                             <rect key="frame" x="0.0" y="16" width="129" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                             <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="Vd0-PB-hbd">
-                                                                <dateFormatter key="formatter" dateStyle="short" timeStyle="short" doesRelativeDateFormatting="YES" id="9v3-Uj-juX"/>
+                                                                <dateFormatter key="formatter" formatterBehavior="custom10_4" dateStyle="short" timeStyle="short" dateFormat="EEE M/d h:mm a" id="9v3-Uj-juX"/>
                                                                 <font key="font" metaFont="smallSystem"/>
                                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -880,7 +880,7 @@
                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                             </textFieldCell>
                                                             <connections>
-                                                                <binding destination="663" name="value" keyPath="objectValue.rfChannel" id="708"/>
+                                                                <binding destination="663" name="value" keyPath="objectValue.canonicalChannel" id="ieX-cr-Osi"/>
                                                             </connections>
                                                         </textField>
                                                     </subviews>
@@ -950,7 +950,7 @@
                     </scrollView>
                 </subviews>
             </view>
-            <toolbar key="toolbar" implicitIdentifier="69A8B893-CD38-44ED-99FD-B4E8233B3103" displayMode="iconOnly" sizeMode="small" id="636">
+            <toolbar key="toolbar" implicitIdentifier="69A8B893-CD38-44ED-99FD-B4E8233B3103" displayMode="iconOnly" sizeMode="regular" id="636">
                 <allowedToolbarItems>
                     <toolbarItem implicitItemIdentifier="B4C49D3A-59D2-4A0C-A8C0-DB866E58B090" label="Play" paletteLabel="Play" toolTip="Play" tag="-1" image="play_green_button" id="pSH-Xc-9jn">
                         <connections>
@@ -967,6 +967,11 @@
                             <action selector="stopRecordingAction:" target="685" id="El7-uG-fbR"/>
                         </connections>
                     </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="B1B6D4B2-C720-43BA-8470-FC390C815B83" label="Show File" paletteLabel="Show File" tag="-1" image="spotlight_blue_button" id="ReP-xy-doW">
+                        <connections>
+                            <action selector="showFileAction:" target="685" id="r00-9o-wIO"/>
+                        </connections>
+                    </toolbarItem>
                     <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="676"/>
                     <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="675"/>
                 </allowedToolbarItems>
@@ -975,6 +980,8 @@
                     <toolbarItem reference="676"/>
                     <toolbarItem reference="726"/>
                     <toolbarItem reference="709"/>
+                    <toolbarItem reference="676"/>
+                    <toolbarItem reference="ReP-xy-doW"/>
                 </defaultToolbarItems>
             </toolbar>
         </window>
@@ -991,6 +998,7 @@
                 <outlet property="deleteRecordingToolbarItem" destination="709" id="iui-qY-KuP"/>
                 <outlet property="playRecordingToolbarItem" destination="pSH-Xc-9jn" id="yjx-5F-4vb"/>
                 <outlet property="scheduler" destination="633" id="Qtb-JS-lyj"/>
+                <outlet property="showFileToolbarItem" destination="ReP-xy-doW" id="Kv7-Su-Qne"/>
                 <outlet property="stopRecordingToolbarItem" destination="726" id="s4b-J4-BdK"/>
                 <outlet property="tableView" destination="642" id="687"/>
             </connections>
@@ -1000,6 +1008,7 @@
         <image name="delete_red_button" width="32" height="32"/>
         <image name="play_green_button" width="32" height="32"/>
         <image name="scheduled" width="32" height="32"/>
+        <image name="spotlight_blue_button" width="32" height="32"/>
         <image name="stop_red_button" width="32" height="32"/>
     </resources>
 </document>

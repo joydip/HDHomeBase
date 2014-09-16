@@ -90,11 +90,21 @@
     for (HBRecording *recording in selectedRecordings) [self.scheduler stopRecording:recording];
 }
 
+- (IBAction)showFileAction:(id)sender
+{
+    NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
+    NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
+    HBRecording *selectedRecording = selectedRecordings[0];
+    [[NSWorkspace sharedWorkspace] selectFile:selectedRecording.recordingFilePath
+                     inFileViewerRootedAtPath:@""];
+}
+
 - (BOOL)validateToolbarItem:(id)sender
 {
     if (self.tableView.numberOfSelectedRows == 0) return NO;
 
-    if (sender == self.playRecordingToolbarItem)
+    if ((sender == self.playRecordingToolbarItem) ||
+        (sender == self.showFileToolbarItem))
         return [self.recordings[self.tableView.selectedRow] recordingFileExists];
     
     if (sender == self.stopRecordingToolbarItem) {
