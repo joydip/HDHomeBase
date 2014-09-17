@@ -24,12 +24,11 @@
 @property (readonly) NSString *streamNumber;
 @property (readonly) UInt16 psipMajor;
 @property (readonly) UInt16 psipMinor;
-@property (readonly) NSString *canonicalChannel;
 
 // dynamically computed properties
 @property (readonly) NSString *uniqueName;
 @property (readonly) NSString *recordingFilename;
-
+@property (readonly) NSString *canonicalChannel;
 
 // non-persistent state used by the scheduler
 @property (copy) NSString *status;

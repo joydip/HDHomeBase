@@ -159,7 +159,6 @@
 - (NSString *)uniqueName
 {
     NSString *recordingFileDateString = [[[self class] recordingFileDateFormatter] stringFromDate:self.startDate];
-
     NSString *baseName = (self.episode.length) ? [NSString stringWithFormat:@"%@ - %@", self.title, self.episode] : self.title;
     return [NSString stringWithFormat:@"%@ (%@ %@)", baseName, self.channelName, recordingFileDateString];
 }

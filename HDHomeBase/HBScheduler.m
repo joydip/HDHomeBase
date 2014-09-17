@@ -178,13 +178,15 @@
     }
 }
 
-- (void)abortRecording:(HBRecording *)recording errorMessage:(NSString *)errorMessage
+- (void)cleanupResourcesForRecording:(HBRecording *)recording
 {
-    NSLog(@"aborting recording: %@", errorMessage);
-    recording.status = errorMessage;
-    recording.statusIconImage = [NSImage imageNamed:@"prohibited"];
+    if (recording.filePointer) {
+        fclose(recording.filePointer);
+        recording.filePointer = NULL;
+    }
+    
     [self cancelTimersForRecording:recording];
-
+    
     if (recording.tunerDevice) {
         hdhomerun_device_destroy(recording.tunerDevice);
         recording.tunerDevice = NULL;
@@ -192,10 +194,31 @@
     
     if (recording.assertionID != kIOPMNullAssertionID) {
         IOReturn success = IOPMAssertionRelease(recording.assertionID);
-        
-        if (success != kIOReturnSuccess)
-            NSLog(@"unable to release power assertion");
+        if (success != kIOReturnSuccess) NSLog(@"unable to release power assertion");
+        recording.assertionID = kIOPMNullAssertionID;
     }
+}
+
+- (void)cancelTimersForRecording:(HBRecording *)recording
+{
+    if (recording.startTimer) {
+        [recording.startTimer invalidate];
+        recording.startTimer = nil;
+    }
+    
+    if (recording.stopTimer) {
+        [recording.stopTimer invalidate];
+        recording.stopTimer = nil;
+    }
+}
+
+- (void)abortRecording:(HBRecording *)recording errorMessage:(NSString *)errorMessage
+{
+    NSLog(@"aborting recording: %@", errorMessage);
+    recording.status = errorMessage;
+    recording.statusIconImage = [NSImage imageNamed:@"prohibited"];
+    
+    [self cleanupResourcesForRecording:recording];
 }
 
 - (void)startRecording:(HBRecording *)recording
@@ -321,9 +344,9 @@
 
     recording.status = @"recording";
     recording.statusIconImage = [NSImage imageNamed:@"red"];
+    
     self.activeRecordingCount += 1;
     [self updateDockTile];
-    return;
 }
 
 - (void)receiveStreamForRecording:(HBRecording *)recording
@@ -333,7 +356,7 @@
 
     FILE *filePointer = recording.filePointer;
     size_t bufferSize;
-    struct hdhomerun_device_t *tuner_device = recording.tunerDevice;
+    struct hdhomerun_device_t *tunerDevice = recording.tunerDevice;
     
     BOOL streamReadyForSaving = NO;
     NSString *programNamePrefix = nil;
@@ -342,10 +365,10 @@
         programNamePrefix = [NSString stringWithFormat:@"%hu.%hu", recording.psipMajor, recording.psipMinor];
     
 	while (recording.currentlyRecording) {
-		uint64_t loop_start_time = getcurrenttime();
+		uint64_t loopStartTime = getcurrenttime();
         
-		uint8_t *ptr = hdhomerun_device_stream_recv(tuner_device, VIDEO_DATA_BUFFER_SIZE_1S, &bufferSize);
-		if (!ptr) {
+		uint8_t *videoDataBuffer = hdhomerun_device_stream_recv(tunerDevice, VIDEO_DATA_BUFFER_SIZE_1S, &bufferSize);
+		if (!videoDataBuffer) {
 			msleep_approx(64);
 			continue;
 		}
@@ -359,7 +382,7 @@
         
         if (!streamReadyForSaving) {
             char *streamInfo;
-            hdhomerun_device_get_tuner_streaminfo(tuner_device, &streamInfo);
+            hdhomerun_device_get_tuner_streaminfo(tunerDevice, &streamInfo);
 
             NSString *streamInfoString = @(streamInfo);
 
@@ -375,7 +398,7 @@
                 
                 if ([streamName hasPrefix:programNamePrefix]) {
                     NSLog(@"matched desired program name %@", streamName);
-                    hdhomerun_device_set_tuner_program(tuner_device, [streamProgramNumberString cStringUsingEncoding:NSASCIIStringEncoding]);
+                    hdhomerun_device_set_tuner_program(tunerDevice, [streamProgramNumberString cStringUsingEncoding:NSASCIIStringEncoding]);
                     streamReadyForSaving = YES;
                     break;
                 }
@@ -385,36 +408,28 @@
         }
         
 		if (streamReadyForSaving && filePointer) {
-			if (fwrite(ptr, 1, bufferSize, filePointer) != bufferSize) {
+			if (fwrite(videoDataBuffer, 1, bufferSize, filePointer) != bufferSize) {
 				fprintf(stderr, "error writing output\n");
 				break;
 			}
 		}
         
-		int32_t delay = 64 - (int32_t)(getcurrenttime() - loop_start_time);
+		int32_t delay = 64 - (int32_t)(getcurrenttime() - loopStartTime);
 		if (delay <= 0) continue;
 		msleep_approx(delay);
 	}
     
-    NSLog(@"stopping receiving stream");
+    NSLog(@"receiving stream thread terminated");
 }
 
 - (void)stopRecording:(HBRecording *)recording
 {
+    hdhomerun_device_stream_stop(recording.tunerDevice);
+
     recording.currentlyRecording = NO;
     recording.completed = YES;
 
-	if (recording.filePointer) fclose(recording.filePointer);
-    recording.filePointer = NULL;
-    
-	hdhomerun_device_stream_stop(recording.tunerDevice);
-    IOPMAssertionRelease(recording.assertionID);
-    
-    hdhomerun_device_destroy(recording.tunerDevice);
-
-    [self cancelTimersForRecording:recording];
-
-    recording.tunerDevice = NULL;
+    [self cleanupResourcesForRecording:recording];
     
     recording.status = @"";
     recording.statusIconImage = [NSImage imageNamed:@"clapperboard"];
@@ -425,19 +440,6 @@
     
     self.activeRecordingCount -= 1;
     [self updateDockTile];
-}
-
-- (void)cancelTimersForRecording:(HBRecording *)recording
-{
-    if (recording.startTimer) {
-        [recording.startTimer invalidate];
-        recording.startTimer = nil;
-    }
-    
-    if (recording.stopTimer) {
-        [recording.stopTimer invalidate];
-        recording.stopTimer = nil;
-    }
 }
 
 - (void)playRecording:(HBRecording *)recording
