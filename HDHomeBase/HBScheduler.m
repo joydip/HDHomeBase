@@ -358,8 +358,10 @@
     size_t bufferSize;
     struct hdhomerun_device_t *tunerDevice = recording.tunerDevice;
     
+    BOOL programIdentified = NO;
     BOOL streamReadyForSaving = NO;
     NSString *programNamePrefix = nil;
+    NSString *programString = nil;
    
     if ([recording.mode isEqualToString:@"digital"])
         programNamePrefix = [NSString stringWithFormat:@"%hu.%hu", recording.psipMajor, recording.psipMinor];
@@ -372,14 +374,17 @@
 			msleep_approx(64);
 			continue;
 		}
-
-        /*
-         NSString *programNumber = nil;
-         char *program;
-         hdhomerun_device_get_tuner_program(tuner_device, &program);
-         programNumber = @(program);
-        */
         
+        if (!programIdentified) {
+            char *program;
+            hdhomerun_device_get_tuner_program(tunerDevice, &program);
+            
+            programString = @(program);
+            
+            if (![programString isEqualToString:@"none"])
+                programIdentified = YES;
+        }
+
         if (!streamReadyForSaving) {
             char *streamInfo;
             hdhomerun_device_get_tuner_streaminfo(tunerDevice, &streamInfo);
@@ -389,18 +394,33 @@
             NSArray *streams = [streamInfoString componentsSeparatedByString:@"\n"];
 
             for (NSString *stream in streams) {
-                NSArray *streamFields = [stream componentsSeparatedByString:@": "];
-                if (streamFields.count < 2) continue;
-                
-                NSString *streamProgramNumberString = streamFields[0];
-                NSString *streamName = streamFields[1];
-                NSLog(@"program: %@ name: %@", streamProgramNumberString, streamName);
-                
-                if ([streamName hasPrefix:programNamePrefix]) {
-                    NSLog(@"matched desired program name %@", streamName);
-                    hdhomerun_device_set_tuner_program(tunerDevice, [streamProgramNumberString cStringUsingEncoding:NSASCIIStringEncoding]);
-                    streamReadyForSaving = YES;
-                    break;
+                // for digital cable (CableCARD), look for a stream that matches the program number, and wait until it is unencrypted
+                if ([recording.mode isEqualToString:@"digital_cable"]) {
+                    if ([stream hasPrefix:programString])
+                        if (![stream hasSuffix:@")"]) {
+                            NSLog(@"unecrypted stream found!");
+                            streamReadyForSaving = YES;
+                        }
+                    
+                    if (streamReadyForSaving)
+                        break;
+                }
+
+                // in digital (ATSC broadcast), we match the whole program name and then set a filter
+                else if ([recording.mode isEqualToString:@"digital"]) {
+                    NSArray *streamFields = [stream componentsSeparatedByString:@": "];
+                    if (streamFields.count < 2) continue;
+                    
+                    NSString *streamProgramNumberString = streamFields[0];
+                    NSString *streamName = streamFields[1];
+                    NSLog(@"program: %@ name: %@", streamProgramNumberString, streamName);
+                    
+                    if ([streamName hasPrefix:programNamePrefix]) {
+                        NSLog(@"matched desired program name %@", streamName);
+                        hdhomerun_device_set_tuner_program(tunerDevice, [streamProgramNumberString cStringUsingEncoding:NSASCIIStringEncoding]);
+                        streamReadyForSaving = YES;
+                        break;
+                    }
                 }
             }
             
