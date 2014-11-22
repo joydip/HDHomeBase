@@ -7,7 +7,7 @@
 //
 
 #import "HBScheduler.h"
-#import "HBRecording.h"
+#import "HBProgram.h"
 #include "hdhomerun.h"
 
 #import <IOKit/pwr_mgt/IOPMLib.h>
@@ -56,7 +56,7 @@
 
 - (void)importTVPIFile:(NSString *)tvpiFilePath
 {
-    HBRecording *recording = [HBRecording recordingFromTVPIFile:tvpiFilePath];
+    HBProgram *recording = [HBProgram recordingFromTVPIFile:tvpiFilePath];
 
     [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:tvpiFilePath]
                                   resultingItemURL:NULL
@@ -75,7 +75,7 @@
 
 - (void)importPropertyListFile:(NSString *)propertyListFilePath
 {
-    HBRecording *recording = [HBRecording recordingFromPropertyListFile:propertyListFilePath];
+    HBProgram *recording = [HBProgram recordingFromPropertyListFile:propertyListFilePath];
     recording.propertyListFilePath = propertyListFilePath;
 
     if ([recording hasEndDatePassed]) {
@@ -86,9 +86,9 @@
     [self scheduleRecording:recording];
 }
 
-- (BOOL)recordingAlreadyScheduled:(HBRecording *)recording
+- (BOOL)recordingAlreadyScheduled:(HBProgram *)recording
 {
-    for (HBRecording *existingRecording in self.scheduledRecordings) {
+    for (HBProgram *existingRecording in self.scheduledRecordings) {
         if (([recording.startDate isEqualToDate:existingRecording.startDate]) &&
             ([recording.endDate isEqualToDate:existingRecording.endDate]) &&
             ([recording.rfChannel isEqualToString:existingRecording.rfChannel] &&
@@ -101,7 +101,7 @@
     return NO;
 }
 
-- (void)scheduleRecording:(HBRecording *)recording
+- (void)scheduleRecording:(HBProgram *)recording
 {
     recording.recordingFilePath = [[self recordingsFolder] stringByAppendingPathComponent:recording.recordingFilename];
     recording.recordingFileExists = [[NSFileManager defaultManager] fileExistsAtPath:recording.recordingFilePath];
@@ -120,7 +120,7 @@
     [self calculateSchedulingConflicts];
 }
 
-- (void)scheduleStartTimer:(HBRecording *)recording
+- (void)scheduleStartTimer:(HBProgram *)recording
 {
     NSTimeInterval beginningPadding = [[NSUserDefaults standardUserDefaults] doubleForKey:@"BeginningPadding"];
     NSDate *paddedStartDate = [recording.startDate dateByAddingTimeInterval:-beginningPadding];
@@ -136,7 +136,7 @@
 
 }
 
-- (void)scheduleEndTimer:(HBRecording *)recording
+- (void)scheduleEndTimer:(HBProgram *)recording
 {
     NSTimeInterval endingPadding = [[NSUserDefaults standardUserDefaults] doubleForKey:@"EndingPadding"];
     NSDate *paddedEndDate = [recording.endDate dateByAddingTimeInterval:endingPadding];
@@ -153,19 +153,19 @@
 
 - (void)calculateSchedulingConflicts
 {
-    for (HBRecording *recording in self.scheduledRecordings)
+    for (HBProgram *recording in self.scheduledRecordings)
         recording.overlappingRecordings = nil;
 
-    NSArray *sortedScheduledRecordings = [self.scheduledRecordings sortedArrayUsingComparator:^(HBRecording *q, HBRecording *r) {
+    NSArray *sortedScheduledRecordings = [self.scheduledRecordings sortedArrayUsingComparator:^(HBProgram *q, HBProgram *r) {
         return [q.startDate compare:r.startDate];
     }];
     
     for (NSUInteger i = 0; i < sortedScheduledRecordings.count; i++) {
-        HBRecording *recording = sortedScheduledRecordings[i];
+        HBProgram *recording = sortedScheduledRecordings[i];
         if (recording.completed) continue;
         
         for (NSUInteger j = i+1; j < sortedScheduledRecordings.count; j++) {
-            HBRecording *otherRecording = sortedScheduledRecordings[j];
+            HBProgram *otherRecording = sortedScheduledRecordings[j];
             if (otherRecording.completed) continue;
             
             if ([otherRecording startOverlapsWithRecording:recording]) {
@@ -175,7 +175,7 @@
         }
     }
 
-    for (HBRecording *recording in self.scheduledRecordings) {
+    for (HBProgram *recording in self.scheduledRecordings) {
         if (recording.currentlyRecording || recording.completed) continue;
 
         BOOL tooManyOverlappingRecordings = (recording.overlappingRecordings.count > self.maxAcceptableOverlappingRecordingsCount);
@@ -184,7 +184,7 @@
     }
 }
 
-- (void)cleanupResourcesForRecording:(HBRecording *)recording
+- (void)cleanupResourcesForRecording:(HBProgram *)recording
 {
     if (recording.filePointer) {
         fclose(recording.filePointer);
@@ -205,7 +205,7 @@
     }
 }
 
-- (void)cancelTimersForRecording:(HBRecording *)recording
+- (void)cancelTimersForRecording:(HBProgram *)recording
 {
     if (recording.startTimer) {
         [recording.startTimer invalidate];
@@ -218,7 +218,7 @@
     }
 }
 
-- (void)abortRecording:(HBRecording *)recording errorMessage:(NSString *)errorMessage
+- (void)abortRecording:(HBProgram *)recording errorMessage:(NSString *)errorMessage
 {
     NSLog(@"aborting recording: %@", errorMessage);
     recording.status = errorMessage;
@@ -228,7 +228,7 @@
     [self cleanupResourcesForRecording:recording];
 }
 
-- (void)startRecording:(HBRecording *)recording
+- (void)startRecording:(HBProgram *)recording
 {
     recording.statusIconImage = [NSImage imageNamed:@"yellow"];
     recording.status = @"searching for devices…";
@@ -296,7 +296,7 @@
     [self abortRecording:recording errorMessage:@"no tuners available"];
 }
 
-- (void)lockTunerAndPrepareRecording:(HBRecording *)recording
+- (void)lockTunerAndPrepareRecording:(HBProgram *)recording
 {
     // XXX set lock here
     struct hdhomerun_device_t *device = recording.tunerDevice;
@@ -356,7 +356,7 @@
     [self updateDockTile];
 }
 
-- (void)receiveStreamForRecording:(HBRecording *)recording
+- (void)receiveStreamForRecording:(HBProgram *)recording
 {
     NSLog(@"receiving stream");
     NSLog(@"recording %@", recording.title);
@@ -449,7 +449,7 @@
     NSLog(@"receiving stream thread terminated");
 }
 
-- (void)stopRecording:(HBRecording *)recording
+- (void)stopRecording:(HBProgram *)recording
 {
     hdhomerun_device_stream_stop(recording.tunerDevice);
 
@@ -467,12 +467,12 @@
     [self updateDockTile];
 }
 
-- (void)playRecording:(HBRecording *)recording
+- (void)playRecording:(HBProgram *)recording
 {
     [[NSWorkspace sharedWorkspace] openFile:recording.recordingFilePath];
 }
 
-- (void)deleteRecording:(HBRecording *)recording
+- (void)deleteRecording:(HBProgram *)recording
 {
     if (recording.currentlyRecording) [self stopRecording:recording];
     else [self cancelTimersForRecording:recording];
@@ -486,13 +486,13 @@
 
 - (void)startRecordingTimerFired:(NSTimer *)timer
 {
-    HBRecording *recording = [timer userInfo];
+    HBProgram *recording = [timer userInfo];
     [self startRecording:recording];
 }
 
 - (void)stopRecordingTimerFired:(NSTimer *)timer
 {
-    HBRecording *recording = [timer userInfo];
+    HBProgram *recording = [timer userInfo];
     [self stopRecording:recording];
 }
 
@@ -502,14 +502,14 @@
     dockTile.badgeLabel = (self.activeRecordingCount) ? [NSString stringWithFormat:@"%lu", (unsigned long)self.activeRecordingCount] : nil;
 }
 
-- (void)trashRecordingFile:(HBRecording *)recording
+- (void)trashRecordingFile:(HBProgram *)recording
 {
     [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:recording.recordingFilePath]
                                   resultingItemURL:NULL
                                              error:NULL];
 }
 
-- (void)trashScheduleFile:(HBRecording *)recording
+- (void)trashScheduleFile:(HBProgram *)recording
 {
     [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:recording.propertyListFilePath]
                                   resultingItemURL:NULL

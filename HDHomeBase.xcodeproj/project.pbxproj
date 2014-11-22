@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B73B51EE175C4B5E00201BE7 /* HBRecording.m in Sources */ = {isa = PBXBuildFile; fileRef = B73B51ED175C4B5E00201BE7 /* HBRecording.m */; };
+		B73B51EE175C4B5E00201BE7 /* HBProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = B73B51ED175C4B5E00201BE7 /* HBProgram.m */; };
 		B73D0E5D19B5015C009802CF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B73D0E5C19B5015C009802CF /* Images.xcassets */; };
 		B73D687119C7E211007DFC10 /* spotlight_blue_button.icns in Resources */ = {isa = PBXBuildFile; fileRef = B73D687019C7E211007DFC10 /* spotlight_blue_button.icns */; };
 		B7A5827919B9988700E1CA76 /* stop_red_button.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7A5827819B9988700E1CA76 /* stop_red_button.icns */; };
@@ -81,8 +81,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		B73B51EC175C4B5E00201BE7 /* HBRecording.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HBRecording.h; sourceTree = "<group>"; };
-		B73B51ED175C4B5E00201BE7 /* HBRecording.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HBRecording.m; sourceTree = "<group>"; };
+		B73B51EC175C4B5E00201BE7 /* HBProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HBProgram.h; sourceTree = "<group>"; };
+		B73B51ED175C4B5E00201BE7 /* HBProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HBProgram.m; sourceTree = "<group>"; };
 		B73D0E5C19B5015C009802CF /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		B73D687019C7E211007DFC10 /* spotlight_blue_button.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = spotlight_blue_button.icns; sourceTree = "<group>"; };
 		B7A5827819B9988700E1CA76 /* stop_red_button.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = stop_red_button.icns; sourceTree = "<group>"; };
@@ -272,8 +272,8 @@
 				B7C9487B171E7591008250E2 /* HBAppDelegate.m */,
 				B7F7A198176EA507007C5D4C /* HBScheduler.h */,
 				B7F7A199176EA507007C5D4C /* HBScheduler.m */,
-				B73B51EC175C4B5E00201BE7 /* HBRecording.h */,
-				B73B51ED175C4B5E00201BE7 /* HBRecording.m */,
+				B73B51EC175C4B5E00201BE7 /* HBProgram.h */,
+				B73B51ED175C4B5E00201BE7 /* HBProgram.m */,
 				B7A63D9F175B14E700B44C51 /* HBRecordingsTableViewController.h */,
 				B7A63DA0175B14E700B44C51 /* HBRecordingsTableViewController.m */,
 				B7C9487D171E7591008250E2 /* MainMenu.xib */,
@@ -487,7 +487,7 @@
 				B7A582A219BC0AFA00E1CA76 /* hdhomerun_discover.c in Sources */,
 				B7A63DA2175B14E700B44C51 /* HBRecordingsTableViewController.m in Sources */,
 				B7A582A819BC0AFA00E1CA76 /* hdhomerun_video.c in Sources */,
-				B73B51EE175C4B5E00201BE7 /* HBRecording.m in Sources */,
+				B73B51EE175C4B5E00201BE7 /* HBProgram.m in Sources */,
 				B7A582A519BC0AFA00E1CA76 /* hdhomerun_pkt.c in Sources */,
 				B7F7A19A176EA507007C5D4C /* HBScheduler.m in Sources */,
 			);

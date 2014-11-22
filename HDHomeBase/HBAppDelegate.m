@@ -7,7 +7,7 @@
 //
 
 #import "HBAppDelegate.h"
-#import "HBRecording.h"
+#import "HBProgram.h"
 #import "HBRecordingsTableViewController.h"
 #import "HBScheduler.h"
 

@@ -1,5 +1,5 @@
 //
-//  HBRecording.h
+//  HBProgram.h
 //  HDHomeBase
 //
 //  Created by Joydip Basu on 6/2/13.
@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <IOKit/pwr_mgt/IOPMLib.h>
 
-@interface HBRecording : NSObject
+@interface HBProgram : NSObject
 
 // persistent properties
 @property (readonly) NSString *mode;
@@ -57,7 +57,7 @@
 
 - (BOOL)serializeAsPropertyListFileToPath:(NSString *)path error:(NSError **)error;
 
-- (BOOL)startOverlapsWithRecording:(HBRecording *)otherRecording;
+- (BOOL)startOverlapsWithRecording:(HBProgram *)otherRecording;
 - (BOOL)hasEndDatePassed;
 
 @end

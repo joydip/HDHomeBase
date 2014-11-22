@@ -1,14 +1,14 @@
 //
-//  HBRecording.m
+//  HBProgram.m
 //  HDHomeBase
 //
 //  Created by Joydip Basu on 6/2/13.
 //  Copyright (c) 2013 Joydip Basu. All rights reserved.
 //
 
-#import "HBRecording.h"
+#import "HBProgram.h"
 
-@implementation HBRecording
+@implementation HBProgram
 
 + (NSDateFormatter *)recordingFileDateFormatter
 {
@@ -204,7 +204,7 @@
     return [propertyListData writeToFile:path atomically:YES];
 }
 
-- (BOOL)startOverlapsWithRecording:(HBRecording *)otherRecording
+- (BOOL)startOverlapsWithRecording:(HBProgram *)otherRecording
 {
     NSDate *myStartDate = self.paddedStartDate;
     NSDate *otherEndDate = otherRecording.paddedEndDate;

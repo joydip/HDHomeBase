@@ -7,7 +7,7 @@
 //
 
 #import "HBRecordingsTableViewController.h"
-#import "HBRecording.h"
+#import "HBProgram.h"
 #import "HBAppDelegate.h"
 #import "HBScheduler.h"
 
@@ -52,7 +52,7 @@
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification
 {
     NSInteger selectedRowIndex = [self.tableView selectedRow];
-    HBRecording *selectedRecording = (selectedRowIndex != -1) ? self.recordings[selectedRowIndex] : nil;
+    HBProgram *selectedRecording = (selectedRowIndex != -1) ? self.recordings[selectedRowIndex] : nil;
     
     for (NSUInteger rowIndex = 0; rowIndex < self.recordings.count; rowIndex++) {
         NSTableRowView *rowView = [self.tableView rowViewAtRow:rowIndex makeIfNecessary:NO];
@@ -79,7 +79,7 @@
 {
     NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
     NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
-    for (HBRecording *recording in selectedRecordings) [self.scheduler deleteRecording:recording];
+    for (HBProgram *recording in selectedRecordings) [self.scheduler deleteRecording:recording];
     [self.scheduler calculateSchedulingConflicts];
     [self.tableView reloadData];
 }
@@ -88,7 +88,7 @@
 {
     NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
     NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
-    for (HBRecording *recording in selectedRecordings) [self.scheduler stopRecording:recording];
+    for (HBProgram *recording in selectedRecordings) [self.scheduler stopRecording:recording];
     [self.scheduler calculateSchedulingConflicts];
 }
 
@@ -96,7 +96,7 @@
 {
     NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
     NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
-    HBRecording *selectedRecording = selectedRecordings[0];
+    HBProgram *selectedRecording = selectedRecordings[0];
     [[NSWorkspace sharedWorkspace] selectFile:selectedRecording.recordingFilePath
                      inFileViewerRootedAtPath:@""];
 }
@@ -116,7 +116,7 @@
         [self.recordings enumerateObjectsAtIndexes:selectedRowsIndexSet
                                            options:0
                                         usingBlock:^(id object, NSUInteger index, BOOL *stop) {
-                                            HBRecording *recording = (HBRecording *)object;
+                                            HBProgram *recording = (HBProgram *)object;
                                             if (recording.currentlyRecording) {
                                                 currentlyRecording = YES;
                                                 *stop = YES;
