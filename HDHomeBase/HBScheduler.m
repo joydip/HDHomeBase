@@ -76,15 +76,13 @@
 - (void)importPropertyListFile:(NSString *)propertyListFilePath
 {
     HBRecording *recording = [HBRecording recordingFromPropertyListFile:propertyListFilePath];
+    recording.propertyListFilePath = propertyListFilePath;
 
     if ([recording hasEndDatePassed]) {
-        [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:propertyListFilePath]
-                                      resultingItemURL:NULL
-                                                 error:NULL];
+        [self trashScheduleFile:recording];
         return;
     }
     
-    recording.propertyListFilePath = propertyListFilePath;
     [self scheduleRecording:recording];
 }
 
@@ -110,39 +108,47 @@
 
     // only schedule the timers if the file doesn't exist
     if (!recording.recordingFileExists) {
-        NSTimeInterval beginningPadding = [[NSUserDefaults standardUserDefaults] doubleForKey:@"BeginningPadding"];
-        NSDate *paddedStartDate = [recording.startDate dateByAddingTimeInterval:-beginningPadding];
-        recording.paddedStartDate = paddedStartDate;
-        recording.startTimer = [[NSTimer alloc] initWithFireDate:paddedStartDate
-                                                        interval:0
-                                                          target:self
-                                                        selector:@selector(startRecordingTimerFired:)
-                                                        userInfo:recording
-                                                         repeats:NO];
-        [[NSRunLoop mainRunLoop] addTimer:recording.startTimer
-                                  forMode:NSRunLoopCommonModes];
-        
-        NSTimeInterval endingPadding = [[NSUserDefaults standardUserDefaults] doubleForKey:@"EndingPadding"];
-        NSDate *paddedEndDate = [recording.endDate dateByAddingTimeInterval:endingPadding];
-        recording.paddedEndDate = paddedEndDate;
-        recording.stopTimer = [[NSTimer alloc] initWithFireDate:paddedEndDate
-                                                       interval:0
-                                                         target:self
-                                                       selector:@selector(stopRecordingTimerFired:)
-                                                       userInfo:recording
-                                                        repeats:NO];
-        [[NSRunLoop mainRunLoop] addTimer:recording.stopTimer
-                                  forMode:NSRunLoopCommonModes];
+        [self scheduleStartTimer:recording];
+        [self scheduleEndTimer:recording];
     } else {
         recording.statusIconImage = [NSImage imageNamed:@"clapperboard"];
         recording.completed = YES;
-        [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:recording.propertyListFilePath]
-                                      resultingItemURL:NULL
-                                                 error:NULL];
+        [self trashScheduleFile:recording];
     }
     
     [self.scheduledRecordings addObject:recording];
     [self calculateSchedulingConflicts];
+}
+
+- (void)scheduleStartTimer:(HBRecording *)recording
+{
+    NSTimeInterval beginningPadding = [[NSUserDefaults standardUserDefaults] doubleForKey:@"BeginningPadding"];
+    NSDate *paddedStartDate = [recording.startDate dateByAddingTimeInterval:-beginningPadding];
+    recording.paddedStartDate = paddedStartDate;
+    recording.startTimer = [[NSTimer alloc] initWithFireDate:paddedStartDate
+                                                    interval:0
+                                                      target:self
+                                                    selector:@selector(startRecordingTimerFired:)
+                                                    userInfo:recording
+                                                     repeats:NO];
+    [[NSRunLoop mainRunLoop] addTimer:recording.startTimer
+                              forMode:NSRunLoopCommonModes];
+
+}
+
+- (void)scheduleEndTimer:(HBRecording *)recording
+{
+    NSTimeInterval endingPadding = [[NSUserDefaults standardUserDefaults] doubleForKey:@"EndingPadding"];
+    NSDate *paddedEndDate = [recording.endDate dateByAddingTimeInterval:endingPadding];
+    recording.paddedEndDate = paddedEndDate;
+    recording.stopTimer = [[NSTimer alloc] initWithFireDate:paddedEndDate
+                                                   interval:0
+                                                     target:self
+                                                   selector:@selector(stopRecordingTimerFired:)
+                                                   userInfo:recording
+                                                    repeats:NO];
+    [[NSRunLoop mainRunLoop] addTimer:recording.stopTimer
+                              forMode:NSRunLoopCommonModes];
 }
 
 - (void)calculateSchedulingConflicts
@@ -217,6 +223,7 @@
     NSLog(@"aborting recording: %@", errorMessage);
     recording.status = errorMessage;
     recording.statusIconImage = [NSImage imageNamed:@"prohibited"];
+    recording.completed = YES;
     
     [self cleanupResourcesForRecording:recording];
 }
@@ -454,9 +461,7 @@
     recording.status = @"";
     recording.statusIconImage = [NSImage imageNamed:@"clapperboard"];
     
-    [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:recording.propertyListFilePath]
-                                  resultingItemURL:NULL
-                                             error:NULL];
+    [self trashScheduleFile:recording];
     
     self.activeRecordingCount -= 1;
     [self updateDockTile];
@@ -472,13 +477,8 @@
     if (recording.currentlyRecording) [self stopRecording:recording];
     else [self cancelTimersForRecording:recording];
 
-    NSFileManager *defaultFileManager = [NSFileManager defaultManager];
-    [defaultFileManager trashItemAtURL:[NSURL fileURLWithPath:recording.recordingFilePath]
-                      resultingItemURL:NULL
-                                 error:NULL];
-    [defaultFileManager trashItemAtURL:[NSURL fileURLWithPath:recording.propertyListFilePath]
-                      resultingItemURL:NULL
-                                 error:NULL];
+    [self trashRecordingFile:recording];
+    [self trashScheduleFile:recording];
 
     [self.scheduledRecordings removeObject:recording];
     [self calculateSchedulingConflicts];
@@ -500,6 +500,20 @@
 {
     NSDockTile *dockTile = [NSApp dockTile];
     dockTile.badgeLabel = (self.activeRecordingCount) ? [NSString stringWithFormat:@"%lu", (unsigned long)self.activeRecordingCount] : nil;
+}
+
+- (void)trashRecordingFile:(HBRecording *)recording
+{
+    [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:recording.recordingFilePath]
+                                  resultingItemURL:NULL
+                                             error:NULL];
+}
+
+- (void)trashScheduleFile:(HBRecording *)recording
+{
+    [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:recording.propertyListFilePath]
+                                  resultingItemURL:NULL
+                                             error:NULL];
 }
 
 @end

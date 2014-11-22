@@ -28,4 +28,6 @@
 - (void)playRecording:(HBRecording *)recording;
 - (void)deleteRecording:(HBRecording *)recording;
 
+- (void)calculateSchedulingConflicts;
+
 @end

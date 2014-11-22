@@ -80,6 +80,7 @@
     NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
     NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
     for (HBRecording *recording in selectedRecordings) [self.scheduler deleteRecording:recording];
+    [self.scheduler calculateSchedulingConflicts];
     [self.tableView reloadData];
 }
 
@@ -88,6 +89,7 @@
     NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
     NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
     for (HBRecording *recording in selectedRecordings) [self.scheduler stopRecording:recording];
+    [self.scheduler calculateSchedulingConflicts];
 }
 
 - (IBAction)showFileAction:(id)sender
