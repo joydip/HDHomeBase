@@ -10,22 +10,17 @@
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>tvpi</string>
-				<string>tvvi</string>
 			</array>
 			<key>CFBundleTypeMIMETypes</key>
 			<array>
 				<string>application/x-tv-program-info</string>
-				<string>application/x-tv-viewer-info</string>
 			</array>
 			<key>CFBundleTypeName</key>
 			<string>TitanTV Program Information</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>Reco</string>
-				<string>Prog</string>
-			</array>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
+			<key>LSTypeIsPackage</key>
+			<integer>1</integer>
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>

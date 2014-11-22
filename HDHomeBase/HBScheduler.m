@@ -470,6 +470,7 @@
 - (void)deleteRecording:(HBRecording *)recording
 {
     if (recording.currentlyRecording) [self stopRecording:recording];
+    else [self cancelTimersForRecording:recording];
 
     NSFileManager *defaultFileManager = [NSFileManager defaultManager];
     [defaultFileManager trashItemAtURL:[NSURL fileURLWithPath:recording.recordingFilePath]
