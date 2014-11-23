@@ -7,7 +7,7 @@
 //
 
 #import "HBRecordingsTableViewController.h"
-#import "HBProgram.h"
+#import "HBRecording.h"
 #import "HBAppDelegate.h"
 #import "HBScheduler.h"
 
@@ -52,11 +52,11 @@
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification
 {
     NSInteger selectedRowIndex = [self.tableView selectedRow];
-    HBProgram *selectedRecording = (selectedRowIndex != -1) ? self.recordings[selectedRowIndex] : nil;
+    HBRecording *selectedRecording = (selectedRowIndex != -1) ? self.recordings[selectedRowIndex] : nil;
     
     for (NSUInteger rowIndex = 0; rowIndex < self.recordings.count; rowIndex++) {
         NSTableRowView *rowView = [self.tableView rowViewAtRow:rowIndex makeIfNecessary:NO];
-
+        
         if (selectedRecording.tooManyOverlappingRecordings) {
             if ([selectedRecording.overlappingRecordings containsObject:self.recordings[rowIndex]])
                 rowView.backgroundColor = [NSColor colorWithDeviceRed:1.0f green:0.0f blue:0.0f alpha:0.25f];
@@ -79,7 +79,7 @@
 {
     NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
     NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
-    for (HBProgram *recording in selectedRecordings) [self.scheduler deleteRecording:recording];
+    for (HBRecording *recording in selectedRecordings) [self.scheduler deleteRecording:recording];
     [self.scheduler calculateSchedulingConflicts];
     [self.tableView reloadData];
 }
@@ -88,7 +88,7 @@
 {
     NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
     NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
-    for (HBProgram *recording in selectedRecordings) [self.scheduler stopRecording:recording];
+    for (HBRecording *recording in selectedRecordings) [self.scheduler stopRecording:recording];
     [self.scheduler calculateSchedulingConflicts];
 }
 
@@ -96,7 +96,7 @@
 {
     NSIndexSet *selectedRowsIndexSet = self.tableView.selectedRowIndexes;
     NSArray *selectedRecordings = [self.recordings objectsAtIndexes:selectedRowsIndexSet];
-    HBProgram *selectedRecording = selectedRecordings[0];
+    HBRecording *selectedRecording = selectedRecordings[0];
     [[NSWorkspace sharedWorkspace] selectFile:selectedRecording.recordingFilePath
                      inFileViewerRootedAtPath:@""];
 }
@@ -104,7 +104,7 @@
 - (BOOL)validateToolbarItem:(id)sender
 {
     if (self.tableView.numberOfSelectedRows == 0) return NO;
-
+    
     if ((sender == self.playRecordingToolbarItem) ||
         (sender == self.showFileToolbarItem))
         return [self.recordings[self.tableView.selectedRow] recordingFileExists];
@@ -116,7 +116,7 @@
         [self.recordings enumerateObjectsAtIndexes:selectedRowsIndexSet
                                            options:0
                                         usingBlock:^(id object, NSUInteger index, BOOL *stop) {
-                                            HBProgram *recording = (HBProgram *)object;
+                                            HBRecording *recording = (HBRecording *)object;
                                             if (recording.currentlyRecording) {
                                                 currentlyRecording = YES;
                                                 *stop = YES;

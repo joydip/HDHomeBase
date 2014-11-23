@@ -7,10 +7,8 @@
 //
 
 #import "HBScheduler.h"
+#import "HBRecording.h"
 #import "HBProgram.h"
-#include "hdhomerun.h"
-
-#import <IOKit/pwr_mgt/IOPMLib.h>
 
 @interface HBScheduler ()
 
@@ -56,7 +54,11 @@
 
 - (void)importTVPIFile:(NSString *)tvpiFilePath
 {
-    HBProgram *recording = [HBProgram recordingFromTVPIFile:tvpiFilePath];
+    HBProgram *program = [HBProgram programFromTVPIFile:tvpiFilePath];
+    
+    HBRecording *recording = [HBRecording new];
+    recording.program = program;
+    recording.scheduler = self;
 
     [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:tvpiFilePath]
                                   resultingItemURL:NULL
@@ -66,7 +68,7 @@
         NSString *newPropertyListFilename = [recording.uniqueName stringByAppendingString:@".hbsched"];
         NSString *newPropertyListPath = [self.recordingsFolder stringByAppendingPathComponent:newPropertyListFilename];
         
-        [recording serializeAsPropertyListFileToPath:newPropertyListPath error:NULL];
+        [program serializeAsPropertyListFileToPath:newPropertyListPath error:NULL];
         recording.propertyListFilePath = newPropertyListPath;
 
         [self scheduleRecording:recording];
@@ -75,24 +77,27 @@
 
 - (void)importPropertyListFile:(NSString *)propertyListFilePath
 {
-    HBProgram *recording = [HBProgram recordingFromPropertyListFile:propertyListFilePath];
+    HBProgram *program = [HBProgram programFromPropertyListFile:propertyListFilePath];
+    HBRecording *recording = [HBRecording new];
+    recording.scheduler = self;
+    recording.program = program;
     recording.propertyListFilePath = propertyListFilePath;
 
     if ([recording hasEndDatePassed]) {
-        [self trashScheduleFile:recording];
+        [recording trashScheduleFile];
         return;
     }
     
     [self scheduleRecording:recording];
 }
 
-- (BOOL)recordingAlreadyScheduled:(HBProgram *)recording
+- (BOOL)recordingAlreadyScheduled:(HBRecording *)recording
 {
-    for (HBProgram *existingRecording in self.scheduledRecordings) {
-        if (([recording.startDate isEqualToDate:existingRecording.startDate]) &&
-            ([recording.endDate isEqualToDate:existingRecording.endDate]) &&
-            ([recording.rfChannel isEqualToString:existingRecording.rfChannel] &&
-             (recording.psipMinor == existingRecording.psipMinor))) {
+    for (HBRecording *existingRecording in self.scheduledRecordings) {
+        if (([recording.program.startDate isEqualToDate:existingRecording.program.startDate]) &&
+            ([recording.program.endDate isEqualToDate:existingRecording.program.endDate]) &&
+            ([recording.program.rfChannel isEqualToString:existingRecording.program.rfChannel] &&
+             (recording.program.psipMinor == existingRecording.program.psipMinor))) {
             NSLog(@"recording already exists, not adding");
             return YES;
         }
@@ -101,71 +106,31 @@
     return NO;
 }
 
-- (void)scheduleRecording:(HBProgram *)recording
+- (void)scheduleRecording:(HBRecording *)recording
 {
     recording.recordingFilePath = [[self recordingsFolder] stringByAppendingPathComponent:recording.recordingFilename];
-    recording.recordingFileExists = [[NSFileManager defaultManager] fileExistsAtPath:recording.recordingFilePath];
 
-    // only schedule the timers if the file doesn't exist
-    if (!recording.recordingFileExists) {
-        [self scheduleStartTimer:recording];
-        [self scheduleEndTimer:recording];
-    } else {
-        recording.statusIconImage = [NSImage imageNamed:@"clapperboard"];
-        recording.completed = YES;
-        [self trashScheduleFile:recording];
-    }
+    [recording scheduleRecording];
     
     [self.scheduledRecordings addObject:recording];
     [self calculateSchedulingConflicts];
 }
 
-- (void)scheduleStartTimer:(HBProgram *)recording
-{
-    NSTimeInterval beginningPadding = [[NSUserDefaults standardUserDefaults] doubleForKey:@"BeginningPadding"];
-    NSDate *paddedStartDate = [recording.startDate dateByAddingTimeInterval:-beginningPadding];
-    recording.paddedStartDate = paddedStartDate;
-    recording.startTimer = [[NSTimer alloc] initWithFireDate:paddedStartDate
-                                                    interval:0
-                                                      target:self
-                                                    selector:@selector(startRecordingTimerFired:)
-                                                    userInfo:recording
-                                                     repeats:NO];
-    [[NSRunLoop mainRunLoop] addTimer:recording.startTimer
-                              forMode:NSRunLoopCommonModes];
-
-}
-
-- (void)scheduleEndTimer:(HBProgram *)recording
-{
-    NSTimeInterval endingPadding = [[NSUserDefaults standardUserDefaults] doubleForKey:@"EndingPadding"];
-    NSDate *paddedEndDate = [recording.endDate dateByAddingTimeInterval:endingPadding];
-    recording.paddedEndDate = paddedEndDate;
-    recording.stopTimer = [[NSTimer alloc] initWithFireDate:paddedEndDate
-                                                   interval:0
-                                                     target:self
-                                                   selector:@selector(stopRecordingTimerFired:)
-                                                   userInfo:recording
-                                                    repeats:NO];
-    [[NSRunLoop mainRunLoop] addTimer:recording.stopTimer
-                              forMode:NSRunLoopCommonModes];
-}
-
 - (void)calculateSchedulingConflicts
 {
-    for (HBProgram *recording in self.scheduledRecordings)
+    for (HBRecording *recording in self.scheduledRecordings)
         recording.overlappingRecordings = nil;
 
-    NSArray *sortedScheduledRecordings = [self.scheduledRecordings sortedArrayUsingComparator:^(HBProgram *q, HBProgram *r) {
-        return [q.startDate compare:r.startDate];
+    NSArray *sortedScheduledRecordings = [self.scheduledRecordings sortedArrayUsingComparator:^(HBRecording *q, HBRecording *r) {
+        return [q.program.startDate compare:r.program.startDate];
     }];
     
     for (NSUInteger i = 0; i < sortedScheduledRecordings.count; i++) {
-        HBProgram *recording = sortedScheduledRecordings[i];
+        HBRecording *recording = sortedScheduledRecordings[i];
         if (recording.completed) continue;
         
         for (NSUInteger j = i+1; j < sortedScheduledRecordings.count; j++) {
-            HBProgram *otherRecording = sortedScheduledRecordings[j];
+            HBRecording *otherRecording = sortedScheduledRecordings[j];
             if (otherRecording.completed) continue;
             
             if ([otherRecording startOverlapsWithRecording:recording]) {
@@ -175,7 +140,7 @@
         }
     }
 
-    for (HBProgram *recording in self.scheduledRecordings) {
+    for (HBRecording *recording in self.scheduledRecordings) {
         if (recording.currentlyRecording || recording.completed) continue;
 
         BOOL tooManyOverlappingRecordings = (recording.overlappingRecordings.count > self.maxAcceptableOverlappingRecordingsCount);
@@ -184,336 +149,40 @@
     }
 }
 
-- (void)cleanupResourcesForRecording:(HBProgram *)recording
+- (void)stopRecording:(HBRecording *)recording
 {
-    if (recording.filePointer) {
-        fclose(recording.filePointer);
-        recording.filePointer = NULL;
-    }
-    
-    [self cancelTimersForRecording:recording];
-    
-    if (recording.tunerDevice) {
-        hdhomerun_device_destroy(recording.tunerDevice);
-        recording.tunerDevice = NULL;
-    }
-    
-    if (recording.assertionID != kIOPMNullAssertionID) {
-        IOReturn success = IOPMAssertionRelease(recording.assertionID);
-        if (success != kIOReturnSuccess) NSLog(@"unable to release power assertion");
-        recording.assertionID = kIOPMNullAssertionID;
-    }
+    [recording stopRecording];
 }
 
-- (void)cancelTimersForRecording:(HBProgram *)recording
-{
-    if (recording.startTimer) {
-        [recording.startTimer invalidate];
-        recording.startTimer = nil;
-    }
-    
-    if (recording.stopTimer) {
-        [recording.stopTimer invalidate];
-        recording.stopTimer = nil;
-    }
-}
-
-- (void)abortRecording:(HBProgram *)recording errorMessage:(NSString *)errorMessage
-{
-    NSLog(@"aborting recording: %@", errorMessage);
-    recording.status = errorMessage;
-    recording.statusIconImage = [NSImage imageNamed:@"prohibited"];
-    recording.completed = YES;
-    
-    [self cleanupResourcesForRecording:recording];
-}
-
-- (void)startRecording:(HBProgram *)recording
-{
-    recording.statusIconImage = [NSImage imageNamed:@"yellow"];
-    recording.status = @"searching for devices…";
-
-    UInt8 maxDeviceCount = 8;
-    struct hdhomerun_discover_device_t deviceList[maxDeviceCount];
-    int devicesFoundCount = hdhomerun_discover_find_devices_custom(0, // auto-detect IP address
-                                                                   HDHOMERUN_DEVICE_TYPE_TUNER,
-                                                                   HDHOMERUN_DEVICE_ID_WILDCARD,
-                                                                   deviceList,
-                                                                   maxDeviceCount);
-    if (devicesFoundCount == -1) {
-        [self abortRecording:recording errorMessage:@"unable to discover devices"];
-        return;
-    }
-
-    if (devicesFoundCount == 0) {
-        [self abortRecording:recording errorMessage:@"no devices found"];
-        return;
-    }
-    
-    recording.status = @"searching for available tuner…";
-
-    for (UInt8 deviceIndex = 0; deviceIndex < devicesFoundCount; deviceIndex++) {
-        struct hdhomerun_discover_device_t *discoveredDevice = &deviceList[deviceIndex];
-        UInt8 tunerCount = discoveredDevice->tuner_count;
-        NSLog(@"examining device %X with %hhu tuners", discoveredDevice->device_id, tunerCount);
-
-        struct hdhomerun_device_t *device = hdhomerun_device_create(HDHOMERUN_DEVICE_ID_WILDCARD,
-                                                                    discoveredDevice->ip_addr,
-                                                                    0, // tuner index
-                                                                    NULL); // no debug info
-        if (device == NULL) continue;
-        
-        for (UInt8 tunerIndex = 0; tunerIndex < tunerCount; tunerIndex++) {
-            NSLog(@"examining tuner %hhu", tunerIndex);
-            
-            hdhomerun_device_set_tuner(device, tunerIndex);
-            char *tunerTargetBuffer;
-            int result = hdhomerun_device_get_tuner_target(device, &tunerTargetBuffer);
-            
-            switch (result) {
-                case 0:  NSLog(@"operation rejected"); continue;
-                case -1: NSLog(@"communication error"); continue;
-                default: break;
-            }
-            
-            NSLog(@"tuner %hhu target is %s", tunerIndex, tunerTargetBuffer);
-            
-            if (strcmp(tunerTargetBuffer, "none") == 0) {
-                NSLog(@"tuner %hhu is available", tunerIndex);
-                recording.tunerDevice = device;
-                [self lockTunerAndPrepareRecording:recording];
-                return;
-            } else
-                NSLog(@"tuner %hhu in use, skipping", tunerIndex);
-        }
-        
-        // no tuners free on this device, so destroy it
-        NSLog(@"no tuners available on device, skipping");
-        hdhomerun_device_destroy(device);
-    }
-    
-    // no more devices to try, fail the recording
-    [self abortRecording:recording errorMessage:@"no tuners available"];
-}
-
-- (void)lockTunerAndPrepareRecording:(HBProgram *)recording
-{
-    // XXX set lock here
-    struct hdhomerun_device_t *device = recording.tunerDevice;
-
-    // tune channel based off the mode
-    if ([recording.mode isEqualToString:@"digital"]) {
-        NSLog(@"tuning digital broadcast");
-        hdhomerun_device_set_tuner_channel(device,
-                                           [[@"auto:" stringByAppendingString:recording.rfChannel]
-                                            cStringUsingEncoding:NSASCIIStringEncoding]);
-    } else if ([recording.mode isEqualToString:@"digital_cable"]) {
-        NSLog(@"tuning digital cable");
-        hdhomerun_device_set_tuner_vchannel(device,
-                                            [recording.rfChannel cStringUsingEncoding:NSASCIIStringEncoding]);
-    } else {
-        [self abortRecording:recording errorMessage:[@"unknown mode " stringByAppendingString:recording.mode]];
-        return;
-    }
-    
-    // open recording file
-    FILE *filePointer = fopen([recording.recordingFilePath fileSystemRepresentation], "wb");
-    if (!filePointer) {
-        [self abortRecording:recording errorMessage:@"unable to create recording file"];
-        return;
-    }
-    
-    recording.filePointer = filePointer;
-    recording.recordingFileExists = YES;
-    
-    // take power assertion
-    IOPMAssertionID assertionID;
-    IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertPreventUserIdleSystemSleep,
-                                                   kIOPMAssertionLevelOn,
-                                                   (__bridge CFStringRef)recording.recordingFilePath,
-                                                   &assertionID);
-    if (success != kIOReturnSuccess) {
-        NSLog(@"unable to create power assertion");
-        recording.assertionID = kIOPMNullAssertionID;
-    } else recording.assertionID = assertionID;
-    
-    
-    int result = hdhomerun_device_stream_start(device);
-    if (result <= 0) {
-        [self abortRecording:recording errorMessage:@"unable to start stream"];
-        return;
-    }
-    
-    recording.currentlyRecording = YES;
-    [NSThread detachNewThreadSelector:@selector(receiveStreamForRecording:)
-                             toTarget:self
-                           withObject:recording];
-
-    recording.status = @"recording";
-    recording.statusIconImage = [NSImage imageNamed:@"red"];
-    
-    self.activeRecordingCount += 1;
-    [self updateDockTile];
-}
-
-- (void)receiveStreamForRecording:(HBProgram *)recording
-{
-    NSLog(@"receiving stream");
-    NSLog(@"recording %@", recording.title);
-
-    FILE *filePointer = recording.filePointer;
-    size_t bufferSize;
-    struct hdhomerun_device_t *tunerDevice = recording.tunerDevice;
-    
-    BOOL programIdentified = NO;
-    BOOL streamReadyForSaving = NO;
-    NSString *programNamePrefix = nil;
-    NSString *programString = nil;
-   
-    if ([recording.mode isEqualToString:@"digital"])
-        programNamePrefix = [NSString stringWithFormat:@"%hu.%hu", recording.psipMajor, recording.psipMinor];
-    
-	while (recording.currentlyRecording) {
-		uint64_t loopStartTime = getcurrenttime();
-        
-		uint8_t *videoDataBuffer = hdhomerun_device_stream_recv(tunerDevice, VIDEO_DATA_BUFFER_SIZE_1S, &bufferSize);
-		if (!videoDataBuffer) {
-			msleep_approx(64);
-			continue;
-		}
-        
-        if (!programIdentified) {
-            char *program;
-            hdhomerun_device_get_tuner_program(tunerDevice, &program);
-            
-            programString = @(program);
-            
-            if (![programString isEqualToString:@"none"])
-                programIdentified = YES;
-        }
-
-        if (!streamReadyForSaving) {
-            char *streamInfo;
-            hdhomerun_device_get_tuner_streaminfo(tunerDevice, &streamInfo);
-
-            NSString *streamInfoString = @(streamInfo);
-
-            NSArray *streams = [streamInfoString componentsSeparatedByString:@"\n"];
-
-            for (NSString *stream in streams) {
-                // for digital cable (CableCARD), look for a stream that matches the program number, and wait until it is unencrypted
-                if ([recording.mode isEqualToString:@"digital_cable"]) {
-                    if ([stream hasPrefix:programString])
-                        if (![stream hasSuffix:@")"]) {
-                            NSLog(@"unecrypted stream found!");
-                            streamReadyForSaving = YES;
-                        }
-                    
-                    if (streamReadyForSaving)
-                        break;
-                }
-
-                // in digital (ATSC broadcast), we match the whole program name and then set a filter
-                else if ([recording.mode isEqualToString:@"digital"]) {
-                    NSArray *streamFields = [stream componentsSeparatedByString:@": "];
-                    if (streamFields.count < 2) continue;
-                    
-                    NSString *streamProgramNumberString = streamFields[0];
-                    NSString *streamName = streamFields[1];
-                    NSLog(@"program: %@ name: %@", streamProgramNumberString, streamName);
-                    
-                    if ([streamName hasPrefix:programNamePrefix]) {
-                        NSLog(@"matched desired program name %@", streamName);
-                        hdhomerun_device_set_tuner_program(tunerDevice, [streamProgramNumberString cStringUsingEncoding:NSASCIIStringEncoding]);
-                        streamReadyForSaving = YES;
-                        break;
-                    }
-                }
-            }
-            
-            continue;
-        }
-        
-		if (streamReadyForSaving && filePointer) {
-			if (fwrite(videoDataBuffer, 1, bufferSize, filePointer) != bufferSize) {
-				fprintf(stderr, "error writing output\n");
-				break;
-			}
-		}
-        
-		int32_t delay = 64 - (int32_t)(getcurrenttime() - loopStartTime);
-		if (delay <= 0) continue;
-		msleep_approx(delay);
-	}
-    
-    NSLog(@"receiving stream thread terminated");
-}
-
-- (void)stopRecording:(HBProgram *)recording
-{
-    hdhomerun_device_stream_stop(recording.tunerDevice);
-
-    recording.currentlyRecording = NO;
-    recording.completed = YES;
-
-    [self cleanupResourcesForRecording:recording];
-    
-    recording.status = @"";
-    recording.statusIconImage = [NSImage imageNamed:@"clapperboard"];
-    
-    [self trashScheduleFile:recording];
-    
-    self.activeRecordingCount -= 1;
-    [self updateDockTile];
-}
-
-- (void)playRecording:(HBProgram *)recording
+- (void)playRecording:(HBRecording *)recording
 {
     [[NSWorkspace sharedWorkspace] openFile:recording.recordingFilePath];
 }
 
-- (void)deleteRecording:(HBProgram *)recording
+- (void)deleteRecording:(HBRecording *)recording
 {
-    if (recording.currentlyRecording) [self stopRecording:recording];
-    else [self cancelTimersForRecording:recording];
-
-    [self trashRecordingFile:recording];
-    [self trashScheduleFile:recording];
+    [recording deleteRecording];
 
     [self.scheduledRecordings removeObject:recording];
     [self calculateSchedulingConflicts];
 }
 
-- (void)startRecordingTimerFired:(NSTimer *)timer
+- (void)beganRecording:(HBRecording *)recording
 {
-    HBProgram *recording = [timer userInfo];
-    [self startRecording:recording];
+    self.activeRecordingCount += 1;
+    [self updateDockTile];
 }
 
-- (void)stopRecordingTimerFired:(NSTimer *)timer
+- (void)endedRecording:(HBRecording *)recording
 {
-    HBProgram *recording = [timer userInfo];
-    [self stopRecording:recording];
+    self.activeRecordingCount -= 1;
+    [self updateDockTile];
 }
 
 - (void)updateDockTile
 {
     NSDockTile *dockTile = [NSApp dockTile];
     dockTile.badgeLabel = (self.activeRecordingCount) ? [NSString stringWithFormat:@"%lu", (unsigned long)self.activeRecordingCount] : nil;
-}
-
-- (void)trashRecordingFile:(HBProgram *)recording
-{
-    [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:recording.recordingFilePath]
-                                  resultingItemURL:NULL
-                                             error:NULL];
-}
-
-- (void)trashScheduleFile:(HBProgram *)recording
-{
-    [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:recording.propertyListFilePath]
-                                  resultingItemURL:NULL
-                                             error:NULL];
 }
 
 @end

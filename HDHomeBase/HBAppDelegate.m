@@ -22,7 +22,7 @@
                                   @"RecordingsFolder": defaultRecordingsFolder,
                                   @"BeginningPadding": @60,
                                   @"EndingPadding":    @60,
-                                  @"TotalTunerCount":  @2,
+                                  @"TotalTunerCount":  @3,
                                 };
     
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
@@ -50,7 +50,6 @@
 
 - (BOOL)application:(id)sender openFileWithoutUI:(NSString *)filename
 {
-
     [self importTVPIFile:filename];
     return YES; // XXX blindly returning YES
 }

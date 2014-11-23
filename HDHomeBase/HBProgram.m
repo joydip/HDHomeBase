@@ -10,19 +10,6 @@
 
 @implementation HBProgram
 
-+ (NSDateFormatter *)recordingFileDateFormatter
-{
-    static dispatch_once_t predicate;
-    static NSDateFormatter *dateFormatter = nil;
-
-    dispatch_once(&predicate, ^{
-        dateFormatter = [NSDateFormatter new];
-        [dateFormatter setDateFormat:@"yyyyMMddHHmm"];
-    });
-                  
-    return dateFormatter;
-}
-
 + (NSDateFormatter *)tvpiStartEndDateFormatter
 {
     static dispatch_once_t predicate;
@@ -37,12 +24,12 @@
     return dateFormatter;
 }
 
-+ (instancetype)recordingFromTVPIFile:(NSString *)tvpiFilePath
++ (instancetype)programFromTVPIFile:(NSString *)tvpiFilePath
 {
     return [[self alloc] initWithTVPIFile:tvpiFilePath];
 }
 
-+ (instancetype)recordingFromPropertyListFile:(NSString *)propertyListFilePath
++ (instancetype)programFromPropertyListFile:(NSString *)propertyListFilePath
 {
     return [[self alloc] initWithPropertyListFile:propertyListFilePath];
 }
@@ -156,18 +143,6 @@
     return self;
 }
 
-- (NSString *)uniqueName
-{
-    NSString *recordingFileDateString = [[[self class] recordingFileDateFormatter] stringFromDate:self.startDate];
-    NSString *baseName = (self.episode.length) ? [NSString stringWithFormat:@"%@ - %@", self.title, self.episode] : self.title;
-    return [NSString stringWithFormat:@"%@ (%@ %@)", baseName, self.channelName, recordingFileDateString];
-}
-
-- (NSString *)recordingFilename
-{
-    return [self.uniqueName stringByAppendingString:@".ts"];
-}
-
 - (NSDictionary *)dictionaryRepresentation
 {
     NSMutableDictionary *dict = [NSMutableDictionary new];
@@ -184,7 +159,7 @@
                       @"streamNumber",
                       @"psipMajor",
                       @"psipMinor",
-                    ];
+                      ];
     
     for (NSString *key in keys) {
         id value = [self valueForKey:key];
@@ -197,32 +172,11 @@
 - (BOOL)serializeAsPropertyListFileToPath:(NSString *)path error:(NSError **)error
 {
     NSData *propertyListData = [NSPropertyListSerialization dataWithPropertyList:[self dictionaryRepresentation]
-                                                                           format:NSPropertyListXMLFormat_v1_0
-                                                                          options:0
-                                                                            error:error];
+                                                                          format:NSPropertyListXMLFormat_v1_0
+                                                                         options:0
+                                                                           error:error];
     if (!propertyListData) return NO;
     return [propertyListData writeToFile:path atomically:YES];
-}
-
-- (BOOL)startOverlapsWithRecording:(HBProgram *)otherRecording
-{
-    NSDate *myStartDate = self.paddedStartDate;
-    NSDate *otherEndDate = otherRecording.paddedEndDate;
-    
-    return ([myStartDate compare:otherEndDate] != NSOrderedDescending);
-}
-
-- (BOOL)hasEndDatePassed
-{
-    return ([self.endDate compare:[NSDate date]] != NSOrderedDescending);
-}
-
--(NSString *)canonicalChannel
-{
-    if ([self.mode isEqualToString:@"digital"])
-        return [NSString stringWithFormat:@"%hu.%hu", self.psipMajor, self.psipMinor];
-
-    return self.rfChannel;
 }
 
 @end

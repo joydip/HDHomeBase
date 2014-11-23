@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class HBProgram;
+@class HBRecording;
 
 @interface HBScheduler : NSObject
 
@@ -22,12 +22,13 @@
 - (void)importPropertyListFile:(NSString *)propertyListFilePath;
 - (void)importExistingSchedules;
 
-- (void)scheduleRecording:(HBProgram *)recording;
-- (void)startRecording:(HBProgram *)recording;
-- (void)stopRecording:(HBProgram *)recording;
-- (void)playRecording:(HBProgram *)recording;
-- (void)deleteRecording:(HBProgram *)recording;
+- (void)stopRecording:(HBRecording *)recording;
+- (void)playRecording:(HBRecording *)recording;
+- (void)deleteRecording:(HBRecording *)recording;
 
 - (void)calculateSchedulingConflicts;
+
+- (void)beganRecording:(HBRecording *)recording;
+- (void)endedRecording:(HBRecording *)recording;
 
 @end
