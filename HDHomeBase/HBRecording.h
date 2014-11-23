@@ -17,8 +17,8 @@
 @property (weak) HBScheduler *scheduler;
 @property HBProgram *program;
 @property BOOL completed;
-@property NSImage *statusIconImage;
-@property (copy) NSString *status;
+@property (readonly, copy) NSImage *statusIconImage;
+@property (readonly, copy) NSString *status;
 @property NSMutableSet *overlappingRecordings;
 @property BOOL tooManyOverlappingRecordings;
 @property (copy) NSString *propertyListFilePath;
@@ -29,8 +29,6 @@
 @property (readonly) NSString *uniqueName;
 @property (readonly) BOOL recordingFileExists;
 @property (readonly) BOOL currentlyRecording;
-
-
 
 - (BOOL)startOverlapsWithRecording:(HBRecording *)otherRecording;
 - (BOOL)hasEndDatePassed;

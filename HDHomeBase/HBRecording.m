@@ -15,18 +15,19 @@
 
 @interface HBRecording ()
 
+@property (readonly) NSString *canonicalChannel;
 @property (readonly) NSDate *paddedStartDate;
 @property (readonly) NSDate *paddedEndDate;
+@property (readwrite, copy) NSString *status;
+@property (readwrite, copy) NSImage *statusIconImage;
+
 @property NSTimer *startTimer;
 @property NSTimer *stopTimer;
 @property FILE *filePointer;
 @property IOPMAssertionID assertionID;
 @property struct hdhomerun_device_t *tunerDevice;
 @property BOOL shouldStream;
-
-
-// dynamically computed properties
-@property (readonly) NSString *canonicalChannel;
+@property BOOL streamReady;
 
 @end
 
@@ -68,19 +69,19 @@
     return [[NSFileManager defaultManager] fileExistsAtPath:self.recordingFilePath];
 }
 
-- (void)trashFileAtPath:(NSString *)path
++ (void)trashFileAtPath:(NSString *)path
 {
     [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:path] resultingItemURL:NULL error:NULL];
 }
 
 - (void)trashRecordingFile
 {
-    [self trashFileAtPath:self.recordingFilePath];
+    [[self class] trashFileAtPath:self.recordingFilePath];
 }
 
 - (void)trashScheduleFile
 {
-    [self trashFileAtPath:self.propertyListFilePath];
+    [[self class] trashFileAtPath:self.propertyListFilePath];
 }
 
 - (NSString *)canonicalChannel
@@ -173,34 +174,41 @@
     if (!self.recordingFileExists) {
         [self scheduleStartTimer];
         [self scheduleStopTimer];
-    } else {
-        self.statusIconImage = [NSImage imageNamed:@"clapperboard"];
-        self.completed = YES;
-        [self trashScheduleFile];
-    }
+    } else [self markAsCompleted];
 }
 
-- (void)startRecording
+- (void)markAsCompleted
 {
-    self.statusIconImage = [NSImage imageNamed:@"yellow"];
+    self.statusIconImage = [NSImage imageNamed:@"clapperboard"];
+    self.completed = YES;
+    [self trashScheduleFile];
+}
+
+- (int)discoverDevicesUsingDeviceList:(struct hdhomerun_discover_device_t *)deviceList maxDeviceCount:(UInt8)maxDeviceCount
+{
     self.status = @"searching for devices…";
-    
-    UInt8 maxDeviceCount = 8;
-    struct hdhomerun_discover_device_t deviceList[maxDeviceCount];
     int devicesFoundCount = hdhomerun_discover_find_devices_custom(0, // auto-detect IP address
                                                                    HDHOMERUN_DEVICE_TYPE_TUNER,
                                                                    HDHOMERUN_DEVICE_ID_WILDCARD,
                                                                    deviceList,
                                                                    maxDeviceCount);
-    if (devicesFoundCount == -1) {
-        [self abortWithErrorMessage:@"unable to discover devices"];
-        return;
+    switch (devicesFoundCount) {
+        case 0: [self abortWithErrorMessage:@"no devices found"]; break;
+        case -1: [self abortWithErrorMessage:@"unable to discover devices"]; break;
     }
     
-    if (devicesFoundCount == 0) {
-        [self abortWithErrorMessage:@"no devices found"];
-        return;
-    }
+    return devicesFoundCount;
+}
+
+- (void)startRecording
+{
+    NSLog(@"starting recording of %@", self.program.title);
+    self.statusIconImage = [NSImage imageNamed:@"yellow"];
+
+    UInt8 maxDeviceCount = 8;
+    struct hdhomerun_discover_device_t deviceList[maxDeviceCount];
+    int devicesFoundCount = [self discoverDevicesUsingDeviceList:deviceList maxDeviceCount:maxDeviceCount];
+    if (devicesFoundCount <= 0) return;
     
     self.status = @"searching for available tuner…";
     
@@ -233,7 +241,7 @@
             if (strcmp(tunerTargetBuffer, "none") == 0) {
                 NSLog(@"tuner %hhu is available", tunerIndex);
                 self.tunerDevice = device;
-                [self lockTuner];
+                [self beginRecording];
                 return;
             } else
                 NSLog(@"tuner %hhu in use, skipping", tunerIndex);
@@ -248,36 +256,28 @@
     [self abortWithErrorMessage:@"no tuners available"];
 }
 
-- (void)lockTuner
+- (BOOL)openRecordingFile
 {
-    // XXX set lock here
-    struct hdhomerun_device_t *device = self.tunerDevice;
-    
-    // tune channel based off the mode
-    if ([self.program.mode isEqualToString:@"digital"]) {
-        NSLog(@"tuning digital broadcast");
-        hdhomerun_device_set_tuner_channel(device,
-                                           [[@"auto:" stringByAppendingString:self.program.rfChannel]
-                                            cStringUsingEncoding:NSASCIIStringEncoding]);
-    } else if ([self.program.mode isEqualToString:@"digital_cable"]) {
-        NSLog(@"tuning digital cable");
-        hdhomerun_device_set_tuner_vchannel(device,
-                                            [self.program.rfChannel cStringUsingEncoding:NSASCIIStringEncoding]);
-    } else {
-        [self abortWithErrorMessage:[@"unknown mode " stringByAppendingString:self.program.mode]];
-        return;
-    }
-    
-    // open recording file
     FILE *filePointer = fopen([self.recordingFilePath fileSystemRepresentation], "wb");
     if (!filePointer) {
         [self abortWithErrorMessage:@"unable to create recording file"];
-        return;
+        return NO;
     }
     
     self.filePointer = filePointer;
-    
-    // take power assertion
+    return YES;
+}
+
+- (void)closeRecordingFile
+{
+    if (self.filePointer) {
+        fclose(self.filePointer);
+        self.filePointer = NULL;
+    }
+}
+
+- (void)takePowerAssertion
+{
     IOPMAssertionID assertionID;
     IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertPreventUserIdleSystemSleep,
                                                    kIOPMAssertionLevelOn,
@@ -286,11 +286,50 @@
     if (success != kIOReturnSuccess) {
         NSLog(@"unable to create power assertion");
         self.assertionID = kIOPMNullAssertionID;
-    } else self.assertionID = assertionID;
+        return;
+    }
     
+    self.assertionID = assertionID;
+}
+
+- (void)releasePowerAssertion
+{
+    if (self.assertionID != kIOPMNullAssertionID) {
+        IOReturn success = IOPMAssertionRelease(self.assertionID);
+        if (success != kIOReturnSuccess) NSLog(@"unable to release power assertion");
+        self.assertionID = kIOPMNullAssertionID;
+    }
+}
+
+- (BOOL)tuneChannel
+{
+    if ([self.program.mode isEqualToString:@"digital"]) {
+        NSLog(@"tuning digital broadcast");
+        // XXX check for failure
+        hdhomerun_device_set_tuner_channel(self.tunerDevice,
+                                           [[@"auto:" stringByAppendingString:self.program.rfChannel]
+                                            cStringUsingEncoding:NSASCIIStringEncoding]);
+    } else if ([self.program.mode isEqualToString:@"digital_cable"]) {
+        NSLog(@"tuning digital cable");
+        // XXX check for failure
+        hdhomerun_device_set_tuner_vchannel(self.tunerDevice,
+                                            [self.program.rfChannel cStringUsingEncoding:NSASCIIStringEncoding]);
+    } else {
+        [self abortWithErrorMessage:[@"unknown mode " stringByAppendingString:self.program.mode]];
+        return NO;
+    }
     
-    int result = hdhomerun_device_stream_start(device);
-    if (result <= 0) {
+    return YES;
+}
+
+- (void)beginRecording
+{
+    // XXX set lock here
+    if (![self tuneChannel]) return;
+    if (![self openRecordingFile]) return;
+    [self takePowerAssertion];
+    
+    if (hdhomerun_device_stream_start(self.tunerDevice) <= 0) {
         [self abortWithErrorMessage:@"unable to start stream"];
         return;
     }
@@ -309,16 +348,11 @@
 - (void)receiveStream
 {
     NSLog(@"receiving stream");
-    NSLog(@"recording %@", self.program.title);
-    
-    FILE *filePointer = self.filePointer;
     size_t bufferSize;
-    struct hdhomerun_device_t *tunerDevice = self.tunerDevice;
-    
     BOOL programIdentified = NO;
-    BOOL streamReadyForSaving = NO;
     NSString *programNamePrefix = nil;
     NSString *programString = nil;
+    self.streamReady = NO;
     
     if ([self.program.mode isEqualToString:@"digital"])
         programNamePrefix = [NSString stringWithFormat:@"%hu.%hu", self.program.psipMajor, self.program.psipMinor];
@@ -326,7 +360,7 @@
     while (self.shouldStream) {
         uint64_t loopStartTime = getcurrenttime();
         
-        uint8_t *videoDataBuffer = hdhomerun_device_stream_recv(tunerDevice, VIDEO_DATA_BUFFER_SIZE_1S, &bufferSize);
+        uint8_t *videoDataBuffer = hdhomerun_device_stream_recv(self.tunerDevice, VIDEO_DATA_BUFFER_SIZE_1S, &bufferSize);
         if (!videoDataBuffer) {
             msleep_approx(64);
             continue;
@@ -334,7 +368,7 @@
         
         if (!programIdentified) {
             char *program;
-            hdhomerun_device_get_tuner_program(tunerDevice, &program);
+            hdhomerun_device_get_tuner_program(self.tunerDevice, &program);
             
             programString = @(program);
             
@@ -342,50 +376,13 @@
                 programIdentified = YES;
         }
         
-        if (!streamReadyForSaving) {
-            char *streamInfo;
-            hdhomerun_device_get_tuner_streaminfo(tunerDevice, &streamInfo);
-            
-            NSString *streamInfoString = @(streamInfo);
-            
-            NSArray *streams = [streamInfoString componentsSeparatedByString:@"\n"];
-            
-            for (NSString *stream in streams) {
-                // for digital cable (CableCARD), look for a stream that matches the program number, and wait until it is unencrypted
-                if ([self.program.mode isEqualToString:@"digital_cable"]) {
-                    if ([stream hasPrefix:programString])
-                        if (![stream hasSuffix:@")"]) {
-                            NSLog(@"unecrypted stream found!");
-                            streamReadyForSaving = YES;
-                        }
-                    
-                    if (streamReadyForSaving)
-                        break;
-                }
-                
-                // in digital (ATSC broadcast), we match the whole program name and then set a filter
-                else if ([self.program.mode isEqualToString:@"digital"]) {
-                    NSArray *streamFields = [stream componentsSeparatedByString:@": "];
-                    if (streamFields.count < 2) continue;
-                    
-                    NSString *streamProgramNumberString = streamFields[0];
-                    NSString *streamName = streamFields[1];
-                    NSLog(@"program: %@ name: %@", streamProgramNumberString, streamName);
-                    
-                    if ([streamName hasPrefix:programNamePrefix]) {
-                        NSLog(@"matched desired program name %@", streamName);
-                        hdhomerun_device_set_tuner_program(tunerDevice, [streamProgramNumberString cStringUsingEncoding:NSASCIIStringEncoding]);
-                        streamReadyForSaving = YES;
-                        break;
-                    }
-                }
-            }
-            
+        if (!self.streamReady) {
+            [self checkIfStreamIsReady:programString programNamePrefix:programNamePrefix];
             continue;
         }
         
-        if (streamReadyForSaving && filePointer) {
-            if (fwrite(videoDataBuffer, 1, bufferSize, filePointer) != bufferSize) {
+        if (self.streamReady) {
+            if (fwrite(videoDataBuffer, 1, bufferSize, self.filePointer) != bufferSize) {
                 fprintf(stderr, "error writing output\n");
                 break;
             }
@@ -400,39 +397,65 @@
     NSLog(@"receiving stream thread terminated");
 }
 
+- (void)checkIfStreamIsReady:(NSString *)programString programNamePrefix:(NSString *)programNamePrefix
+{
+    char *streamInfo;
+    hdhomerun_device_get_tuner_streaminfo(self.tunerDevice, &streamInfo);
+    
+    NSString *streamInfoString = @(streamInfo);
+    NSArray *streams = [streamInfoString componentsSeparatedByString:@"\n"];
+    
+    for (NSString *stream in streams) {
+        // for digital cable (CableCARD), look for a stream that matches the program number, and wait until it is unencrypted
+        if ([self.program.mode isEqualToString:@"digital_cable"]) {
+            if ([stream hasPrefix:programString])
+                if (![stream hasSuffix:@")"]) {
+                    NSLog(@"unecrypted stream found!");
+                    self.streamReady = YES;
+                }
+            
+            if (self.streamReady) break;
+        }
+        
+        // in digital (ATSC broadcast), we match the whole program name and then set a filter
+        else if ([self.program.mode isEqualToString:@"digital"]) {
+            NSArray *streamFields = [stream componentsSeparatedByString:@": "];
+            if (streamFields.count < 2) continue;
+            
+            NSString *streamProgramNumberString = streamFields[0];
+            NSString *streamName = streamFields[1];
+            NSLog(@"program: %@ name: %@", streamProgramNumberString, streamName);
+            
+            if ([streamName hasPrefix:programNamePrefix]) {
+                NSLog(@"matched desired program name %@", streamName);
+                hdhomerun_device_set_tuner_program(self.tunerDevice, [streamProgramNumberString cStringUsingEncoding:NSASCIIStringEncoding]);
+                self.streamReady = YES;
+                break;
+            }
+        }
+    }
+}
+
 - (void)stopRecording
 {
-    if (self.tunerDevice) hdhomerun_device_stream_stop(self.tunerDevice);
-    
     self.shouldStream = NO;
-    self.completed = YES;
-    
+    if (self.tunerDevice) hdhomerun_device_stream_stop(self.tunerDevice);
+    [self markAsCompleted];
     [self cleanupRecordingResources];
     [self trashScheduleFile];
-    
-    self.status = @"";
-    self.statusIconImage = [NSImage imageNamed:@"clapperboard"];
 }
 
 - (void)cleanupRecordingResources
 {
     [self cancelTimers];
-
-    if (self.filePointer) {
-        fclose(self.filePointer);
-        self.filePointer = NULL;
-    }
+    [self closeRecordingFile];
     
     if (self.tunerDevice) {
         hdhomerun_device_destroy(self.tunerDevice);
         self.tunerDevice = NULL;
     }
     
-    if (self.assertionID != kIOPMNullAssertionID) {
-        IOReturn success = IOPMAssertionRelease(self.assertionID);
-        if (success != kIOReturnSuccess) NSLog(@"unable to release power assertion");
-        self.assertionID = kIOPMNullAssertionID;
-    }
+    [self releasePowerAssertion];
 }
 
 - (void)abortWithErrorMessage:(NSString *)errorMessage
