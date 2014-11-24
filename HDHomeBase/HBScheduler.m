@@ -18,6 +18,19 @@
 
 @implementation HBScheduler
 
++ (NSDateFormatter *)recordingFileDateFormatter
+{
+    static dispatch_once_t predicate;
+    static NSDateFormatter *dateFormatter = nil;
+    
+    dispatch_once(&predicate, ^{
+        dateFormatter = [NSDateFormatter new];
+        [dateFormatter setDateFormat:@"yyyyMMddHHmm"];
+    });
+    
+    return dateFormatter;
+}
+
 - (instancetype)init
 {
     if ((self = [super init])) {
@@ -43,6 +56,33 @@
     return [[NSUserDefaults standardUserDefaults] stringForKey:@"RecordingsFolder"];
 }
 
++ (NSString *)uniqueNameForProgram:(HBProgram *)program
+{
+    NSString *recordingFileDateString = [[self recordingFileDateFormatter] stringFromDate:program.startDate];
+    NSString *baseName = (program.episode.length) ? [NSString stringWithFormat:@"%@ - %@", program.title, program.episode] : program.title;
+    return [NSString stringWithFormat:@"%@ (%@ %@)", baseName, program.channelName, recordingFileDateString];
+}
+
++ (NSString *)recordingFilenameForProgram:(HBProgram *)program
+{
+    return [[self uniqueNameForProgram:program] stringByAppendingString:@".ts"];
+}
+
+- (NSString *)recordingFilePathForProgram:(HBProgram *)program
+{
+    return [[self recordingsFolder] stringByAppendingPathComponent:[[self class] recordingFilenameForProgram:program]];
+}
+
++ (NSString *)scheduleFilenameForProgram:(HBProgram *)program
+{
+    return [[self uniqueNameForProgram:program] stringByAppendingString:@".hbsched"];
+}
+
+- (NSString *)scheduleFilePathForProgram:(HBProgram *)program
+{
+    return [[self recordingsFolder] stringByAppendingPathComponent:[[self class] scheduleFilenameForProgram:program]];
+}
+
 - (void)importExistingSchedules
 {
     NSFileManager *defaultFileManager = [NSFileManager defaultManager];
@@ -55,22 +95,16 @@
 - (void)importTVPIFile:(NSString *)tvpiFilePath
 {
     HBProgram *program = [HBProgram programFromTVPIFile:tvpiFilePath];
+    NSString *recordingFilePath = [self recordingFilePathForProgram:program];
+    HBRecording *recording = [HBRecording recordingWithProgram:program
+                                             recordingFilePath:recordingFilePath
+                                                     scheduler:self];
     
-    HBRecording *recording = [HBRecording new];
-    recording.program = program;
-    recording.scheduler = self;
-
-    [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:tvpiFilePath]
-                                  resultingItemURL:NULL
-                                             error:NULL];
+    [[self class] trashFileAtPath:tvpiFilePath];
 
     if (![recording hasEndDatePassed] && ![self recordingAlreadyScheduled:recording]) {
-        NSString *newPropertyListFilename = [recording.uniqueName stringByAppendingString:@".hbsched"];
-        NSString *newPropertyListPath = [self.recordingsFolder stringByAppendingPathComponent:newPropertyListFilename];
-        
+        NSString *newPropertyListPath = [self scheduleFilePathForProgram:program];
         [program serializeAsPropertyListFileToPath:newPropertyListPath error:NULL];
-        recording.propertyListFilePath = newPropertyListPath;
-
         [self scheduleRecording:recording];
     }
 }
@@ -78,17 +112,27 @@
 - (void)importPropertyListFile:(NSString *)propertyListFilePath
 {
     HBProgram *program = [HBProgram programFromPropertyListFile:propertyListFilePath];
-    HBRecording *recording = [HBRecording new];
-    recording.scheduler = self;
-    recording.program = program;
-    recording.propertyListFilePath = propertyListFilePath;
+    NSString *recordingFilePath = [self recordingFilePathForProgram:program];
+    HBRecording *recording = [HBRecording recordingWithProgram:program
+                                             recordingFilePath:recordingFilePath
+                                                     scheduler:self];
 
     if ([recording hasEndDatePassed]) {
-        [recording trashScheduleFile];
+        [[self class] trashFileAtPath:propertyListFilePath];
         return;
     }
     
     [self scheduleRecording:recording];
+}
+
++ (void)trashFileAtPath:(NSString *)path
+{
+    [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:path] resultingItemURL:NULL error:NULL];
+}
+
+- (void)trashRecordingFile:(HBRecording *)recording
+{
+    [[self class] trashFileAtPath:recording.recordingFilePath];
 }
 
 - (BOOL)recordingAlreadyScheduled:(HBRecording *)recording
@@ -108,9 +152,7 @@
 
 - (void)scheduleRecording:(HBRecording *)recording
 {
-    recording.recordingFilePath = [[self recordingsFolder] stringByAppendingPathComponent:recording.recordingFilename];
-
-    [recording scheduleRecording];
+    [recording scheduleTimers];
     
     [self.scheduledRecordings addObject:recording];
     [self calculateSchedulingConflicts];
@@ -118,8 +160,7 @@
 
 - (void)calculateSchedulingConflicts
 {
-    for (HBRecording *recording in self.scheduledRecordings)
-        recording.overlappingRecordings = nil;
+    for (HBRecording *recording in self.scheduledRecordings) recording.overlappingRecordings = nil;
 
     NSArray *sortedScheduledRecordings = [self.scheduledRecordings sortedArrayUsingComparator:^(HBRecording *q, HBRecording *r) {
         return [q.program.startDate compare:r.program.startDate];
@@ -133,7 +174,7 @@
             HBRecording *otherRecording = sortedScheduledRecordings[j];
             if (otherRecording.completed) continue;
             
-            if ([otherRecording startOverlapsWithRecording:recording]) {
+            if ([otherRecording startDateOverlapsWithRecording:recording]) {
                 if (!otherRecording.overlappingRecordings) otherRecording.overlappingRecordings = [NSMutableSet new];
                 [otherRecording.overlappingRecordings addObject:recording];
             } else break;
@@ -151,7 +192,8 @@
 
 - (void)stopRecording:(HBRecording *)recording
 {
-    [recording stopRecording];
+    [recording stop];
+    [self calculateSchedulingConflicts];
 }
 
 - (void)playRecording:(HBRecording *)recording
@@ -161,10 +203,10 @@
 
 - (void)deleteRecording:(HBRecording *)recording
 {
-    [recording deleteRecording];
-
+    [recording stop];
     [self.scheduledRecordings removeObject:recording];
     [self calculateSchedulingConflicts];
+    [self trashRecordingFile:recording];
 }
 
 - (void)beganRecording:(HBRecording *)recording

@@ -19,7 +19,7 @@
 @property (readonly) NSDate *paddedStartDate;
 @property (readonly) NSDate *paddedEndDate;
 @property (readwrite, copy) NSString *status;
-@property (readwrite, copy) NSImage *statusIconImage;
+@property (readwrite) BOOL completed;
 
 @property NSTimer *startTimer;
 @property NSTimer *stopTimer;
@@ -33,55 +33,31 @@
 
 @implementation HBRecording
 
-+ (NSDateFormatter *)recordingFileDateFormatter
++ (instancetype)recordingWithProgram:(HBProgram *)program
+                   recordingFilePath:(NSString *)recordingFilePath
+                           scheduler:(HBScheduler *)scheduler
 {
-    static dispatch_once_t predicate;
-    static NSDateFormatter *dateFormatter = nil;
+    return [[self alloc] initWithProgram:program
+                       recordingFilePath:recordingFilePath
+                               scheduler:scheduler];
+}
+
+- (instancetype)initWithProgram:(HBProgram *)program
+              recordingFilePath:(NSString *)recordingFilePath
+                      scheduler:(HBScheduler *)scheduler
+{
+    if (self = [super init]) {
+        _program = program;
+        _recordingFilePath = [recordingFilePath copy];
+        _scheduler = scheduler;
+    }
     
-    dispatch_once(&predicate, ^{
-        dateFormatter = [NSDateFormatter new];
-        [dateFormatter setDateFormat:@"yyyyMMddHHmm"];
-    });
-    
-    return dateFormatter;
-}
-
-- (NSString *)uniqueName
-{
-    NSString *recordingFileDateString = [[[self class] recordingFileDateFormatter] stringFromDate:self.program.startDate];
-    NSString *baseName = (self.program.episode.length) ? [NSString stringWithFormat:@"%@ - %@", self.program.title, self.program.episode] : self.program.title;
-    return [NSString stringWithFormat:@"%@ (%@ %@)", baseName, self.program.channelName, recordingFileDateString];
-}
-
-- (NSString *)episodicName
-{
-    if (self.program.episode.length) return [NSString stringWithFormat:@"%@ - %@", self.program.title, self.program.episode];
-    return nil;
-}
-
-- (NSString *)recordingFilename
-{
-    return [self.uniqueName stringByAppendingString:@".ts"];
+    return self;
 }
 
 - (BOOL)recordingFileExists
 {
     return [[NSFileManager defaultManager] fileExistsAtPath:self.recordingFilePath];
-}
-
-+ (void)trashFileAtPath:(NSString *)path
-{
-    [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:path] resultingItemURL:NULL error:NULL];
-}
-
-- (void)trashRecordingFile
-{
-    [[self class] trashFileAtPath:self.recordingFilePath];
-}
-
-- (void)trashScheduleFile
-{
-    [[self class] trashFileAtPath:self.propertyListFilePath];
 }
 
 - (NSString *)canonicalChannel
@@ -104,7 +80,7 @@
     return [self.program.endDate dateByAddingTimeInterval:endingPadding];
 }
 
-- (BOOL)startOverlapsWithRecording:(HBRecording *)otherRecording
+- (BOOL)startDateOverlapsWithRecording:(HBRecording *)otherRecording
 {
     NSDate *myStartDate = self.paddedStartDate;
     NSDate *otherEndDate = otherRecording.paddedEndDate;
@@ -165,10 +141,10 @@
 
 - (void)stopRecordingTimerFired:(NSTimer *)timer
 {
-    [self stopRecording];
+    [self stop];
 }
 
-- (void)scheduleRecording
+- (void)scheduleTimers
 {
     // only schedule the timers if the file doesn't exist
     if (!self.recordingFileExists) {
@@ -181,7 +157,6 @@
 {
     self.statusIconImage = [NSImage imageNamed:@"clapperboard"];
     self.completed = YES;
-    [self trashScheduleFile];
 }
 
 - (int)discoverDevicesUsingDeviceList:(struct hdhomerun_discover_device_t *)deviceList maxDeviceCount:(UInt8)maxDeviceCount
@@ -436,13 +411,12 @@
     }
 }
 
-- (void)stopRecording
+- (void)stop
 {
     self.shouldStream = NO;
     if (self.tunerDevice) hdhomerun_device_stream_stop(self.tunerDevice);
     [self markAsCompleted];
     [self cleanupRecordingResources];
-    [self trashScheduleFile];
 }
 
 - (void)cleanupRecordingResources
@@ -466,12 +440,6 @@
     self.completed = YES;
     
     [self cleanupRecordingResources];
-}
-
-- (void)deleteRecording
-{
-    [self stopRecording];
-    [self trashRecordingFile];
 }
 
 - (BOOL)currentlyRecording

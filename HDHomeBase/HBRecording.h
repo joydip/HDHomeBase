@@ -14,30 +14,32 @@
 
 @interface HBRecording : NSObject
 
-@property (weak) HBScheduler *scheduler;
-@property HBProgram *program;
-@property BOOL completed;
-@property (readonly, copy) NSImage *statusIconImage;
-@property (readonly, copy) NSString *status;
-@property NSMutableSet *overlappingRecordings;
-@property BOOL tooManyOverlappingRecordings;
-@property (copy) NSString *propertyListFilePath;
-@property (copy) NSString *recordingFilePath;
+@property (readonly, weak) HBScheduler *scheduler;
+@property (readonly) HBProgram *program;
 
-// dynamically computed properties
-@property (readonly) NSString *recordingFilename;
-@property (readonly) NSString *uniqueName;
+@property (readonly) NSString *recordingFilePath;
 @property (readonly) BOOL recordingFileExists;
 @property (readonly) BOOL currentlyRecording;
+@property (readonly) BOOL completed;
+@property (readonly) BOOL hasEndDatePassed;
 
-- (BOOL)startOverlapsWithRecording:(HBRecording *)otherRecording;
-- (BOOL)hasEndDatePassed;
+@property (readonly, copy) NSString *status;
+@property (copy) NSImage *statusIconImage;
 
-- (void)scheduleRecording;
-- (void)stopRecording;
-- (void)deleteRecording;
+@property NSMutableSet *overlappingRecordings;
+@property BOOL tooManyOverlappingRecordings;
 
-- (void)trashRecordingFile;
-- (void)trashScheduleFile;
++ (instancetype)recordingWithProgram:(HBProgram *)program
+                   recordingFilePath:(NSString *)recordingFilePath
+                           scheduler:(HBScheduler *)scheduler;
+
+- (instancetype)initWithProgram:(HBProgram *)program
+              recordingFilePath:(NSString *)recordingFilePath
+                      scheduler:(HBScheduler *)scheduler;
+
+- (void)scheduleTimers;
+- (void)stop;
+
+- (BOOL)startDateOverlapsWithRecording:(HBRecording *)otherRecording;
 
 @end
