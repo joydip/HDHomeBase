@@ -23,7 +23,7 @@
 @property (readonly) BOOL completed;
 @property (readonly) BOOL hasEndDatePassed;
 
-@property (readonly, copy) NSString *status;
+@property (copy) NSString *status;
 @property (copy) NSImage *statusIconImage;
 
 @property NSMutableSet *overlappingRecordings;

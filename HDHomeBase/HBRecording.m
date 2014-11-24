@@ -18,7 +18,6 @@
 @property (readonly) NSString *canonicalChannel;
 @property (readonly) NSDate *paddedStartDate;
 @property (readonly) NSDate *paddedEndDate;
-@property (readwrite, copy) NSString *status;
 @property (readwrite) BOOL completed;
 
 @property NSTimer *startTimer;
@@ -317,7 +316,7 @@
     self.status = @"recording";
     self.statusIconImage = [NSImage imageNamed:@"red"];
     
-    [self.scheduler beganRecording:self];
+    [self.scheduler recordingStarted:self];
 }
 
 - (void)receiveStream

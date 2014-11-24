@@ -56,10 +56,15 @@
     return [[NSUserDefaults standardUserDefaults] stringForKey:@"RecordingsFolder"];
 }
 
++ (NSString *)baseNameForProgram:(HBProgram *)program
+{
+    return (program.episode.length) ? [NSString stringWithFormat:@"%@ - %@", program.title, program.episode] : program.title;
+}
+
 + (NSString *)uniqueNameForProgram:(HBProgram *)program
 {
     NSString *recordingFileDateString = [[self recordingFileDateFormatter] stringFromDate:program.startDate];
-    NSString *baseName = (program.episode.length) ? [NSString stringWithFormat:@"%@ - %@", program.title, program.episode] : program.title;
+    NSString *baseName = [self baseNameForProgram:program];
     return [NSString stringWithFormat:@"%@ (%@ %@)", baseName, program.channelName, recordingFileDateString];
 }
 
@@ -122,7 +127,8 @@
         return;
     }
     
-    [self scheduleRecording:recording];
+    if (![self recordingAlreadyScheduled:recording])
+        [self scheduleRecording:recording];
 }
 
 + (void)trashFileAtPath:(NSString *)path
@@ -155,7 +161,19 @@
     [recording scheduleTimers];
     
     [self.scheduledRecordings addObject:recording];
+    [self checkIfRecordingAlreadyRecorded:recording];
     [self calculateSchedulingConflicts];
+}
+
+- (void)checkIfRecordingAlreadyRecorded:(HBRecording *)recording
+{
+    NSString *prefix = [[[self class] baseNameForProgram:recording.program] stringByAppendingString:@" ("];
+    NSFileManager *defaultFileManager = [NSFileManager defaultManager];
+    NSArray *recordingsFolderContents = [defaultFileManager contentsOfDirectoryAtPath:self.recordingsFolder error:NULL];
+    
+    for (NSString *file in recordingsFolderContents)
+        if ([file hasSuffix:@".ts"] && [file hasPrefix:prefix])
+            recording.status = @"recording with same title exists";
 }
 
 - (void)calculateSchedulingConflicts
@@ -209,13 +227,13 @@
     [self trashRecordingFile:recording];
 }
 
-- (void)beganRecording:(HBRecording *)recording
+- (void)recordingStarted:(HBRecording *)recording
 {
     self.activeRecordingCount += 1;
     [self updateDockTile];
 }
 
-- (void)endedRecording:(HBRecording *)recording
+- (void)recordingCompleted:(HBRecording *)recording
 {
     self.activeRecordingCount -= 1;
     [self updateDockTile];

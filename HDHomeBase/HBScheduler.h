@@ -27,7 +27,7 @@
 
 - (void)calculateSchedulingConflicts;
 
-- (void)beganRecording:(HBRecording *)recording;
-- (void)endedRecording:(HBRecording *)recording;
+- (void)recordingStarted:(HBRecording *)recording;
+- (void)recordingCompleted:(HBRecording *)recording;
 
 @end
