@@ -30,9 +30,6 @@
 		B7C94879171E7591008250E2 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = B7C94877171E7591008250E2 /* Credits.rtf */; };
 		B7C9487C171E7591008250E2 /* HBAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B7C9487B171E7591008250E2 /* HBAppDelegate.m */; };
 		B7C9487F171E7591008250E2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = B7C9487D171E7591008250E2 /* MainMenu.xib */; };
-		B7C9488B171E7592008250E2 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7C94868171E7591008250E2 /* Cocoa.framework */; };
-		B7C94893171E7592008250E2 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B7C94891171E7592008250E2 /* InfoPlist.strings */; };
-		B7C94896171E7592008250E2 /* HDHomeBaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B7C94895171E7592008250E2 /* HDHomeBaseTests.m */; };
 		B7DDCA1419B8B43800553FD4 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7DDCA1319B8B43800553FD4 /* IOKit.framework */; };
 		B7DDCA1819B925BB00553FD4 /* prohibited.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA1619B925BB00553FD4 /* prohibited.icns */; };
 		B7DDCA1E19B9269100553FD4 /* alert.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA1D19B9269100553FD4 /* alert.icns */; };
@@ -58,16 +55,6 @@
 		B7DDCA4C19B97E8800553FD4 /* clapperboard.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7DDCA4B19B97E8800553FD4 /* clapperboard.icns */; };
 		B7F7A19A176EA507007C5D4C /* HBScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = B7F7A199176EA507007C5D4C /* HBScheduler.m */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		B7C9488C171E7592008250E2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B7C9485D171E7590008250E2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B7C94864171E7591008250E2;
-			remoteInfo = HDHomeBase;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		B7EA0D011723D99200B5DCA6 /* CopyFiles */ = {
@@ -136,11 +123,6 @@
 		B7C9487A171E7591008250E2 /* HBAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBAppDelegate.h; sourceTree = "<group>"; };
 		B7C9487B171E7591008250E2 /* HBAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBAppDelegate.m; sourceTree = "<group>"; };
 		B7C9487E171E7591008250E2 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		B7C94888171E7592008250E2 /* HDHomeBaseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HDHomeBaseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B7C94890171E7592008250E2 /* HDHomeBaseTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "HDHomeBaseTests-Info.plist"; sourceTree = "<group>"; };
-		B7C94892171E7592008250E2 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		B7C94894171E7592008250E2 /* HDHomeBaseTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HDHomeBaseTests.h; sourceTree = "<group>"; };
-		B7C94895171E7592008250E2 /* HDHomeBaseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HDHomeBaseTests.m; sourceTree = "<group>"; };
 		B7DDCA1319B8B43800553FD4 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		B7DDCA1619B925BB00553FD4 /* prohibited.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = prohibited.icns; sourceTree = "<group>"; };
 		B7DDCA1D19B9269100553FD4 /* alert.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = alert.icns; sourceTree = "<group>"; };
@@ -175,14 +157,6 @@
 			files = (
 				B7DDCA1419B8B43800553FD4 /* IOKit.framework in Frameworks */,
 				B7C94869171E7591008250E2 /* Cocoa.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B7C94884171E7592008250E2 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B7C9488B171E7592008250E2 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,7 +207,6 @@
 			children = (
 				B7A5827A19BC0AD800E1CA76 /* libhdhomerun */,
 				B7C9486E171E7591008250E2 /* HDHomeBase */,
-				B7C9488E171E7592008250E2 /* HDHomeBaseTests */,
 				B7C94867171E7591008250E2 /* Frameworks */,
 				B7C94866171E7591008250E2 /* Products */,
 			);
@@ -243,7 +216,6 @@
 			isa = PBXGroup;
 			children = (
 				B7C94865171E7591008250E2 /* HDHomeBase.app */,
-				B7C94888171E7592008250E2 /* HDHomeBaseTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -324,25 +296,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		B7C9488E171E7592008250E2 /* HDHomeBaseTests */ = {
-			isa = PBXGroup;
-			children = (
-				B7C94894171E7592008250E2 /* HDHomeBaseTests.h */,
-				B7C94895171E7592008250E2 /* HDHomeBaseTests.m */,
-				B7C9488F171E7592008250E2 /* Supporting Files */,
-			);
-			path = HDHomeBaseTests;
-			sourceTree = "<group>";
-		};
-		B7C9488F171E7592008250E2 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				B7C94890171E7592008250E2 /* HDHomeBaseTests-Info.plist */,
-				B7C94891171E7592008250E2 /* InfoPlist.strings */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -363,25 +316,6 @@
 			productName = HDHomeBase;
 			productReference = B7C94865171E7591008250E2 /* HDHomeBase.app */;
 			productType = "com.apple.product-type.application";
-		};
-		B7C94887171E7592008250E2 /* HDHomeBaseTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = B7C9489C171E7592008250E2 /* Build configuration list for PBXNativeTarget "HDHomeBaseTests" */;
-			buildPhases = (
-				B7C94883171E7592008250E2 /* Sources */,
-				B7C94884171E7592008250E2 /* Frameworks */,
-				B7C94885171E7592008250E2 /* Resources */,
-				B7C94886171E7592008250E2 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				B7C9488D171E7592008250E2 /* PBXTargetDependency */,
-			);
-			name = HDHomeBaseTests;
-			productName = HDHomeBaseTests;
-			productReference = B7C94888171E7592008250E2 /* HDHomeBaseTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -407,7 +341,6 @@
 			projectRoot = "";
 			targets = (
 				B7C94864171E7591008250E2 /* HDHomeBase */,
-				B7C94887171E7592008250E2 /* HDHomeBaseTests */,
 			);
 		};
 /* End PBXProject section */
@@ -448,31 +381,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B7C94885171E7592008250E2 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B7C94893171E7592008250E2 /* InfoPlist.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		B7C94886171E7592008250E2 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		B7C94861171E7591008250E2 /* Sources */ = {
@@ -499,23 +408,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B7C94883171E7592008250E2 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B7C94896171E7592008250E2 /* HDHomeBaseTests.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		B7C9488D171E7592008250E2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B7C94864171E7591008250E2 /* HDHomeBase */;
-			targetProxy = B7C9488C171E7592008250E2 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		B7C94871171E7591008250E2 /* InfoPlist.strings */ = {
@@ -540,14 +433,6 @@
 				B7C9487E171E7591008250E2 /* en */,
 			);
 			name = MainMenu.xib;
-			sourceTree = "<group>";
-		};
-		B7C94891171E7592008250E2 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				B7C94892171E7592008250E2 /* en */,
-			);
-			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -640,40 +525,6 @@
 			};
 			name = Release;
 		};
-		B7C9489D171E7592008250E2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/HDHomeBase.app/Contents/MacOS/HDHomeBase";
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-					"$(inherited)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "HDHomeBase/HDHomeBase-Prefix.pch";
-				INFOPLIST_FILE = "HDHomeBaseTests/HDHomeBaseTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-			};
-			name = Debug;
-		};
-		B7C9489E171E7592008250E2 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/HDHomeBase.app/Contents/MacOS/HDHomeBase";
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-					"$(inherited)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "HDHomeBase/HDHomeBase-Prefix.pch";
-				INFOPLIST_FILE = "HDHomeBaseTests/HDHomeBaseTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -691,15 +542,6 @@
 			buildConfigurations = (
 				B7C9489A171E7592008250E2 /* Debug */,
 				B7C9489B171E7592008250E2 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		B7C9489C171E7592008250E2 /* Build configuration list for PBXNativeTarget "HDHomeBaseTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B7C9489D171E7592008250E2 /* Debug */,
-				B7C9489E171E7592008250E2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
