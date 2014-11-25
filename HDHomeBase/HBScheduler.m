@@ -141,6 +141,11 @@
     [[self class] trashFileAtPath:recording.recordingFilePath];
 }
 
+- (void)trashScheduleFile:(HBRecording *)recording
+{
+    [[self class] trashFileAtPath:[self scheduleFilePathForProgram:recording.program]];
+}
+
 - (BOOL)recordingAlreadyScheduled:(HBRecording *)recording
 {
     for (HBRecording *existingRecording in self.scheduledRecordings) {
@@ -225,6 +230,7 @@
     [self.scheduledRecordings removeObject:recording];
     [self calculateSchedulingConflicts];
     [self trashRecordingFile:recording];
+    [self trashScheduleFile:recording];
 }
 
 - (void)recordingStarted:(HBRecording *)recording
@@ -237,6 +243,7 @@
 {
     self.activeRecordingCount -= 1;
     [self updateDockTile];
+    [self trashScheduleFile:recording];
 }
 
 - (void)updateDockTile
