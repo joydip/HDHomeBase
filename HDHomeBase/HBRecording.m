@@ -367,7 +367,7 @@
         msleep_approx(delay);
     }
     
-    [self.scheduler performSelectorOnMainThread:@selector(endedRecording:) withObject:self waitUntilDone:NO];
+    [self.scheduler performSelectorOnMainThread:@selector(recordingEnded:) withObject:self waitUntilDone:NO];
     NSLog(@"receiving stream thread terminated");
 }
 
