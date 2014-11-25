@@ -156,6 +156,7 @@
 {
     self.statusIconImage = [NSImage imageNamed:@"clapperboard"];
     self.completed = YES;
+    self.status = @"";
 }
 
 - (int)discoverDevicesUsingDeviceList:(struct hdhomerun_discover_device_t *)deviceList maxDeviceCount:(UInt8)maxDeviceCount
