@@ -161,10 +161,11 @@
 
 - (int)discoverDevicesUsingDeviceList:(struct hdhomerun_discover_device_t *)deviceList maxDeviceCount:(UInt8)maxDeviceCount
 {
+    UInt32 deviceID = (UInt32)[[NSUserDefaults standardUserDefaults] integerForKey:@"DeviceID"];
     self.status = @"searching for devices…";
     int devicesFoundCount = hdhomerun_discover_find_devices_custom(0, // auto-detect IP address
                                                                    HDHOMERUN_DEVICE_TYPE_TUNER,
-                                                                   HDHOMERUN_DEVICE_ID_WILDCARD,
+                                                                   deviceID,
                                                                    deviceList,
                                                                    maxDeviceCount);
     switch (devicesFoundCount) {

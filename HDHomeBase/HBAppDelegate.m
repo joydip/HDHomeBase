@@ -10,6 +10,7 @@
 #import "HBProgram.h"
 #import "HBRecordingsTableViewController.h"
 #import "HBScheduler.h"
+#include "hdhomerun.h"
 
 @implementation HBAppDelegate
 
@@ -23,6 +24,7 @@
                                   @"BeginningPadding": @60,
                                   @"EndingPadding":    @60,
                                   @"TotalTunerCount":  @3,
+                                  @"DeviceID":         @(HDHOMERUN_DEVICE_ID_WILDCARD),
                                 };
     
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
