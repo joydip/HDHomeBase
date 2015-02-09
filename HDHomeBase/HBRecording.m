@@ -279,19 +279,30 @@
 
 - (BOOL)tuneChannel
 {
+    int result = 0;
+    
     if ([self.program.mode isEqualToString:@"digital"]) {
         NSLog(@"tuning digital broadcast");
-        // XXX check for failure
-        hdhomerun_device_set_tuner_channel(self.tunerDevice,
+        result = hdhomerun_device_set_tuner_channel(self.tunerDevice,
                                            [[@"auto:" stringByAppendingString:self.program.rfChannel]
                                             cStringUsingEncoding:NSASCIIStringEncoding]);
     } else if ([self.program.mode isEqualToString:@"digital_cable"]) {
         NSLog(@"tuning digital cable");
-        // XXX check for failure
-        hdhomerun_device_set_tuner_vchannel(self.tunerDevice,
+        result = hdhomerun_device_set_tuner_vchannel(self.tunerDevice,
                                             [self.program.rfChannel cStringUsingEncoding:NSASCIIStringEncoding]);
     } else {
         [self abortWithErrorMessage:[@"unknown mode " stringByAppendingString:self.program.mode]];
+        return NO;
+    }
+    
+    NSString *errorMessage = nil;
+    switch (result) {
+        case 0: errorMessage = @"tuning operation rejected"; break;
+        case -1: errorMessage = @"tuning communication error"; break;
+    }
+    
+    if (errorMessage) {
+        [self abortWithErrorMessage:errorMessage];
         return NO;
     }
     
