@@ -56,9 +56,16 @@
     return [[NSUserDefaults standardUserDefaults] stringForKey:@"RecordingsFolder"];
 }
 
++ (NSString *)replaceForwardSlashes:(NSString *)string
+{
+    return [string stringByReplacingOccurrencesOfString:@"/" withString:@"--"];
+}
+
 + (NSString *)baseNameForProgram:(HBProgram *)program
 {
-    return (program.episode.length) ? [NSString stringWithFormat:@"%@ - %@", program.title, program.episode] : program.title;
+    NSString *title = [self replaceForwardSlashes:program.title];
+    return (program.episode.length == 0) ? title
+                                         : [NSString stringWithFormat:@"%@ - %@", title, [self replaceForwardSlashes:program.episode]];
 }
 
 + (NSString *)uniqueNameForProgram:(HBProgram *)program
@@ -79,7 +86,8 @@
     
     NSString *recordingFilename = [[self class] recordingFilenameForProgram:program];
 
-    NSString *programRecordingsFolder = [[self recordingsFolder] stringByAppendingPathComponent:program.title];
+    NSString *title = [[self class] replaceForwardSlashes:program.title];
+    NSString *programRecordingsFolder = [[self recordingsFolder] stringByAppendingPathComponent:title];
     BOOL isDirectory = NO;
     if ([fileManager fileExistsAtPath:programRecordingsFolder isDirectory:&isDirectory] && isDirectory)
         return [programRecordingsFolder stringByAppendingPathComponent:recordingFilename];
