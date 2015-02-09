@@ -190,12 +190,15 @@
 - (void)checkIfRecordingAlreadyRecorded:(HBRecording *)recording
 {
     NSString *prefix = [[[self class] baseNameForProgram:recording.program] stringByAppendingString:@" ("];
-    NSFileManager *defaultFileManager = [NSFileManager defaultManager];
-    NSArray *recordingsFolderContents = [defaultFileManager contentsOfDirectoryAtPath:self.recordingsFolder error:NULL];
-    
-    for (NSString *file in recordingsFolderContents)
-        if ([file hasSuffix:@".ts"] && [file hasPrefix:prefix])
+    NSDirectoryEnumerator *dirEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:self.recordingsFolder];
+
+    NSString *file;
+    while ((file = [[dirEnumerator nextObject] lastPathComponent])) {
+        if ([file hasSuffix:@".ts"] && [file hasPrefix:prefix]) {
             recording.status = @"recording with same title exists";
+            break;
+        }
+    }
 }
 
 - (void)calculateSchedulingConflicts
