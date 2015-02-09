@@ -75,7 +75,16 @@
 
 - (NSString *)recordingFilePathForProgram:(HBProgram *)program
 {
-    return [[self recordingsFolder] stringByAppendingPathComponent:[[self class] recordingFilenameForProgram:program]];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    NSString *recordingFilename = [[self class] recordingFilenameForProgram:program];
+
+    NSString *programRecordingsFolder = [[self recordingsFolder] stringByAppendingPathComponent:program.title];
+    BOOL isDirectory = NO;
+    if ([fileManager fileExistsAtPath:programRecordingsFolder isDirectory:&isDirectory] && isDirectory)
+        return [programRecordingsFolder stringByAppendingPathComponent:recordingFilename];
+
+    return [[self recordingsFolder] stringByAppendingPathComponent:recordingFilename];
 }
 
 + (NSString *)scheduleFilenameForProgram:(HBProgram *)program
