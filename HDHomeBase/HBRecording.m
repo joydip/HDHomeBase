@@ -236,7 +236,7 @@
 {
     FILE *filePointer = fopen([self.recordingFilePath fileSystemRepresentation], "wb");
     if (!filePointer) {
-        [self abortWithErrorMessage:@"unable to create recording file"];
+        [self abortWithErrorMessage:[NSString stringWithFormat:@"unable to create recording file (code %d: %s)", errno, strerror(errno)]];
         return NO;
     }
     
