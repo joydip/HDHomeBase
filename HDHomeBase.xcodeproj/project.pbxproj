@@ -325,7 +325,7 @@
 			attributes = {
 				CLASSPREFIX = HB;
 				LastTestingUpgradeCheck = 0510;
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0620;
 				ORGANIZATIONNAME = "Joydip Basu";
 			};
 			buildConfigurationList = B7C94860171E7590008250E2 /* Build configuration list for PBXProject "HDHomeBase" */;
