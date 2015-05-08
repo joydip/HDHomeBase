@@ -150,7 +150,9 @@
 
 + (void)trashFileAtPath:(NSString *)path
 {
-    [[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:path] resultingItemURL:NULL error:NULL];
+    NSURL *url = [NSURL fileURLWithPath:path];
+    if (NSAppKitVersionNumber < NSAppKitVersionNumber10_8) [[NSFileManager defaultManager] removeItemAtURL:url error:NULL];
+    else [[NSFileManager defaultManager] trashItemAtURL:url resultingItemURL:NULL error:NULL];
 }
 
 - (void)trashRecordingFile:(HBRecording *)recording

@@ -9,7 +9,6 @@
 #import "HBRecording.h"
 #import "HBProgram.h"
 #import "HBScheduler.h"
-#import <IOKit/pwr_mgt/IOPMLib.h>
 #include "hdhomerun.h"
 
 
@@ -23,7 +22,6 @@
 @property NSTimer *startTimer;
 @property NSTimer *stopTimer;
 @property FILE *filePointer;
-@property IOPMAssertionID assertionID;
 @property NSDate *wakeDate;
 @property struct hdhomerun_device_t *tunerDevice;
 @property BOOL shouldStream;
@@ -274,31 +272,6 @@
     }
 }
 
-- (void)takePowerAssertion
-{
-    IOPMAssertionID assertionID;
-    IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertPreventUserIdleSystemSleep,
-                                                   kIOPMAssertionLevelOn,
-                                                   (__bridge CFStringRef)self.recordingFilePath,
-                                                   &assertionID);
-    if (success != kIOReturnSuccess) {
-        NSLog(@"unable to create power assertion");
-        self.assertionID = kIOPMNullAssertionID;
-        return;
-    }
-    
-    self.assertionID = assertionID;
-}
-
-- (void)releasePowerAssertion
-{
-    if (self.assertionID != kIOPMNullAssertionID) {
-        IOReturn success = IOPMAssertionRelease(self.assertionID);
-        if (success != kIOReturnSuccess) NSLog(@"unable to release power assertion");
-        self.assertionID = kIOPMNullAssertionID;
-    }
-}
-
 - (BOOL)tuneChannel
 {
     int result = 0;
@@ -336,7 +309,6 @@
     // XXX set lock here
     if (![self tuneChannel]) return;
     if (![self openRecordingFile]) return;
-    [self takePowerAssertion];
     
     if (hdhomerun_device_stream_start(self.tunerDevice) <= 0) {
         [self abortWithErrorMessage:@"unable to start stream"];
@@ -462,8 +434,6 @@
         hdhomerun_device_destroy(self.tunerDevice);
         self.tunerDevice = NULL;
     }
-    
-    [self releasePowerAssertion];
 }
 
 - (void)abortWithErrorMessage:(NSString *)errorMessage
