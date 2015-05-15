@@ -407,7 +407,7 @@
             NSString *streamName = streamFields[1];
             NSLog(@"program: %@ name: %@", streamProgramNumberString, streamName);
             
-            if ([streamName hasPrefix:programNamePrefix]) {
+            if ([streamName hasPrefix:programNamePrefix] && (![stream hasSuffix:@"(no data)"])) {
                 NSLog(@"matched desired program name %@", streamName);
                 hdhomerun_device_set_tuner_program(self.tunerDevice, [streamProgramNumberString cStringUsingEncoding:NSASCIIStringEncoding]);
                 self.streamReady = YES;
