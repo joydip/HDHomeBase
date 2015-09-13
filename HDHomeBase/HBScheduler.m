@@ -13,6 +13,7 @@
 @interface HBScheduler ()
 
 @property NSUInteger activeRecordingCount;
+@property NSArray *previousRecordingFilenames;
 
 @end
 
@@ -105,6 +106,17 @@
     return [[self recordingsFolder] stringByAppendingPathComponent:[[self class] scheduleFilenameForProgram:program]];
 }
 
+- (void)loadPreviousRecordingFilenames
+{
+    NSString *recordingsFolder = [[NSUserDefaults standardUserDefaults] stringForKey:@"RecordingsFolder"];
+    NSString *previousRecordingsFilePath = [recordingsFolder stringByAppendingPathComponent:@"PreviousRecordings.txt"];
+    NSString *previousRecordingsText = [NSString stringWithContentsOfURL:[NSURL fileURLWithPath:previousRecordingsFilePath]
+                                                                encoding:NSUTF8StringEncoding
+                                                                   error:NULL];
+    NSCharacterSet *newlineCharacterSet = [NSCharacterSet newlineCharacterSet];
+    self.previousRecordingFilenames = [previousRecordingsText componentsSeparatedByCharactersInSet:newlineCharacterSet];
+}
+
 - (void)importExistingSchedules
 {
     NSFileManager *defaultFileManager = [NSFileManager defaultManager];
@@ -112,6 +124,8 @@
     
     for (NSString *file in recordingsFolderContents)
         if ([file hasSuffix:@".hbsched"]) [self importPropertyListFile:[self.recordingsFolder stringByAppendingPathComponent:file]];
+    
+    [self loadPreviousRecordingFilenames];
 }
 
 - (void)importTVPIFile:(NSString *)tvpiFilePath
@@ -198,6 +212,13 @@
     while ((file = [[dirEnumerator nextObject] lastPathComponent])) {
         if ([file hasSuffix:@".ts"] && [file hasPrefix:prefix]) {
             recording.status = @"recording with same title exists";
+            return;
+        }
+    }
+
+    for (NSString *previousRecordingFilename in self.previousRecordingFilenames) {
+        if ([previousRecordingFilename hasPrefix:prefix]) {
+            recording.status = @"recording with same title was previously recorded";
             break;
         }
     }
