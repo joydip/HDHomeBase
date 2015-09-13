@@ -119,13 +119,14 @@
 
 - (void)importExistingSchedules
 {
+    [self loadPreviousRecordingFilenames];
+
     NSFileManager *defaultFileManager = [NSFileManager defaultManager];
     NSArray *recordingsFolderContents = [defaultFileManager contentsOfDirectoryAtPath:self.recordingsFolder error:NULL];
     
     for (NSString *file in recordingsFolderContents)
         if ([file hasSuffix:@".hbsched"]) [self importPropertyListFile:[self.recordingsFolder stringByAppendingPathComponent:file]];
     
-    [self loadPreviousRecordingFilenames];
 }
 
 - (void)importTVPIFile:(NSString *)tvpiFilePath
