@@ -22,7 +22,6 @@
 @property NSTimer *startTimer;
 @property NSTimer *stopTimer;
 @property FILE *filePointer;
-@property NSDate *wakeDate;
 @property struct hdhomerun_device_t *tunerDevice;
 @property BOOL shouldStream;
 @property BOOL streamReady;
@@ -92,16 +91,6 @@
 
 - (void)scheduleStartTimer
 {
-    NSDate *startDate = self.paddedStartDate;
-    NSDate *wakeDate = [startDate dateByAddingTimeInterval:-5*60];
-    
-    IOReturn success = IOPMSchedulePowerEvent(CFBridgingRetain(wakeDate),
-                                              CFBridgingRetain([[NSBundle mainBundle] bundleIdentifier]),
-                                              CFSTR(kIOPMAutoWakeOrPowerOn));
-    
-    if (!success) NSLog(@"unable to schedule wake timer");
-    else self.wakeDate = wakeDate;
-    
     self.startTimer = [[NSTimer alloc] initWithFireDate:self.paddedStartDate
                                                interval:0
                                                  target:self
@@ -118,15 +107,6 @@
 {
     [self.startTimer invalidate];
     self.startTimer = nil;
-    
-    if (self.wakeDate) {
-        IOReturn success = IOPMCancelScheduledPowerEvent(CFBridgingRetain(self.wakeDate),
-                                                         CFBridgingRetain([[NSBundle mainBundle] bundleIdentifier]),
-                                                         CFSTR(kIOPMAutoWakeOrPowerOn));
-        
-        if (!success) NSLog(@"unable to cancel scheduled wake timer!");
-        self.wakeDate = nil;
-    }
 }
 
 - (void)scheduleStopTimer
