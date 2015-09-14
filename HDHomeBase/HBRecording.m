@@ -25,6 +25,8 @@
 @property struct hdhomerun_device_t *tunerDevice;
 @property BOOL shouldStream;
 @property BOOL streamReady;
+@property NSUInteger recordingSize;
+
 
 @end
 
@@ -180,6 +182,7 @@
 {
     NSLog(@"starting recording of %@", self.program.title);
     self.statusIconImage = [NSImage imageNamed:@"yellow"];
+    self.recordingSize = 0;
 
     UInt8 maxDeviceCount = 8;
     struct hdhomerun_discover_device_t deviceList[maxDeviceCount];
@@ -343,6 +346,7 @@
         }
         
         if (self.streamReady) {
+            self.recordingSize += bufferSize;
             if (fwrite(videoDataBuffer, 1, bufferSize, self.filePointer) != bufferSize) {
                 fprintf(stderr, "error writing output\n");
                 break;
@@ -401,6 +405,14 @@
 {
     self.shouldStream = NO;
     if (self.tunerDevice) hdhomerun_device_stream_stop(self.tunerDevice);
+    
+    if (self.recordingSize == 0) {
+        [self abortWithErrorMessage:@"no video data received during recording"];
+        [[NSFileManager defaultManager] removeItemAtURL:[NSURL fileURLWithPath:self.recordingFilePath]
+                                                                         error:NULL];
+        return;
+    }
+    
     [self markAsCompleted];
     [self cleanupRecordingResources];
 }
