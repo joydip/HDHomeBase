@@ -13,7 +13,7 @@
 @interface HBScheduler ()
 
 @property NSUInteger activeRecordingCount;
-@property NSArray *previousRecordingFilenames;
+@property NSMutableArray *previousRecordingFilenames;
 
 @end
 
@@ -108,13 +108,20 @@
 
 - (void)loadPreviousRecordingFilenames
 {
-    NSString *recordingsFolder = [[NSUserDefaults standardUserDefaults] stringForKey:@"RecordingsFolder"];
-    NSString *previousRecordingsFilePath = [recordingsFolder stringByAppendingPathComponent:@"PreviousRecordings.txt"];
-    NSString *previousRecordingsText = [NSString stringWithContentsOfURL:[NSURL fileURLWithPath:previousRecordingsFilePath]
-                                                                encoding:NSUTF8StringEncoding
-                                                                   error:NULL];
-    NSCharacterSet *newlineCharacterSet = [NSCharacterSet newlineCharacterSet];
-    self.previousRecordingFilenames = [previousRecordingsText componentsSeparatedByCharactersInSet:newlineCharacterSet];
+    NSDirectoryEnumerator *dirEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:self.recordingsFolder];
+    
+    NSString *file;
+    while ((file = [dirEnumerator nextObject])) {
+        if ([file hasSuffix:@".hbprev"]) {
+            NSString *previousRecordingsFilePath = [self.recordingsFolder stringByAppendingPathComponent:file];
+            NSString *previousRecordingsText = [NSString stringWithContentsOfURL:[NSURL fileURLWithPath:previousRecordingsFilePath]
+                                                                        encoding:NSUTF8StringEncoding
+                                                                           error:NULL];
+            NSCharacterSet *newlineCharacterSet = [NSCharacterSet newlineCharacterSet];
+            if (self.previousRecordingFilenames == nil) self.previousRecordingFilenames = [NSMutableArray new];
+            [self.previousRecordingFilenames addObjectsFromArray:[previousRecordingsText componentsSeparatedByCharactersInSet:newlineCharacterSet]];
+        }
+    }
 }
 
 - (void)importExistingSchedules
