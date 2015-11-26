@@ -180,7 +180,7 @@
 
 - (void)startRecording
 {
-    NSLog(@"starting recording of %@", self.program.title);
+    NSLog(@"starting recording at %@", self.recordingFilePath);
     self.statusIconImage = [NSImage imageNamed:@"yellow"];
     self.recordingSize = 0;
 
@@ -430,7 +430,7 @@
 
 - (void)abortWithErrorMessage:(NSString *)errorMessage
 {
-    NSLog(@"aborting recording: %@", errorMessage);
+    NSLog(@"aborting recording %@: %@", self.recordingFilePath, errorMessage);
     self.status = errorMessage;
     self.statusIconImage = [NSImage imageNamed:@"prohibited"];
     self.completed = YES;
