@@ -11,6 +11,7 @@
 		B73D0E5D19B5015C009802CF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B73D0E5C19B5015C009802CF /* Images.xcassets */; };
 		B73D687119C7E211007DFC10 /* spotlight_blue_button.icns in Resources */ = {isa = PBXBuildFile; fileRef = B73D687019C7E211007DFC10 /* spotlight_blue_button.icns */; };
 		B77090D11A2113E8004E0754 /* HBRecording.m in Sources */ = {isa = PBXBuildFile; fileRef = B77090D01A2113E8004E0754 /* HBRecording.m */; };
+		B78B09591C076AE500A865D6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B78B09581C076AE500A865D6 /* main.m */; };
 		B7A5827919B9988700E1CA76 /* stop_red_button.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7A5827819B9988700E1CA76 /* stop_red_button.icns */; };
 		B7A5829B19BC0AFA00E1CA76 /* hdhomerun_channels.c in Sources */ = {isa = PBXBuildFile; fileRef = B7A5827B19BC0AFA00E1CA76 /* hdhomerun_channels.c */; };
 		B7A5829C19BC0AFA00E1CA76 /* hdhomerun_channelscan.c in Sources */ = {isa = PBXBuildFile; fileRef = B7A5827D19BC0AFA00E1CA76 /* hdhomerun_channelscan.c */; };
@@ -57,6 +58,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		B78B09541C076AE500A865D6 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		B7EA0D011723D99200B5DCA6 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -75,6 +85,8 @@
 		B73D687019C7E211007DFC10 /* spotlight_blue_button.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = spotlight_blue_button.icns; sourceTree = "<group>"; };
 		B77090CF1A2113E8004E0754 /* HBRecording.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HBRecording.h; sourceTree = "<group>"; };
 		B77090D01A2113E8004E0754 /* HBRecording.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HBRecording.m; sourceTree = "<group>"; };
+		B78B09561C076AE500A865D6 /* recordingsorganizer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = recordingsorganizer; sourceTree = BUILT_PRODUCTS_DIR; };
+		B78B09581C076AE500A865D6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B7A5827819B9988700E1CA76 /* stop_red_button.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = stop_red_button.icns; sourceTree = "<group>"; };
 		B7A5827B19BC0AFA00E1CA76 /* hdhomerun_channels.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hdhomerun_channels.c; sourceTree = "<group>"; };
 		B7A5827C19BC0AFA00E1CA76 /* hdhomerun_channels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hdhomerun_channels.h; sourceTree = "<group>"; };
@@ -151,6 +163,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		B78B09531C076AE500A865D6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B7C94862171E7591008250E2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -163,6 +182,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B78B09571C076AE500A865D6 /* recordingsorganizer */ = {
+			isa = PBXGroup;
+			children = (
+				B78B09581C076AE500A865D6 /* main.m */,
+			);
+			path = recordingsorganizer;
+			sourceTree = "<group>";
+		};
 		B7A5827A19BC0AD800E1CA76 /* libhdhomerun */ = {
 			isa = PBXGroup;
 			children = (
@@ -207,6 +234,7 @@
 			children = (
 				B7A5827A19BC0AD800E1CA76 /* libhdhomerun */,
 				B7C9486E171E7591008250E2 /* HDHomeBase */,
+				B78B09571C076AE500A865D6 /* recordingsorganizer */,
 				B7C94867171E7591008250E2 /* Frameworks */,
 				B7C94866171E7591008250E2 /* Products */,
 			);
@@ -216,6 +244,7 @@
 			isa = PBXGroup;
 			children = (
 				B7C94865171E7591008250E2 /* HDHomeBase.app */,
+				B78B09561C076AE500A865D6 /* recordingsorganizer */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -299,6 +328,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		B78B09551C076AE500A865D6 /* recordingsorganizer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B78B095C1C076AE500A865D6 /* Build configuration list for PBXNativeTarget "recordingsorganizer" */;
+			buildPhases = (
+				B78B09521C076AE500A865D6 /* Sources */,
+				B78B09531C076AE500A865D6 /* Frameworks */,
+				B78B09541C076AE500A865D6 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = recordingsorganizer;
+			productName = recordingsorganizer;
+			productReference = B78B09561C076AE500A865D6 /* recordingsorganizer */;
+			productType = "com.apple.product-type.tool";
+		};
 		B7C94864171E7591008250E2 /* HDHomeBase */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B7C94899171E7592008250E2 /* Build configuration list for PBXNativeTarget "HDHomeBase" */;
@@ -327,6 +373,11 @@
 				LastTestingUpgradeCheck = 0510;
 				LastUpgradeCheck = 0620;
 				ORGANIZATIONNAME = "Joydip Basu";
+				TargetAttributes = {
+					B78B09551C076AE500A865D6 = {
+						CreatedOnToolsVersion = 6.2;
+					};
+				};
 			};
 			buildConfigurationList = B7C94860171E7590008250E2 /* Build configuration list for PBXProject "HDHomeBase" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -341,6 +392,7 @@
 			projectRoot = "";
 			targets = (
 				B7C94864171E7591008250E2 /* HDHomeBase */,
+				B78B09551C076AE500A865D6 /* recordingsorganizer */,
 			);
 		};
 /* End PBXProject section */
@@ -384,6 +436,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		B78B09521C076AE500A865D6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B78B09591C076AE500A865D6 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B7C94861171E7591008250E2 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -438,6 +498,52 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		B78B095A1C076AE500A865D6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		B78B095B1C076AE500A865D6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 		B7C94897171E7592008250E2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -522,6 +628,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		B78B095C1C076AE500A865D6 /* Build configuration list for PBXNativeTarget "recordingsorganizer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B78B095A1C076AE500A865D6 /* Debug */,
+				B78B095B1C076AE500A865D6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		B7C94860171E7590008250E2 /* Build configuration list for PBXProject "HDHomeBase" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
