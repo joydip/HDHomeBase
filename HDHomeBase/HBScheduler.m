@@ -52,9 +52,9 @@
     return self.totalTunerCount-1;
 }
 
-- (NSString *)recordingsFolder
+- (NSArray *)recordingFolders
 {
-    return [[NSUserDefaults standardUserDefaults] stringForKey:@"RecordingsFolder"];
+    return [[NSUserDefaults standardUserDefaults] arrayForKey:@"RecordingFolders"];
 }
 
 + (NSString *)replaceForwardSlashes:(NSString *)string
@@ -78,7 +78,7 @@
 
 + (NSString *)recordingFilenameForProgram:(HBProgram *)program
 {
-    return [[self uniqueNameForProgram:program] stringByAppendingString:@".ts"];
+    return [[self uniqueNameForProgram:program] stringByAppendingPathExtension:@"ts"];
 }
 
 - (NSString *)recordingFilePathForProgram:(HBProgram *)program
@@ -88,38 +88,43 @@
     NSString *recordingFilename = [[self class] recordingFilenameForProgram:program];
 
     NSString *title = [[self class] replaceForwardSlashes:program.title];
-    NSString *programRecordingsFolder = [[self recordingsFolder] stringByAppendingPathComponent:title];
-    BOOL isDirectory = NO;
-    if ([fileManager fileExistsAtPath:programRecordingsFolder isDirectory:&isDirectory] && isDirectory)
-        return [programRecordingsFolder stringByAppendingPathComponent:recordingFilename];
-
-    return [[self recordingsFolder] stringByAppendingPathComponent:recordingFilename];
+    
+    for (NSString *recordingFolder in self.recordingFolders) {
+        NSString *programRecordingFolder = [recordingFolder stringByAppendingPathComponent:title];
+        BOOL isDirectory = NO;
+        if ([fileManager fileExistsAtPath:programRecordingFolder isDirectory:&isDirectory] && isDirectory)
+            return [programRecordingFolder stringByAppendingPathComponent:recordingFilename];
+    }
+    
+    return [self.recordingFolders[0] stringByAppendingPathComponent:recordingFilename];
 }
 
 + (NSString *)scheduleFilenameForProgram:(HBProgram *)program
 {
-    return [[self uniqueNameForProgram:program] stringByAppendingString:@".hbsched"];
+    return [[self uniqueNameForProgram:program] stringByAppendingPathExtension:@"hbsched"];
 }
 
-- (NSString *)scheduleFilePathForProgram:(HBProgram *)program
++ (NSString *)scheduleFilePathFromRecordingPath:(NSString *)recordingPath
 {
-    return [[self recordingsFolder] stringByAppendingPathComponent:[[self class] scheduleFilenameForProgram:program]];
+    return [[recordingPath stringByDeletingPathExtension] stringByAppendingPathExtension:@"hbsched"];
 }
 
 - (void)loadPreviousRecordingFilenames
 {
-    NSDirectoryEnumerator *dirEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:self.recordingsFolder];
-    
-    NSString *file;
-    while ((file = [dirEnumerator nextObject])) {
-        if ([file hasSuffix:@".hbprev"]) {
-            NSString *previousRecordingsFilePath = [self.recordingsFolder stringByAppendingPathComponent:file];
-            NSString *previousRecordingsText = [NSString stringWithContentsOfURL:[NSURL fileURLWithPath:previousRecordingsFilePath]
-                                                                        encoding:NSUTF8StringEncoding
-                                                                           error:NULL];
-            NSCharacterSet *newlineCharacterSet = [NSCharacterSet newlineCharacterSet];
-            if (self.previousRecordingFilenames == nil) self.previousRecordingFilenames = [NSMutableArray new];
-            [self.previousRecordingFilenames addObjectsFromArray:[previousRecordingsText componentsSeparatedByCharactersInSet:newlineCharacterSet]];
+    for (NSString *recordingFolder in self.recordingFolders) {
+        NSDirectoryEnumerator *dirEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:recordingFolder];
+        
+        NSString *file;
+        while ((file = [dirEnumerator nextObject])) {
+            if ([file hasSuffix:@".hbprev"]) {
+                NSString *previousRecordingsFilePath = [recordingFolder stringByAppendingPathComponent:file];
+                NSString *previousRecordingsText = [NSString stringWithContentsOfURL:[NSURL fileURLWithPath:previousRecordingsFilePath]
+                                                                            encoding:NSUTF8StringEncoding
+                                                                               error:NULL];
+                NSCharacterSet *newlineCharacterSet = [NSCharacterSet newlineCharacterSet];
+                if (self.previousRecordingFilenames == nil) self.previousRecordingFilenames = [NSMutableArray new];
+                [self.previousRecordingFilenames addObjectsFromArray:[previousRecordingsText componentsSeparatedByCharactersInSet:newlineCharacterSet]];
+            }
         }
     }
 }
@@ -129,11 +134,13 @@
     [self loadPreviousRecordingFilenames];
 
     NSFileManager *defaultFileManager = [NSFileManager defaultManager];
-    NSArray *recordingsFolderContents = [defaultFileManager contentsOfDirectoryAtPath:self.recordingsFolder error:NULL];
-    
-    for (NSString *file in recordingsFolderContents)
-        if ([file hasSuffix:@".hbsched"]) [self importPropertyListFile:[self.recordingsFolder stringByAppendingPathComponent:file]];
-    
+
+    for (NSString *recordingFolder in self.recordingFolders) {
+        NSArray *recordingsFolderContents = [defaultFileManager contentsOfDirectoryAtPath:recordingFolder error:NULL];
+        
+        for (NSString *file in recordingsFolderContents)
+            if ([file hasSuffix:@".hbsched"]) [self importPropertyListFile:[recordingFolder stringByAppendingPathComponent:file]];
+    }
 }
 
 - (void)importTVPIFile:(NSString *)tvpiFilePath
@@ -147,7 +154,7 @@
     [[self class] trashFileAtPath:tvpiFilePath];
 
     if (![recording hasEndDatePassed] && ![self recordingAlreadyScheduled:recording]) {
-        NSString *newPropertyListPath = [self scheduleFilePathForProgram:program];
+        NSString *newPropertyListPath = [[self class] scheduleFilePathFromRecordingPath:recordingFilePath];
         [program serializeAsPropertyListFileToPath:newPropertyListPath error:NULL];
         [self scheduleRecording:recording];
     }
@@ -184,7 +191,7 @@
 
 - (void)trashScheduleFile:(HBRecording *)recording
 {
-    [[self class] trashFileAtPath:[self scheduleFilePathForProgram:recording.program]];
+    [[self class] trashFileAtPath:[[self class] scheduleFilePathFromRecordingPath:recording.recordingFilePath]];
 }
 
 - (BOOL)recordingAlreadyScheduled:(HBRecording *)recording
@@ -214,20 +221,23 @@
 - (void)checkIfRecordingAlreadyRecorded:(HBRecording *)recording
 {
     NSString *prefix = [[[self class] baseNameForProgram:recording.program] stringByAppendingString:@" ("];
-    NSDirectoryEnumerator *dirEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:self.recordingsFolder];
+    
+    for (NSString *recordingFolder in self.recordingFolders) {
+        NSDirectoryEnumerator *dirEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:recordingFolder];
 
-    NSString *file;
-    while ((file = [[dirEnumerator nextObject] lastPathComponent])) {
-        if ([file hasSuffix:@".ts"] && [file hasPrefix:prefix]) {
-            recording.status = @"recording with same title exists";
-            return;
+        NSString *file;
+        while ((file = [[dirEnumerator nextObject] lastPathComponent])) {
+            if ([file hasSuffix:@".ts"] && [file hasPrefix:prefix]) {
+                recording.status = @"recording with same title exists";
+                return;
+            }
         }
-    }
 
-    for (NSString *previousRecordingFilename in self.previousRecordingFilenames) {
-        if ([previousRecordingFilename hasPrefix:prefix]) {
-            recording.status = @"recording with same title was previously recorded";
-            break;
+        for (NSString *previousRecordingFilename in self.previousRecordingFilenames) {
+            if ([previousRecordingFilename hasPrefix:prefix]) {
+                recording.status = @"recording with same title was previously recorded";
+                break;
+            }
         }
     }
 }

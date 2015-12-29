@@ -13,7 +13,7 @@
 @interface HBScheduler : NSObject
 
 @property (readonly) NSMutableArray *scheduledRecordings;
-@property (readonly) NSString *recordingsFolder;
+@property (readonly) NSArray *recordingFolders;
 @property (readonly) NSUInteger totalTunerCount;
 @property (readonly) NSUInteger maxAcceptableOverlappingRecordingsCount;
 

@@ -20,7 +20,7 @@
     NSString *defaultRecordingsFolder = moviesDirectories[0];
 
     NSDictionary *appDefaults = @{
-                                  @"RecordingsFolder": defaultRecordingsFolder,
+                                  @"RecordingFolders": @[defaultRecordingsFolder],
                                   @"BeginningPadding": @60,
                                   @"EndingPadding":    @60,
                                   @"TotalTunerCount":  @3,
