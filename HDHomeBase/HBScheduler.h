@@ -19,7 +19,7 @@
 
 - (void)importTVPIFile:(NSString *)tvpiFilePath;
 - (void)importPropertyListFile:(NSString *)propertyListFilePath;
-- (void)importExistingSchedules;
+- (void)scanRecordingFolders;
 
 - (void)stopRecording:(HBRecording *)recording;
 - (void)playRecording:(HBRecording *)recording;
