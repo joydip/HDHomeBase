@@ -403,18 +403,20 @@
 
 - (void)stop
 {
-    self.shouldStream = NO;
-    if (self.tunerDevice) hdhomerun_device_stream_stop(self.tunerDevice);
+    if (self.currentlyRecording) {
+        self.shouldStream = NO;
+        if (self.tunerDevice) hdhomerun_device_stream_stop(self.tunerDevice);
     
-    if (self.recordingSize == 0) {
-        [self abortWithErrorMessage:@"no video data received during recording"];
-        [[NSFileManager defaultManager] removeItemAtURL:[NSURL fileURLWithPath:self.recordingFilePath]
-                                                                         error:NULL];
-        return;
+        if (self.recordingSize == 0) {
+            [self abortWithErrorMessage:@"no video data received during recording"];
+            [[NSFileManager defaultManager] removeItemAtURL:[NSURL fileURLWithPath:self.recordingFilePath]
+                                                      error:NULL];
+            return;
+        }
+        
+        [self markAsCompleted];
+        [self cleanupRecordingResources];
     }
-    
-    [self markAsCompleted];
-    [self cleanupRecordingResources];
 }
 
 - (void)cleanupRecordingResources
