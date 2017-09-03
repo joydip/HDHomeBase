@@ -17,7 +17,7 @@
 @property (readonly) NSUInteger totalTunerCount;
 @property (readonly) NSUInteger maxAcceptableOverlappingRecordingsCount;
 
-- (void)importTVPIFile:(NSString *)tvpiFilePath;
+- (BOOL)importTVPIFile:(NSString *)tvpiFilePath;
 - (void)importPropertyListFile:(NSString *)propertyListFilePath;
 - (void)scanRecordingFolders;
 

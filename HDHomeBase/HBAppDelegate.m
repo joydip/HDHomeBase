@@ -33,16 +33,19 @@
     [self.recordingsTableViewController refresh:self];
 }
 
-- (void)importTVPIFile:(NSString *)filename
+- (BOOL)importTVPIFile:(NSString *)filename
 {
-    [self.scheduler importTVPIFile:filename];
-    [self.recordingsTableViewController refresh:self];
+    if ([self.scheduler importTVPIFile:filename]) {
+        [self.recordingsTableViewController refresh:self];
+        return YES;
+    }
+    
+    return NO;
 }
 
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
 {
-    [self importTVPIFile:filename];
-    return YES; // XXX blindly returning YES
+    return [self importTVPIFile:filename]; 
 }
 
 - (void)application:(NSApplication *)sender openFiles:(NSArray *)filenames
@@ -52,14 +55,12 @@
 
 - (BOOL)application:(id)sender openFileWithoutUI:(NSString *)filename
 {
-    [self importTVPIFile:filename];
-    return YES; // XXX blindly returning YES
+    return [self importTVPIFile:filename];
 }
 
 - (BOOL)application:(NSApplication *)theApplication openTempFile:(NSString *)filename
 {
-    [self importTVPIFile:filename];
-    return YES; // XXX blindly returning YES
+    return [self importTVPIFile:filename];
 }
 
 @end

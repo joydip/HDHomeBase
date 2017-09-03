@@ -166,10 +166,10 @@
     UInt32 deviceID = (UInt32)[[NSUserDefaults standardUserDefaults] integerForKey:@"DeviceID"];
     self.status = @"searching for devices…";
     int devicesFoundCount = hdhomerun_discover_find_devices_custom_v2(0, // auto-detect IP address
-                                                                   HDHOMERUN_DEVICE_TYPE_TUNER,
-                                                                   deviceID,
-                                                                   deviceList,
-                                                                   maxDeviceCount);
+                                                                      HDHOMERUN_DEVICE_TYPE_TUNER,
+                                                                      deviceID,
+                                                                      deviceList,
+                                                                      maxDeviceCount);
     switch (devicesFoundCount) {
         case 0: [self abortWithErrorMessage:@"no devices found"]; break;
         case -1: [self abortWithErrorMessage:@"unable to discover devices"]; break;

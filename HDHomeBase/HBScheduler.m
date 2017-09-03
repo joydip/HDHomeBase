@@ -137,7 +137,7 @@
         [self importPropertyListFile:existingScheduleFile];
 }
 
-- (void)importTVPIFile:(NSString *)tvpiFilePath
+- (BOOL)importTVPIFile:(NSString *)tvpiFilePath
 {
     HBProgram *program = [HBProgram programFromTVPIFile:tvpiFilePath];
     NSString *recordingFilePath = [self recordingFilePathForProgram:program];
@@ -152,6 +152,8 @@
         [program serializeAsPropertyListFileToPath:newPropertyListPath error:NULL];
         [self scheduleRecording:recording];
     }
+    
+    return YES; // XXX blindly returning YES
 }
 
 - (void)importPropertyListFile:(NSString *)propertyListFilePath

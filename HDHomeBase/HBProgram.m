@@ -108,6 +108,13 @@
                     NSString *dateString = [NSString stringWithFormat:@"%@ %@", endDateString, endTimeString];
                     _endDate = [[[self class] tvpiStartEndDateFormatter] dateFromString:dateString];
                 }
+                
+                if (_episode == nil && _summary != nil) {
+                    const NSUInteger SUMMARY_LIMIT = 64;
+                    _episode = (_summary.length > SUMMARY_LIMIT) ?
+                    [_summary substringToIndex:SUMMARY_LIMIT] :
+                    _summary;
+                }
             }
         }
     }
