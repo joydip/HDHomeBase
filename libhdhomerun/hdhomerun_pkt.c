@@ -1,7 +1,7 @@
 /*
  * hdhomerun_pkt.c
  *
- * Copyright © 2005-2006 Silicondust USA Inc. <www.silicondust.com>.
+ * Copyright © 2006-2014 Silicondust USA Inc. <www.silicondust.com>.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -123,6 +123,12 @@ uint8_t *hdhomerun_pkt_read_tlv(struct hdhomerun_pkt_t *pkt, uint8_t *ptag, size
 	}
 	
 	return pkt->pos + *plength;
+}
+
+void hdhomerun_pkt_read_mem(struct hdhomerun_pkt_t *pkt, void *mem, size_t length)
+{
+	memcpy(mem, pkt->pos, length);
+	pkt->pos += length;
 }
 
 void hdhomerun_pkt_write_u8(struct hdhomerun_pkt_t *pkt, uint8_t v)
